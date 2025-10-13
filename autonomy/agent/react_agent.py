@@ -6,8 +6,8 @@ from langgraph.graph.message import add_messages
 from typing import TypedDict, Sequence, Annotated
 import json
 
-from gophergpt.autonomy.agent.base_agent import BaseStateAgent
-from gophergpt.autonomy.tools.base import ToolkitManager
+from autonomy.agent.base_agent import BaseStateAgent
+from autonomy.tools.base import ToolkitManager
 
 class ReactAgentState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]  # appended messages to the state.

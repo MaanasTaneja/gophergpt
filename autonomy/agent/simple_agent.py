@@ -5,7 +5,7 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.graph.message import add_messages
 from typing import TypedDict, Annotated
 
-from gophergpt.autonomy.agent.base_agent import BaseStateAgent
+from autonomy.agent.base_agent import BaseStateAgent
 
 class SimpleAgentState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]  # appended messages to the state...
