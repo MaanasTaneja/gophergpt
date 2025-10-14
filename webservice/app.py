@@ -10,6 +10,11 @@ from dotenv import load_dotenv
 from langchain_tavily import TavilySearch
 import os
 
+from pydantic import BaseModel
+
+class ChatRequest(BaseModel):
+    message: str
+
 class ChatAgent:
     def __init__(self, name="Assistant"):
         self.name = name
@@ -57,11 +62,10 @@ def root():
 
 
 #this is epheremel, we need to store the chat history in the frtonend, but we will do this later.
-@app.post("/chat/") 
-def chat_endpoint(message: str):
-    global gopher_assistant 
+@app.post("/chat") 
+def chat_endpoint(request: ChatRequest):
+    global gopher_assistant
     if gopher_assistant is None:
         return {"error": "Agent not initialized."}
-    response = gopher_assistant.invoke(message)
+    response = gopher_assistant.invoke(request.message)
     return {"response": response}
-

@@ -2,12 +2,26 @@ version: '3.9'
 services:
   backend:
     build:
-      context: .
-      dockerfile: backend.dockerfile
+      context: . #maintain context (or file system) only in the webservce folder. (i think lets keep it root since we need access to pyporject etc)
+      #so for this build process and this docker file the file system begins in the webservice folder.
+      dockerfile: webservice/backend.dockerfile
     container_name: gophergpt-webservice
     ports:
       - "8000:8000"
     env_file:
       - .env
     restart: always
+  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: frontend.dockerfile
+    container_name: gophergpt-frontend
+    ports:
+      - "3000:3000"
+    depends_on: #link both services, and change in react app to access instead of local host to backend, 
+    #compose and docker do all the dns stuff for us.
+      - backend
+    restart : always 
+
 
