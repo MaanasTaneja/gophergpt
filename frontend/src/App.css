@@ -1,0 +1,124 @@
+/* Additional custom styles for the App component */
+
+.gradient-border {
+    position: relative;
+    background: linear-gradient(90deg, #7A0019, #FFCC33);
+    padding: 3px;
+    border-radius: 50px;
+}
+
+.gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background: #2B2B2B;
+    border-radius: inherit;
+    z-index: -1;
+}
+
+.gradient-border-input {
+    background: white;
+    border: none;
+    outline: none;
+    color: #2B2B2B;
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 50px;
+}
+
+.gradient-border-message {
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 20px;
+    background-clip: padding-box;
+    position: relative;
+}
+
+.gradient-border-message::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(90deg, #7A0019, #FFCC33);
+    border-radius: 20px;
+    z-index: -1;
+}
+
+/* Smooth page transitions */
+.page-transition {
+    transition: opacity 0.7s ease-in-out;
+}
+
+/* Page fade transitions */
+.page-fade-enter {
+    opacity: 0;
+}
+
+.page-fade-enter-active {
+    opacity: 1;
+    transition: opacity 700ms ease-in-out;
+}
+
+.page-fade-exit {
+    opacity: 1;
+}
+
+.page-fade-exit-active {
+    opacity: 0;
+    transition: opacity 700ms ease-in-out;
+}
+
+/* Custom animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.7s ease-out;
+}
+
+/* Input focus effects */
+.gradient-border-input:focus {
+    box-shadow: 0 0 0 2px rgba(255, 204, 51, 0.3);
+}
+
+/* Button hover effects */
+.send-button {
+    transition: all 0.2s ease-in-out;
+}
+
+.send-button:hover:not(:disabled) {
+    transform: scale(1.05);
+}
+
+/* Message bubble animations */
+.message-bubble {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* Loading animation */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading-pulse {
+    animation: pulse 1.5s ease-in-out infinite;
+}

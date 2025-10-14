@@ -7,10 +7,10 @@ from typing import TypedDict, Annotated, List, Union
 from pydantic import BaseModel, Field
 import operator
 
-from gophergpt.autonomy.agent.base_agent import BaseStateAgent
-from gophergpt.autonomy.agent.react_agent import ReActAgent
-from gophergpt.autonomy.tools.base import ToolkitManager
-from gophergpt.autonomy.prompts import (
+from autonomy.agent.base_agent import BaseStateAgent
+from autonomy.agent.react_agent import ReActAgent
+from autonomy.tools.base import ToolkitManager
+from autonomy.prompts import (
     plan_execute_replanner_prompt,
     plan_execute_planner_prompt,
     plan_execute_react_agent_prompt,

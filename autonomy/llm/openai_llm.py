@@ -1,6 +1,6 @@
 import os
 from langchain_openai import ChatOpenAI
-from gophergpt.autonomy.llm.base_llm import BaseLLM
+from autonomy.llm.base_llm import BaseLLM
 
 class OpenAILLM(BaseLLM):
     def __init__(self, model_name: str = "gpt-4o", api_key: str = None):  # api_key should not be passed and kept in env var.
