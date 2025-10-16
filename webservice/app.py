@@ -11,6 +11,8 @@ from langchain_tavily import TavilySearch
 import os
 
 from pydantic import BaseModel
+from fastapi import APIRouter
+from webservice.routers.research import router as research_router
 
 class ChatRequest(BaseModel):
     message: str
@@ -49,6 +51,7 @@ async def lifespan_function(app : FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan_function)
+app.include_router(research_router)
 app.add_middleware(CORSMiddleware, 
     allow_origins=["*"],
     allow_credentials=True,
