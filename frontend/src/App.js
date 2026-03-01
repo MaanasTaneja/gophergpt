@@ -1,76 +1,84 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send } from 'lucide-react';
-import './App.css';
-import Research from './Research';
+import React, { useState, useRef, useEffect } from "react";
+import { Send } from "lucide-react";
+import "./App.css";
+import Research from "./Research";
 
 // Minnesota M Logo Component
-const MinnesotaMLogo = ({ size = 'w-16 h-16', className = '' }) => (
-    <div className={`${size} bg-white rounded-full flex items-center justify-center overflow-hidden ${className}`}>
-        <img
-            src="/minnesota-m-logo.png"
-            alt="Minnesota M Logo"
-            className="w-full h-full object-contain"
-            onError={(e) => {
-                // Fallback to text M if image fails to load
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'block';
-            }}
-        />
-        <span className="text-maroon font-bold text-2xl hidden">M</span>
-    </div>
+const MinnesotaMLogo = ({ size = "w-16 h-16", className = "" }) => (
+  <div
+    className={`${size} bg-white rounded-full flex items-center justify-center overflow-hidden ${className}`}
+  >
+    <img
+      src="/minnesota-m-logo.png"
+      alt="Minnesota M Logo"
+      className="w-full h-full object-contain"
+      onError={(e) => {
+        // Fallback to text M if image fails to load
+        e.target.style.display = "none";
+        e.target.nextSibling.style.display = "block";
+      }}
+    />
+    <span className="text-maroon font-bold text-2xl hidden">M</span>
+  </div>
 );
 
 // Goldy Gopher Mascot - Using your local image
-const GoldyMascot = ({ className = '' }) => (
-    <div className={`w-80 h-80 flex items-center justify-center ${className}`}>
-        <img
-            src="/goldy-gopher.png"
-            alt="Goldy Gopher"
-            className="w-full h-full object-contain"
-            onError={(e) => {
-                // Fallback to emoji if image fails to load
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'block';
-            }}
-        />
-        <div className="w-full h-full bg-gold rounded-full flex items-center justify-center hidden">
-            <span className="text-maroon font-bold text-6xl">🐿️</span>
-        </div>
+const GoldyMascot = ({ className = "" }) => (
+  <div className={`w-80 h-80 flex items-center justify-center ${className}`}>
+    <img
+      src="/goldy-gopher.png"
+      alt="Goldy Gopher"
+      className="w-full h-full object-contain"
+      onError={(e) => {
+        // Fallback to emoji if image fails to load
+        e.target.style.display = "none";
+        e.target.nextSibling.style.display = "block";
+      }}
+    />
+    <div className="w-full h-full bg-gold rounded-full flex items-center justify-center hidden">
+      <span className="text-maroon font-bold text-6xl">🐿️</span>
     </div>
+  </div>
 );
 
 // Message Component
 const Message = ({ message, isUser }) => (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 message-bubble`}>
-        <div className="flex items-end max-w-xs lg:max-w-md">
-            {/* For user messages: Avatar on right, bubble on left */}
-            {isUser ? (
-                <>
-                    <div className="gradient-border-message">
-                        <div className="px-3 py-2 text-gray-800">
-                            {message}
-                        </div>
-                    </div>
-                    <div className="w-8 h-8 rounded-full flex-shrink-0 ml-3"
-                        style={{
-                            background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)' // Blue to purple gradient
-                        }}>
-                    </div>
-                </>
-            ) : (
-                <>
-                    <div className="w-8 h-8 rounded-full flex-shrink-0 mr-3"
-                        style={{
-                            background: 'linear-gradient(135deg, #F97316, #EF4444)' // Orange to red gradient
-                        }}>
-                    </div>
-                    <div className="gradient-border-message">
-                        <div className="px-3 py-2 text-gray-800" id="bot-message-html" dangerouslySetInnerHTML={{ __html: formatBotMessage(message) }} />
-                    </div>
-                </>
-            )}
-        </div>
+  <div
+    className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4 message-bubble`}
+  >
+    <div className="flex items-end max-w-xs lg:max-w-md">
+      {/* For user messages: Avatar on right, bubble on left */}
+      {isUser ? (
+        <>
+          <div className="gradient-border-message">
+            <div className="px-3 py-2 text-gray-800">{message}</div>
+          </div>
+          <div
+            className="w-8 h-8 rounded-full flex-shrink-0 ml-3"
+            style={{
+              background: "linear-gradient(135deg, #3B82F6, #8B5CF6)", // Blue to purple gradient
+            }}
+          ></div>
+        </>
+      ) : (
+        <>
+          <div
+            className="w-8 h-8 rounded-full flex-shrink-0 mr-3"
+            style={{
+              background: "linear-gradient(135deg, #F97316, #EF4444)", // Orange to red gradient
+            }}
+          ></div>
+          <div className="gradient-border-message">
+            <div
+              className="px-3 py-2 text-gray-800"
+              id="bot-message-html"
+              dangerouslySetInnerHTML={{ __html: formatBotMessage(message) }}
+            />
+          </div>
+        </>
+      )}
     </div>
+  </div>
 );
 
 // Basic client-side formatter for bot messages (no external deps)
@@ -79,441 +87,503 @@ const Message = ({ message, isUser }) => (
 // - auto-link URLs
 // - preserve newlines as <br>
 function escapeHtml(str) {
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function linkify(text) {
-    // Simple URL regex (http/https)
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    return text.replace(urlRegex, (url) => {
-        // If the URL is followed by closing punctuation (common in parentheses or end-of-sentence),
-        // trim those characters out of the href and append them after the anchor.
-        const m = url.match(/^(.*?)([)\].,;:!?]*)$/);
-        const clean = m ? m[1] : url;
-        const trailing = m ? m[2] : '';
-        return `<a class="text-gold underline" href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>${trailing}`;
-    });
+  // Simple URL regex (http/https)
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.replace(urlRegex, (url) => {
+    // If the URL is followed by closing punctuation (common in parentheses or end-of-sentence),
+    // trim those characters out of the href and append them after the anchor.
+    const m = url.match(/^(.*?)([)\].,;:!?]*)$/);
+    const clean = m ? m[1] : url;
+    const trailing = m ? m[2] : "";
+    return `<a class="text-gold underline" href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>${trailing}`;
+  });
 }
 
 function boldify(text) {
-    // Replace **bold** with <strong>
-    return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Replace **bold** with <strong>
+  return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 }
 
 function formatBotMessage(raw) {
-    // Convert raw text into safe, readable HTML with lists and headings
-    const lines = String(raw).split(/\r?\n/);
-    const parts = [];
-    let inOl = false;
-    let inUl = false;
+  // Convert raw text into safe, readable HTML with lists and headings
+  const lines = String(raw).split(/\r?\n/);
+  const parts = [];
+  let inOl = false;
+  let inUl = false;
 
-    const flushLists = () => {
-        if (inOl) {
-            parts.push('</ol>');
-            inOl = false;
-        }
-        if (inUl) {
-            parts.push('</ul>');
-            inUl = false;
-        }
-    };
+  const flushLists = () => {
+    if (inOl) {
+      parts.push("</ol>");
+      inOl = false;
+    }
+    if (inUl) {
+      parts.push("</ul>");
+      inUl = false;
+    }
+  };
 
-    for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].trim();
-        if (!line) {
-            // blank line -> paragraph break
-            flushLists();
-            parts.push('<p></p>');
-            continue;
-        }
-
-        // Ordered list item: starts with '1. ' or '2) '
-        const olMatch = line.match(/^\d+\s*[\.|\)]\s*(.*)$/);
-        if (olMatch) {
-            if (!inOl) {
-                flushLists();
-                parts.push('<ol>');
-                inOl = true;
-            }
-            const content = olMatch[1];
-            // If content has a title-like part ending with ':' separate it
-            const titleMatch = content.match(/^(.*?:)\s*(.*)$/);
-            if (titleMatch) {
-                const title = titleMatch[1];
-                const rest = titleMatch[2];
-                const html = linkify(boldify(escapeHtml(rest)));
-                parts.push(`<li><strong>${escapeHtml(title)}</strong> ${html}</li>`);
-            } else {
-                const html = linkify(boldify(escapeHtml(content)));
-                parts.push(`<li>${html}</li>`);
-            }
-            continue;
-        }
-
-        // Unordered list item: starts with -, *, or •
-        const ulMatch = line.match(/^[-\*\u2022]\s+(.*)$/);
-        if (ulMatch) {
-            if (!inUl) {
-                flushLists();
-                parts.push('<ul>');
-                inUl = true;
-            }
-            const content = ulMatch[1];
-            const html = linkify(boldify(escapeHtml(content)));
-            parts.push(`<li>${html}</li>`);
-            continue;
-        }
-
-        // Heading-like: line that ends with ':' or is short and in ALL CAPS -> bold
-        if (/[:]\s*$/.test(line) || (line.length < 60 && line === line.toUpperCase())) {
-            flushLists();
-            parts.push(`<p><strong>${escapeHtml(line)}</strong></p>`);
-            continue;
-        }
-
-        // Default paragraph
-        flushLists();
-        const html = linkify(boldify(escapeHtml(line)));
-        parts.push(`<p>${html}</p>`);
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i].trim();
+    if (!line) {
+      // blank line -> paragraph break
+      flushLists();
+      parts.push("<p></p>");
+      continue;
     }
 
+    // Ordered list item: starts with '1. ' or '2) '
+    const olMatch = line.match(/^\d+\s*[\.|\)]\s*(.*)$/);
+    if (olMatch) {
+      if (!inOl) {
+        flushLists();
+        parts.push("<ol>");
+        inOl = true;
+      }
+      const content = olMatch[1];
+      // If content has a title-like part ending with ':' separate it
+      const titleMatch = content.match(/^(.*?:)\s*(.*)$/);
+      if (titleMatch) {
+        const title = titleMatch[1];
+        const rest = titleMatch[2];
+        const html = linkify(boldify(escapeHtml(rest)));
+        parts.push(`<li><strong>${escapeHtml(title)}</strong> ${html}</li>`);
+      } else {
+        const html = linkify(boldify(escapeHtml(content)));
+        parts.push(`<li>${html}</li>`);
+      }
+      continue;
+    }
+
+    // Unordered list item: starts with -, *, or •
+    const ulMatch = line.match(/^[-\*\u2022]\s+(.*)$/);
+    if (ulMatch) {
+      if (!inUl) {
+        flushLists();
+        parts.push("<ul>");
+        inUl = true;
+      }
+      const content = ulMatch[1];
+      const html = linkify(boldify(escapeHtml(content)));
+      parts.push(`<li>${html}</li>`);
+      continue;
+    }
+
+    // Heading-like: line that ends with ':' or is short and in ALL CAPS -> bold
+    if (
+      /[:]\s*$/.test(line) ||
+      (line.length < 60 && line === line.toUpperCase())
+    ) {
+      flushLists();
+      parts.push(`<p><strong>${escapeHtml(line)}</strong></p>`);
+      continue;
+    }
+
+    // Default paragraph
     flushLists();
-    // Join parts and collapse adjacent empty paragraphs
-    return parts.join('').replace(/<p><\/p><p><\/p>/g, '<p></p>');
+    const html = linkify(boldify(escapeHtml(line)));
+    parts.push(`<p>${html}</p>`);
+  }
+
+  flushLists();
+  // Join parts and collapse adjacent empty paragraphs
+  return parts.join("").replace(/<p><\/p><p><\/p>/g, "<p></p>");
 }
 
 // Loading Indicator
-const LoadingIndicator = () => (
-    <div className="flex justify-start mb-4">
-        <div className="flex items-end">
-            <div className="w-8 h-8 rounded-full mr-3"
-                style={{
-                    background: 'linear-gradient(135deg, #F97316, #EF4444)' // Orange to red gradient
-                }}>
+const LoadingIndicator = ({ label = "Thinking..." }) => (
+  <div className="flex justify-start mb-4">
+    <div className="flex items-end">
+      <div
+        className="w-8 h-8 rounded-full mr-3"
+        style={{
+          background: "linear-gradient(135deg, #F97316, #EF4444)", // Orange to red gradient
+        }}
+      ></div>
+      <div className="gradient-border-message">
+        <div className="px-3 py-2 text-gray-800">
+          {/* Thinking Feature */}
+          <div className="flex items-center space-x-2">
+            <span className="text-sm">{label}</span>
+
+            <div className="flex space-x-1">
+              <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></div>
+              <div
+                className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"
+                style={{ animationDelay: "0.1s" }}
+              ></div>
+              <div
+                className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"
+                style={{ animationDelay: "0.2s" }}
+              ></div>
             </div>
-            <div className="gradient-border-message">
-                <div className="px-3 py-2 text-gray-800">
-                    <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                        <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 );
 
 // Input Component
-const ChatInput = ({ value, onChange, onSend, onFocus, placeholder, disabled = false }) => {
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            onSend();
-        }
-    };
+const ChatInput = ({
+  value,
+  onChange,
+  onSend,
+  onFocus,
+  placeholder,
+  disabled = false,
+}) => {
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      onSend();
+    }
+  };
 
-    return (
-        <div className="gradient-border w-full max-w-2xl mx-auto relative">
-            <div className="flex items-center">
-                <input
-                    type="text"
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    onFocus={onFocus}
-                    placeholder={placeholder}
-                    disabled={disabled}
-                    className="gradient-border-input flex-1 pr-12"
-                />
-                <button
-                    onClick={onSend}
-                    disabled={disabled || !value.trim()}
-                    className="absolute right-2 w-8 h-8 bg-gold rounded-full flex items-center justify-center hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed send-button"
-                >
-                    <Send size={16} className="text-maroon" />
-                </button>
-            </div>
-        </div>
-    );
+  return (
+    <div className="gradient-border w-full max-w-2xl mx-auto relative">
+      <div className="flex items-center">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyPress={handleKeyPress}
+          onFocus={onFocus}
+          placeholder={placeholder}
+          disabled={disabled}
+          className="gradient-border-input flex-1 pr-12"
+        />
+        <button
+          onClick={onSend}
+          disabled={disabled || !value.trim()}
+          className="absolute right-2 w-8 h-8 bg-gold rounded-full flex items-center justify-center hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed send-button"
+        >
+          <Send size={16} className="text-maroon" />
+        </button>
+      </div>
+    </div>
+  );
 };
 
+// hardcoded for requested changes, may need to change to become more flexible
+// need to figure out how to make it more flexible, for now this could work.
+function getLoadingLabel(userText) {
+  const t = userText.toLowerCase();
+
+  // searching for keywords
+  if (/\bcanvas\b/.test(t)) return "Checking Canvas";
+  if (/\bcsci\b/.test(t)) return "Searching course catalog";
+  if (/\bcoffman\b/.test(t) || /\bnorthrup\b/.test(t)) /* add more buildings */
+    return "Looking up building info";
+
+  return "Thinking";
+}
+
 function App() {
-    const [currentPage, setCurrentPage] = useState('landing'); // 'landing', 'transition', 'chat'
-    const [inputValue, setInputValue] = useState('');
-    const [messages, setMessages] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [showWelcome, setShowWelcome] = useState(true);
-    const [typingMessage, setTypingMessage] = useState('');
-    const [isTyping, setIsTyping] = useState(false);
-    const [isTransitioning, setIsTransitioning] = useState(false);
-    const messagesEndRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState("landing"); // 'landing', 'transition', 'chat'
+  const [inputValue, setInputValue] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [typingMessage, setTypingMessage] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const messagesEndRef = useRef(null);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
+  // Thinking Feature
+  const [loadingLabel, setLoadingLabel] = useState("Thinking");
 
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages, typingMessage]);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-    // Typing animation function
-    const typeMessage = (text, callback) => {
-        setIsTyping(true);
-        setTypingMessage('');
-        let index = 0;
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, typingMessage]);
 
-        const typeInterval = setInterval(() => {
-            if (index < text.length) {
-                setTypingMessage(text.slice(0, index + 1));
-                index++;
-            } else {
-                clearInterval(typeInterval);
-                setIsTyping(false);
-                if (callback) callback();
-            }
-        }, 15); // 30ms delay between characters (like ChatGPT)
-    };
+  // Typing animation function
+  const typeMessage = (text, callback) => {
+    setIsTyping(true);
+    setTypingMessage("");
+    let index = 0;
 
-    const handleInputFocus = () => {
-        if (currentPage === 'landing') {
-            // Start transition
-            setIsTransitioning(true);
-            // Fade out welcome content first
-            setShowWelcome(false);
-            // Then transition to transition page after fade completes
-            setTimeout(() => {
-                setCurrentPage('transition');
-                setIsTransitioning(false);
-            }, 700); // Match the CSS transition duration
-        }
-    };
+    const typeInterval = setInterval(() => {
+      if (index < text.length) {
+        setTypingMessage(text.slice(0, index + 1));
+        index++;
+      } else {
+        clearInterval(typeInterval);
+        setIsTyping(false);
+        if (callback) callback();
+      }
+    }, 15); // 30ms delay between characters (like ChatGPT)
+  };
 
-    const sendMessage = async () => {
-        if (!inputValue.trim() || isLoading || isTyping) return;
+  const handleInputFocus = () => {
+    if (currentPage === "landing") {
+      // Start transition
+      setIsTransitioning(true);
+      // Fade out welcome content first
+      setShowWelcome(false);
+      // Then transition to transition page after fade completes
+      setTimeout(() => {
+        setCurrentPage("transition");
+        setIsTransitioning(false);
+      }, 700); // Match the CSS transition duration
+    }
+  };
 
-        console.log('Sending message:', inputValue.trim());
-        const userMessage = inputValue.trim();
-        setInputValue('');
-        setMessages(prev => [...prev, { text: userMessage, isUser: true }]);
-        setIsLoading(true);
-        setError(null);
+  const sendMessage = async () => {
+    if (!inputValue.trim() || isLoading || isTyping) return;
 
-        // Don't transition to chat page - stay on transition page and show messages
-        if (currentPage === 'transition') {
-            console.log('Staying on transition page, showing messages');
-            // Keep currentPage as 'transition'
-        }
+    const userMessage = inputValue.trim();
+    console.log("Sending message:", userMessage);
 
-        try {
-            console.log('Making API request to backend...');
-            const response = await fetch('http://localhost:8000/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: userMessage }),
-            });
+    // thinking feature
+    setLoadingLabel(getLoadingLabel(userMessage));
 
-            console.log('Response status:', response.status);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+    setIsLoading(true);
+    setInputValue("");
+    setMessages((prev) => [...prev, { text: userMessage, isUser: true }]);
+    setError(null);
 
-            const data = await response.json();
-            console.log('Response data:', data);
+    // Don't transition to chat page - stay on transition page and show messages
+    if (currentPage === "transition") {
+      console.log("Staying on transition page, showing messages");
+      // Keep currentPage as 'transition'
+    }
 
-            // Wait 1 second before starting typing animation
-            setTimeout(() => {
-                typeMessage(data.response, () => {
-                    // When typing is complete, add the full message to messages array
-                    setMessages(prev => [...prev, { text: data.response, isUser: false }]);
-                    setTypingMessage('');
-                });
-            }, 1000);
+    try {
+      console.log("Making API request to backend...");
+      const response = await fetch("http://localhost:8000/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: userMessage }),
+      });
 
-        } catch (err) {
-            console.error('Error sending message:', err);
-            setError('Sorry, I encountered an error. Please try again.');
-            setMessages(prev => [...prev, {
-                text: 'Sorry, I encountered an error. Please try again.',
-                isUser: false
-            }]);
-        } finally {
+      console.log("Response status:", response.status);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Response data:", data);
+
+      // Wait 1 second before starting typing animation
+      setTimeout(() => {
+        setIsLoading(false);
+
+        typeMessage(data.response, () => {
+          // When typing is complete, add the full message to messages array
+          setMessages((prev) => [
+            ...prev,
+            { text: data.response, isUser: false },
+          ]);
+          setTypingMessage("");
+        });
+      }, 1000);
+    } catch (err) {
+      console.error("Error sending message:", err);
+
+      setIsLoading(false);
+
+      setError("Sorry, I encountered an error. Please try again.");
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: "Sorry, I encountered an error. Please try again.",
+          isUser: false,
+        },
+      ]);
+    } /* finally {
             setIsLoading(false);
-        }
-    };
+        } */
+  };
 
-    return (
-        <div className="min-h-screen bg-dark-gray text-white">
-            {/* Simple top nav */}
-            <div className="p-3 border-b border-gray-800 flex justify-end space-x-2">
-                <button onClick={() => setCurrentPage('landing')} className={`px-3 py-1 rounded ${currentPage !== 'research' ? 'bg-gold text-maroon' : 'bg-gray-800'}`}>Main</button>
-                <button onClick={() => setCurrentPage('research')} className={`px-3 py-1 rounded ${currentPage === 'research' ? 'bg-gold text-maroon' : 'bg-gray-800'}`}>Research</button>
+  return (
+    <div className="min-h-screen bg-dark-gray text-white">
+      {/* Simple top nav */}
+      <div className="p-3 border-b border-gray-800 flex justify-end space-x-2">
+        <button
+          onClick={() => setCurrentPage("landing")}
+          className={`px-3 py-1 rounded ${currentPage !== "research" ? "bg-gold text-maroon" : "bg-gray-800"}`}
+        >
+          Main
+        </button>
+        <button
+          onClick={() => setCurrentPage("research")}
+          className={`px-3 py-1 rounded ${currentPage === "research" ? "bg-gold text-maroon" : "bg-gray-800"}`}
+        >
+          Research
+        </button>
+      </div>
+      {/* Landing Page */}
+      {currentPage === "landing" && (
+        <div className="min-h-screen flex flex-col px-4 page-transition">
+          {/* Content Area */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            {/* Minnesota M Logo */}
+            <MinnesotaMLogo
+              className={`mb-8 fade-in-up transition-opacity duration-700 ${showWelcome ? "opacity-100" : "opacity-0"}`}
+            />
+
+            {/* Welcome Text */}
+            <div
+              className={`text-center mb-12 fade-in-up transition-opacity duration-700 ${showWelcome ? "opacity-100" : "opacity-0"}`}
+            >
+              <h1 className="text-5xl font-bold text-gold mb-4">
+                Hey Gophers! Welcome To GopherGPT
+              </h1>
+              <p className="text-2xl text-gold">How Can We Help You?</p>
             </div>
-            {/* Landing Page */}
-            {currentPage === 'landing' && (
-                <div className="min-h-screen flex flex-col px-4 page-transition">
-                    {/* Content Area */}
-                    <div className="flex-1 flex flex-col items-center justify-center">
-                        {/* Minnesota M Logo */}
-                        <MinnesotaMLogo className={`mb-8 fade-in-up transition-opacity duration-700 ${showWelcome ? 'opacity-100' : 'opacity-0'}`} />
 
-                        {/* Welcome Text */}
-                        <div className={`text-center mb-12 fade-in-up transition-opacity duration-700 ${showWelcome ? 'opacity-100' : 'opacity-0'}`}>
-                            <h1 className="text-5xl font-bold text-gold mb-4">
-                                Hey Gophers! Welcome To GopherGPT
-                            </h1>
-                            <p className="text-2xl text-gold">
-                                How Can We Help You?
-                            </p>
-                        </div>
+            {/* Goldy Mascot */}
+            <div
+              className={`mb-12 fade-in-up transition-opacity duration-700 ${showWelcome ? "opacity-100" : "opacity-0"}`}
+            >
+              <GoldyMascot />
+            </div>
+          </div>
 
-                        {/* Goldy Mascot */}
-                        <div className={`mb-12 fade-in-up transition-opacity duration-700 ${showWelcome ? 'opacity-100' : 'opacity-0'}`}>
-                            <GoldyMascot />
-                        </div>
-                    </div>
-
-                    {/* Input Box - Expands during transition */}
-                    <div className={`w-full mx-auto pb-4 fade-in-up transition-all duration-700 ${isTransitioning ? 'px-4' : 'max-w-2xl'}`}>
-                        <ChatInput
-                            value={inputValue}
-                            onChange={setInputValue}
-                            onSend={sendMessage}
-                            onFocus={handleInputFocus}
-                            placeholder="Ask GopherGPT anything....."
-                        />
-                    </div>
-                </div>
-            )}
-
-            {/* Research Page */}
-            {currentPage === 'research' && (
-                <Research />
-            )}
-
-            {/* Transition Page */}
-            {currentPage === 'transition' && (
-                <div className="min-h-screen flex flex-col px-4 page-transition">
-                    {/* Header with Logo */}
-                    <div className="p-4 border-b border-gray-700">
-                        <MinnesotaMLogo size="w-12 h-12" />
-                    </div>
-
-                    {/* Large Faded M Logo - NO CIRCLE */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <img
-                            src="/minnesota-m-logo.png"
-                            alt="Minnesota M Logo"
-                            className="w-[500px] h-[500px] object-contain opacity-10"
-                            onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'block';
-                            }}
-                        />
-                        <span className="text-maroon font-bold text-9xl opacity-10 hidden">M</span>
-                    </div>
-
-                    {/* Messages Container */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10">
-                        {messages.map((message, index) => (
-                            <Message
-                                key={index}
-                                message={message.text}
-                                isUser={message.isUser}
-                            />
-                        ))}
-                        {isTyping && typingMessage && (
-                            <Message
-                                message={typingMessage}
-                                isUser={false}
-                            />
-                        )}
-                        {isLoading && <LoadingIndicator />}
-                        {error && (
-                            <div className="text-red-400 text-center text-sm">
-                                {error}
-                            </div>
-                        )}
-                        <div ref={messagesEndRef} />
-                    </div>
-
-                    {/* Input Box - Smoothly expands to full width */}
-                    <div className="w-full px-4 pb-4 transition-all duration-700">
-                        <ChatInput
-                            value={inputValue}
-                            onChange={setInputValue}
-                            onSend={sendMessage}
-                            placeholder="Ask GopherGPT anything....."
-                            disabled={isLoading || isTyping}
-                        />
-                    </div>
-                </div>
-            )}
-
-            {/* Chat Interface */}
-            {currentPage === 'chat' && (
-                <div className="min-h-screen flex flex-col page-transition">
-                    {/* Header with Logo */}
-                    <div className="p-4 border-b border-gray-700">
-                        <MinnesotaMLogo size="w-12 h-12" />
-                    </div>
-
-                    {/* Faded Background M Logo */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-96 h-96 bg-white rounded-full flex items-center justify-center opacity-5 overflow-hidden">
-                            <img
-                                src="/minnesota-m-logo.png"
-                                alt="Minnesota M Logo"
-                                className="w-full h-full object-contain"
-                                onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'block';
-                                }}
-                            />
-                            <span className="text-maroon font-bold text-9xl hidden">M</span>
-                        </div>
-                    </div>
-
-                    {/* Messages Container */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10">
-                        {messages.map((message, index) => (
-                            <Message
-                                key={index}
-                                message={message.text}
-                                isUser={message.isUser}
-                            />
-                        ))}
-                        {isLoading && <LoadingIndicator />}
-                        {error && (
-                            <div className="text-red-400 text-center text-sm">
-                                {error}
-                            </div>
-                        )}
-                        <div ref={messagesEndRef} />
-                    </div>
-
-                    {/* Input Box */}
-                    <div className="p-4 border-t border-gray-700 relative z-10">
-                        <ChatInput
-                            value={inputValue}
-                            onChange={setInputValue}
-                            onSend={sendMessage}
-                            placeholder="Ask GopherGPT anything....."
-                            disabled={isLoading || isTyping}
-                        />
-                    </div>
-                </div>
-            )}
+          {/* Input Box - Expands during transition */}
+          <div
+            className={`w-full mx-auto pb-4 fade-in-up transition-all duration-700 ${isTransitioning ? "px-4" : "max-w-2xl"}`}
+          >
+            <ChatInput
+              value={inputValue}
+              onChange={setInputValue}
+              onSend={sendMessage}
+              onFocus={handleInputFocus}
+              placeholder="Ask GopherGPT anything....."
+            />
+          </div>
         </div>
-    );
+      )}
+
+      {/* Research Page */}
+      {currentPage === "research" && <Research />}
+
+      {/* Transition Page */}
+      {currentPage === "transition" && (
+        <div className="min-h-screen flex flex-col px-4 page-transition">
+          {/* Header with Logo */}
+          <div className="p-4 border-b border-gray-700">
+            <MinnesotaMLogo size="w-12 h-12" />
+          </div>
+
+          {/* Large Faded M Logo - NO CIRCLE */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <img
+              src="/minnesota-m-logo.png"
+              alt="Minnesota M Logo"
+              className="w-[500px] h-[500px] object-contain opacity-10"
+              onError={(e) => {
+                e.target.style.display = "none";
+                e.target.nextSibling.style.display = "block";
+              }}
+            />
+            <span className="text-maroon font-bold text-9xl opacity-10 hidden">
+              M
+            </span>
+          </div>
+
+          {/* Messages Container */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10">
+            {messages.map((message, index) => (
+              <Message
+                key={index}
+                message={message.text}
+                isUser={message.isUser}
+              />
+            ))}
+            {isTyping && typingMessage && (
+              <Message message={typingMessage} isUser={false} />
+            )}
+            {isLoading && <LoadingIndicator label={loadingLabel} />}
+            {error && (
+              <div className="text-red-400 text-center text-sm">{error}</div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input Box - Smoothly expands to full width */}
+          <div className="w-full px-4 pb-4 transition-all duration-700">
+            <ChatInput
+              value={inputValue}
+              onChange={setInputValue}
+              onSend={sendMessage}
+              placeholder="Ask GopherGPT anything....."
+              disabled={isLoading || isTyping}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Chat Interface */}
+      {currentPage === "chat" && (
+        <div className="min-h-screen flex flex-col page-transition">
+          {/* Header with Logo */}
+          <div className="p-4 border-b border-gray-700">
+            <MinnesotaMLogo size="w-12 h-12" />
+          </div>
+
+          {/* Faded Background M Logo */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-96 h-96 bg-white rounded-full flex items-center justify-center opacity-5 overflow-hidden">
+              <img
+                src="/minnesota-m-logo.png"
+                alt="Minnesota M Logo"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.target.style.display = "none";
+                  e.target.nextSibling.style.display = "block";
+                }}
+              />
+              <span className="text-maroon font-bold text-9xl hidden">M</span>
+            </div>
+          </div>
+
+          {/* Messages Container */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10">
+            {messages.map((message, index) => (
+              <Message
+                key={index}
+                message={message.text}
+                isUser={message.isUser}
+              />
+            ))}
+            {isLoading && <LoadingIndicator label={loadingLabel} />}
+            {error && (
+              <div className="text-red-400 text-center text-sm">{error}</div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input Box */}
+          <div className="p-4 border-t border-gray-700 relative z-10">
+            <ChatInput
+              value={inputValue}
+              onChange={setInputValue}
+              onSend={sendMessage}
+              placeholder="Ask GopherGPT anything....."
+              disabled={isLoading || isTyping}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default App;
