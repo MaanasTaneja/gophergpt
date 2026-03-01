@@ -211,18 +211,20 @@ const LoadingIndicator = ({ label = "Thinking..." }) => (
       <div className="gradient-border-message">
         <div className="px-3 py-2 text-gray-800">
           {/* Thinking Feature */}
-          <div className="text-sm mb-1">{label}</div>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm">{label}</span>
 
-          <div className="flex space-x-1">
-            <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></div>
-            <div
-              className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"
-              style={{ animationDelay: "0.1s" }}
-            ></div>
-            <div
-              className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"
-              style={{ animationDelay: "0.2s" }}
-            ></div>
+            <div className="flex space-x-1">
+              <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></div>
+              <div
+                className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"
+                style={{ animationDelay: "0.1s" }}
+              ></div>
+              <div
+                className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"
+                style={{ animationDelay: "0.2s" }}
+              ></div>
+            </div>
           </div>
         </div>
       </div>
@@ -277,12 +279,12 @@ function getLoadingLabel(userText) {
   const t = userText.toLowerCase();
 
   // searching for keywords
-  if (/\bcanvas\b/.test(t)) return "Checking Canvas...";
-  if (/\bcsci\b/.test(t)) return "Searching course catalog...";
-  if (/\bcoffman\b/.test(t) || /\bnorthrup\b/.test(t))
-    return "Looking up building info...";
+  if (/\bcanvas\b/.test(t)) return "Checking Canvas";
+  if (/\bcsci\b/.test(t)) return "Searching course catalog";
+  if (/\bcoffman\b/.test(t) || /\bnorthrup\b/.test(t)) /* add more buildings */
+    return "Looking up building info";
 
-  return "Thinking...";
+  return "Thinking";
 }
 
 function App() {
@@ -298,7 +300,7 @@ function App() {
   const messagesEndRef = useRef(null);
 
   // Thinking Feature
-  const [loadingLabel, setLoadingLabel] = useState("Thinking...");
+  const [loadingLabel, setLoadingLabel] = useState("Thinking");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -380,8 +382,6 @@ function App() {
 
       // Wait 1 second before starting typing animation
       setTimeout(() => {
-        getLoadingLabel(text);
-
         setIsLoading(false);
 
         typeMessage(data.response, () => {
