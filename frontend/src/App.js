@@ -278,6 +278,8 @@ const ChatInput = ({
 function getLoadingLabel(userText) {
   const t = userText.toLowerCase();
 
+  // if we want to widen the search parameter, copy format below:
+
   // searching for keywords
   if (/\bcanvas\b/.test(t)) return "Checking Canvas";
   if (/\bcsci\b/.test(t)) return "Searching course catalog";
@@ -351,6 +353,8 @@ function App() {
     // thinking feature
     setLoadingLabel(getLoadingLabel(userMessage));
 
+    // if we want to add more features in-between the thinking, such as processing data, filtering, or whatever, do here:
+
     setIsLoading(true);
     setInputValue("");
     setMessages((prev) => [...prev, { text: userMessage, isUser: true }]);
@@ -382,6 +386,7 @@ function App() {
 
       // Wait 1 second before starting typing animation
       setTimeout(() => {
+
         setIsLoading(false);
 
         typeMessage(data.response, () => {
