@@ -80,6 +80,7 @@ function App() {
     }
   };
 
+  // this isn't ready, just wipes chat logs, doesn't save, pending backend to support this feature...
   const handleNewChat = () => {
     setMessages([]);
     setInputValue("");
