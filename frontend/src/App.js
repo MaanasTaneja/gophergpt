@@ -13,15 +13,15 @@ import ChatInput from "./components/ChatInput";
 import ChatPage from "./pages/ChatPage";
 
 function App() {
-  const [currentPage, setCurrentPage] = useState("landing"); // 'landing', 'transition', 'chat'
+  // const [currentPage, setCurrentPage] = useState("landing"); // 'landing', 'transition', 'chat'
   const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showWelcome, setShowWelcome] = useState(true);
+  // const [showWelcome, setShowWelcome] = useState(true);
   const [typingMessage, setTypingMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  // const [isTransitioning, setIsTransitioning] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Thinking Feature
