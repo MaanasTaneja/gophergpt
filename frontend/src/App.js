@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Send } from "lucide-react";
 import "./App.css";
-import Research from "./Research";
+import Research from "./Research"; // might scrap
+import { getLoadingLabel } from "./utils/loadingLabel";
 
 // Minnesota M Logo Component
 const MinnesotaMLogo = ({ size = "w-16 h-16", className = "" }) => (
@@ -272,22 +273,6 @@ const ChatInput = ({
     </div>
   );
 };
-
-// hardcoded for requested changes, may need to change to become more flexible
-// need to figure out how to make it more flexible, for now this could work.
-function getLoadingLabel(userText) {
-  const t = userText.toLowerCase();
-
-  // if we want to widen the search parameter, copy format below:
-
-  // searching for keywords
-  if (/\bcanvas\b/.test(t)) return "Checking Canvas";
-  if (/\bcsci\b/.test(t)) return "Searching course catalog";
-  if (/\bcoffman\b/.test(t) || /\bnorthrup\b/.test(t)) /* add more buildings */
-    return "Looking up building info";
-
-  return "Thinking";
-}
 
 function App() {
   const [currentPage, setCurrentPage] = useState("landing"); // 'landing', 'transition', 'chat'
@@ -592,3 +577,17 @@ function App() {
 }
 
 export default App;
+
+
+
+/*
+
+Note:
+
+This file once refactored should only render in the sidebar and whatever page is currently active
+
+Goal:
+- Only actively render Sidebar, and their components, and whatever page is actively being rendered, all functions should be compartmentalized into their respective files.
+
+
+*/
