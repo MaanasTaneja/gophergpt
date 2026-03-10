@@ -21,7 +21,7 @@ code {
     position: relative;
     background: linear-gradient(90deg, #7A0019, #FFCC33);
     padding: 3px;
-    border-radius: 50px;
+    border-radius: 20px;
 }
 
 .gradient-border::before {
@@ -40,7 +40,7 @@ code {
     color: #2B2B2B;
     width: 100%;
     padding: 12px 20px;
-    border-radius: 50px;
+    border-radius: 18px;
 }
 
 .gradient-border-message {

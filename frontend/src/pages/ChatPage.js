@@ -12,7 +12,6 @@ Goal:
 */
 
 import React from "react";
-import MinnesotaMLogo from "../components/MinnesotaMLogo";
 import ChatWindow from "../components/ChatWindow";
 import ChatInput from "../components/ChatInput";
 
@@ -28,12 +27,7 @@ const ChatPage = ({
     setInputValue,
     onSend,
     }) => (
-    <div className="flex-1 flex flex-col">
-
-        {/* Header */}
-        <div className="p-4 border-b border-gray-700">
-        <MinnesotaMLogo size="w-12 h-12" />
-        </div>
+    <div className="flex-1 flex flex-col relative">
 
         {/* Faded Background Logo */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
