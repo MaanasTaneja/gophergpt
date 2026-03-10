@@ -10,6 +10,7 @@ import { MinnesotaMLogo } from "./components/MinnesotaMLogo";
 import { GoldyMascot } from "./components/GoldyMascot";
 import ChatWindow from "./components/ChatWindow";
 import ChatInput from "./components/ChatInput";
+import ChatPage from "./pages/ChatPage";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("landing"); // 'landing', 'transition', 'chat'
@@ -139,163 +140,19 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-gray text-white">
-      {/* Simple top nav */}
-      <div className="p-3 border-b border-gray-800 flex justify-end space-x-2">
-        <button
-          onClick={() => setCurrentPage("landing")}
-          className={`px-3 py-1 rounded ${currentPage !== "research" ? "bg-gold text-maroon" : "bg-gray-800"}`}
-        >
-          Main
-        </button>
-        <button
-          onClick={() => setCurrentPage("research")}
-          className={`px-3 py-1 rounded ${currentPage === "research" ? "bg-gold text-maroon" : "bg-gray-800"}`}
-        >
-          Research
-        </button>
-      </div>
-      {/* Landing Page */}
-      {currentPage === "landing" && (
-        <div className="min-h-screen flex flex-col px-4 page-transition">
-          {/* Content Area */}
-          <div className="flex-1 flex flex-col items-center justify-center">
-            {/* Minnesota M Logo */}
-            <MinnesotaMLogo
-              className={`mb-8 fade-in-up transition-opacity duration-700 ${showWelcome ? "opacity-100" : "opacity-0"}`}
-            />
-
-            {/* Welcome Text */}
-            <div
-              className={`text-center mb-12 fade-in-up transition-opacity duration-700 ${showWelcome ? "opacity-100" : "opacity-0"}`}
-            >
-              <h1 className="text-5xl font-bold text-gold mb-4">
-                Hey Gophers! Welcome To GopherGPT
-              </h1>
-              <p className="text-2xl text-gold">How Can We Help You?</p>
-            </div>
-
-            {/* Goldy Mascot */}
-            <div
-              className={`mb-12 fade-in-up transition-opacity duration-700 ${showWelcome ? "opacity-100" : "opacity-0"}`}
-            >
-              <GoldyMascot />
-            </div>
-          </div>
-
-          {/* Input Box - Expands during transition */}
-          <div
-            className={`w-full mx-auto pb-4 fade-in-up transition-all duration-700 ${isTransitioning ? "px-4" : "max-w-2xl"}`}
-          >
-            <ChatInput
-              value={inputValue}
-              onChange={setInputValue}
-              onSend={sendMessage}
-              onFocus={handleInputFocus}
-              placeholder="Ask GopherGPT anything....."
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Research Page */}
-      {currentPage === "research" && <Research />}
-
-      {/* Transition Page */}
-      {currentPage === "transition" && (
-        <div className="min-h-screen flex flex-col px-4 page-transition">
-          {/* Header with Logo */}
-          <div className="p-4 border-b border-gray-700">
-            <MinnesotaMLogo size="w-12 h-12" />
-          </div>
-
-          {/* Large Faded M Logo - NO CIRCLE */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <img
-              src="/minnesota-m-logo.png"
-              alt="Minnesota M Logo"
-              className="w-[500px] h-[500px] object-contain opacity-10"
-              onError={(e) => {
-                e.target.style.display = "none";
-                e.target.nextSibling.style.display = "block";
-              }}
-            />
-            <span className="text-maroon font-bold text-9xl opacity-10 hidden">
-              M
-            </span>
-          </div>
-
-          {/* Messages Container */}
-          <ChatWindow
-            messages={messages}
-            isTyping={isTyping}
-            typingMessage={typingMessage}
-            isLoading={isLoading}
-            loadingLabel={loadingLabel}
-            error={error}
-            messagesEndRef={messagesEndRef}
-          />
-
-          {/* Input Box - Smoothly expands to full width */}
-          <div className="w-full px-4 pb-4 transition-all duration-700">
-            <ChatInput
-              value={inputValue}
-              onChange={setInputValue}
-              onSend={sendMessage}
-              placeholder="Ask GopherGPT anything....."
-              disabled={isLoading || isTyping}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Chat Interface */}
-      {currentPage === "chat" && (
-        <div className="min-h-screen flex flex-col page-transition">
-          {/* Header with Logo */}
-          <div className="p-4 border-b border-gray-700">
-            <MinnesotaMLogo size="w-12 h-12" />
-          </div>
-
-          {/* Faded Background M Logo */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-96 h-96 bg-white rounded-full flex items-center justify-center opacity-5 overflow-hidden">
-              <img
-                src="/minnesota-m-logo.png"
-                alt="Minnesota M Logo"
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  e.target.style.display = "none";
-                  e.target.nextSibling.style.display = "block";
-                }}
-              />
-              <span className="text-maroon font-bold text-9xl hidden">M</span>
-            </div>
-          </div>
-
-          {/* Messages Container */}
-          <ChatWindow
-            messages={messages}
-            isTyping={isTyping}
-            typingMessage={typingMessage}
-            isLoading={isLoading}
-            loadingLabel={loadingLabel}
-            error={error}
-            messagesEndRef={messagesEndRef}
-          />
-
-          {/* Input Box */}
-          <div className="p-4 border-t border-gray-700 relative z-10">
-            <ChatInput
-              value={inputValue}
-              onChange={setInputValue}
-              onSend={sendMessage}
-              placeholder="Ask GopherGPT anything....."
-              disabled={isLoading || isTyping}
-            />
-          </div>
-        </div>
-      )}
+    <div className="flex min-h-screen bg-dark-gray text-white">
+      <ChatPage
+        messages={messages}
+        isTyping={isTyping}
+        typingMessage={typingMessage}
+        isLoading={isLoading}
+        loadingLabel={loadingLabel}
+        error={error}
+        messagesEndRef={messagesEndRef}
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+        onSend={sendMessage}
+      />
     </div>
   );
 }

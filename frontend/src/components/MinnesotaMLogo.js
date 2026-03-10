@@ -1,7 +1,7 @@
 import React from "react";
 
 // Minnesota M Logo Component
-export const MinnesotaMLogo = ({ size = "w-16 h-16", className = "" }) => (
+const MinnesotaMLogo = ({ size = "w-16 h-16", className = "" }) => (
     <div
         className={`${size} bg-white rounded-full flex items-center justify-center overflow-hidden ${className}`}
     >
@@ -18,3 +18,5 @@ export const MinnesotaMLogo = ({ size = "w-16 h-16", className = "" }) => (
         <span className="text-maroon font-bold text-2xl hidden">M</span>
     </div>
 );
+
+export default MinnesotaMLogo
