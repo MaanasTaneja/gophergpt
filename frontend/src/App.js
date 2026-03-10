@@ -4,6 +4,8 @@ import "./App.css";
 import Research from "./Research"; // might scrap
 import { getLoadingLabel } from "./utils/loadingLabel";
 import { escapeHtml, linkify, boldify, formatBotMessage } from "./utils/messageFormatter";
+import { Message } from "./components/Message";
+import { LoadingIndicator } from "./components/LoadingIndicator";
 
 // Minnesota M Logo Component
 const MinnesotaMLogo = ({ size = "w-16 h-16", className = "" }) => (
@@ -39,80 +41,6 @@ const GoldyMascot = ({ className = "" }) => (
     />
     <div className="w-full h-full bg-gold rounded-full flex items-center justify-center hidden">
       <span className="text-maroon font-bold text-6xl">🐿️</span>
-    </div>
-  </div>
-);
-
-// Message Component
-const Message = ({ message, isUser }) => (
-  <div
-    className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4 message-bubble`}
-  >
-    <div className="flex items-end max-w-xs lg:max-w-md">
-      {/* For user messages: Avatar on right, bubble on left */}
-      {isUser ? (
-        <>
-          <div className="gradient-border-message">
-            <div className="px-3 py-2 text-gray-800">{message}</div>
-          </div>
-          <div
-            className="w-8 h-8 rounded-full flex-shrink-0 ml-3"
-            style={{
-              background: "linear-gradient(135deg, #3B82F6, #8B5CF6)", // Blue to purple gradient
-            }}
-          ></div>
-        </>
-      ) : (
-        <>
-          <div
-            className="w-8 h-8 rounded-full flex-shrink-0 mr-3"
-            style={{
-              background: "linear-gradient(135deg, #F97316, #EF4444)", // Orange to red gradient
-            }}
-          ></div>
-          <div className="gradient-border-message">
-            <div
-              className="px-3 py-2 text-gray-800"
-              id="bot-message-html"
-              dangerouslySetInnerHTML={{ __html: formatBotMessage(message) }}
-            />
-          </div>
-        </>
-      )}
-    </div>
-  </div>
-);
-
-// Loading Indicator
-const LoadingIndicator = ({ label = "Thinking..." }) => (
-  <div className="flex justify-start mb-4">
-    <div className="flex items-end">
-      <div
-        className="w-8 h-8 rounded-full mr-3"
-        style={{
-          background: "linear-gradient(135deg, #F97316, #EF4444)", // Orange to red gradient
-        }}
-      ></div>
-      <div className="gradient-border-message">
-        <div className="px-3 py-2 text-gray-800">
-          {/* Thinking Feature */}
-          <div className="flex items-center space-x-2">
-            <span className="text-sm">{label}</span>
-
-            <div className="flex space-x-1">
-              <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></div>
-              <div
-                className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"
-                style={{ animationDelay: "0.1s" }}
-              ></div>
-              <div
-                className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"
-                style={{ animationDelay: "0.2s" }}
-              ></div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 );
