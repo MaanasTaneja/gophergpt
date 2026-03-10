@@ -13,68 +13,52 @@ Goal:
 import React from "react";
 import MinnesotaMLogo from "./MinnesotaMLogo";
 
-
 const Sidebar = ({ onNewChat }) => (
-    <div className="w-64 min-h-screen bg-dark-gray border-r border-gray-700 flex flex-col p-3">
+  <div className="w-64 min-h-screen bg-dark-gray border-r border-gray-700 flex flex-col p-3">
 
-        {/* Logo */}
-        <div className="flex items-center justify-center mb-4">
-        <MinnesotaMLogo size="w-12 h-12" />
-        </div>
-
-        {/* New Chat Button */}
-        <button
-        onClick={onNewChat}
-        className="w-full py-2 px-4 mb-6 bg-gold text-maroon font-bold rounded hover:bg-yellow-400 transition-colors"
-        >
-        + New Chat
-        </button>
-
-        {/* Apps Section */}
-        <div className="mb-6">
-        <p className="text-gray-500 text-xs uppercase tracking-wider mb-2 px-2">Apps</p>
-        <button
-            disabled
-            className="w-full py-2 px-4 mb-6 bg-gold text-maroon font-bold rounded hover:bg-yellow-400 transition-colors"
-        >
-            🔧 Tool 1
-        </button>
-        <button
-            disabled
-            className="w-full py-2 px-4 mb-6 bg-gold text-maroon font-bold rounded hover:bg-yellow-400 transition-colors"
-        >
-            🔧 Tool 2
-        </button>
-        <button
-            disabled
-            className="w-full py-2 px-4 mb-6 bg-gold text-maroon font-bold rounded hover:bg-yellow-400 transition-colors"
-        >
-            🔧 Tool 3
-        </button>
-        </div>
-
-        {/* History Section */}
-        <div className="mb-6">
-        <p className="text-gray-500 text-xs uppercase tracking-wider mb-2 px-2">History</p>
-        <button
-            disabled
-            className="w-full py-2 px-4 mb-6 bg-gold text-maroon font-bold rounded hover:bg-yellow-400 transition-colors"
-        >
-            🕘 Coming Soon
-        </button>
-        </div>
-
-        {/* Settings - pinned to bottom */}
-        <div className="mt-auto">
-        <button
-            disabled
-            className="w-full py-2 px-4 bg-gold text-maroon font-bold rounded hover:bg-yellow-400 transition-colors"
-        >
-            ⚙️ Settings
-        </button>
-        </div>
-
+    {/* Logo */}
+    <div className="flex items-center justify-center mb-4">
+      <MinnesotaMLogo size="w-12 h-12" />
     </div>
+
+    {/* New Chat Button */}
+    <button
+      onClick={onNewChat}
+      className="w-full py-2 px-4 mb-6 text-left text-white rounded-lg hover:bg-gray-700 transition-colors"
+    >
+      + New Chat
+    </button>
+
+    {/* Apps Section */}
+    <div className="mb-6">
+      <p className="text-gray-500 text-xs uppercase tracking-wider mb-2 px-2">Apps</p>
+      <button disabled className="w-full py-2 px-4 mb-1 text-left text-gray-400 rounded-lg cursor-not-allowed hover:bg-gray-700 transition-colors">
+        🔧 Tool 1
+      </button>
+      <button disabled className="w-full py-2 px-4 mb-1 text-left text-gray-400 rounded-lg cursor-not-allowed hover:bg-gray-700 transition-colors">
+        🔧 Tool 2
+      </button>
+      <button disabled className="w-full py-2 px-4 mb-1 text-left text-gray-400 rounded-lg cursor-not-allowed hover:bg-gray-700 transition-colors">
+        🔧 Tool 3
+      </button>
+    </div>
+
+    {/* History Section */}
+    <div className="mb-6">
+      <p className="text-gray-500 text-xs uppercase tracking-wider mb-2 px-2">History</p>
+      <button disabled className="w-full py-2 px-4 text-left text-gray-400 rounded-lg cursor-not-allowed">
+        🕘 Coming Soon
+      </button>
+    </div>
+
+    {/* Settings - pinned to bottom */}
+    <div className="mt-auto">
+      <button disabled className="w-full py-2 px-4 text-left text-gray-400 rounded-lg cursor-not-allowed hover:bg-gray-700 transition-colors">
+        ⚙️ Settings
+      </button>
+    </div>
+
+  </div>
 );
 
 export default Sidebar;
