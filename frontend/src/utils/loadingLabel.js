@@ -1,3 +1,13 @@
+/* 
+Note: This file should include the function loadingLabel
+
+May include more features later on responsible for the loading response label...
+
+*/
+
+// Filters for keywords, then returns response based on keyword
+// The function has been hardcoded to filter for keywords, instead of patterns, so loading label may appear incorrect, depending on the prompt.
+// Would like to find a way to make this more flexible, instead of hardcoded.
 export function getLoadingLabel(userText) {
 
     const t = userText.toLowerCase();
@@ -12,11 +22,3 @@ export function getLoadingLabel(userText) {
 
     return "Thinking";
 }
-
-/* 
-Note: This file should include the function loadingLabel
-
-The function has been hardcoded to filter for keywords, instead of patterns, so loading label may appear incorrect, depending on the prompt.
-
-Would like to find a way to make this more flexible, instead of hardcoded.
-*/
