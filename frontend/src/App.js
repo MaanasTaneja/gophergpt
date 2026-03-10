@@ -6,44 +6,8 @@ import { getLoadingLabel } from "./utils/loadingLabel";
 import { escapeHtml, linkify, boldify, formatBotMessage } from "./utils/messageFormatter";
 import { Message } from "./components/Message";
 import { LoadingIndicator } from "./components/LoadingIndicator";
-
-// Minnesota M Logo Component
-const MinnesotaMLogo = ({ size = "w-16 h-16", className = "" }) => (
-  <div
-    className={`${size} bg-white rounded-full flex items-center justify-center overflow-hidden ${className}`}
-  >
-    <img
-      src="/minnesota-m-logo.png"
-      alt="Minnesota M Logo"
-      className="w-full h-full object-contain"
-      onError={(e) => {
-        // Fallback to text M if image fails to load
-        e.target.style.display = "none";
-        e.target.nextSibling.style.display = "block";
-      }}
-    />
-    <span className="text-maroon font-bold text-2xl hidden">M</span>
-  </div>
-);
-
-// Goldy Gopher Mascot - Using your local image
-const GoldyMascot = ({ className = "" }) => (
-  <div className={`w-80 h-80 flex items-center justify-center ${className}`}>
-    <img
-      src="/goldy-gopher.png"
-      alt="Goldy Gopher"
-      className="w-full h-full object-contain"
-      onError={(e) => {
-        // Fallback to emoji if image fails to load
-        e.target.style.display = "none";
-        e.target.nextSibling.style.display = "block";
-      }}
-    />
-    <div className="w-full h-full bg-gold rounded-full flex items-center justify-center hidden">
-      <span className="text-maroon font-bold text-6xl">🐿️</span>
-    </div>
-  </div>
-);
+import { MinnesotaMLogo } from "./components/MinnesotaMLogo";
+import { GoldyMascot } from "./components/GoldyMascot";
 
 // Input Component
 const ChatInput = ({
