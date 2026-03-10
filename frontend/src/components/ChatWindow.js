@@ -1,11 +1,3 @@
-/* 
-Note: This file should only contain the active chat interaction between agent and user, and nothing more.
-
-Goal:
-- Compartmentalize App.js, to include the response window and the interaction component.
-- This should allow the menu to be scrollable, and not locked/bounded while the agent is responding
-
-*/
 import React from "react";
 import { Message } from "./Message";
 import { LoadingIndicator } from "./LoadingIndicator";

@@ -34,17 +34,17 @@ code {
 }
 
 .gradient-border-input {
-    background: white;
+    background: #3D3D3D;
     border: none;
     outline: none;
-    color: #2B2B2B;
+    color: #F0F0F0;
     width: 100%;
     padding: 12px 20px;
     border-radius: 18px;
 }
 
 .gradient-border-message {
-    background: white;
+    background: #3D3D3D;
     border: 2px solid transparent;
     border-radius: 20px;
     background-clip: padding-box;

@@ -1,16 +1,3 @@
-/* 
-
-
-Note: This file should only contain the sidebar and it's components, the Input Box, and the Chat Window.
-
-
-Goal:
-- Integrate the sidebar
-- Integrate the input box
-- Integrate the chat window
-
-*/
-
 import React from "react";
 import ChatWindow from "../components/ChatWindow";
 import ChatInput from "../components/ChatInput";
@@ -23,11 +10,12 @@ const ChatPage = ({
     loadingLabel,
     error,
     messagesEndRef,
+    chatContainerRef,
     inputValue,
     setInputValue,
     onSend,
     }) => (
-    <div className="flex-1 flex flex-col relative">
+    <div className="flex-1 flex flex-col h-screen relative">
 
         {/* Faded Background Logo */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -43,19 +31,21 @@ const ChatPage = ({
         <span className="text-maroon font-bold text-9xl opacity-10 hidden">M</span>
         </div>
 
-        {/* Messages */}
+        {/* Messages - only this section scrolls */}
+        <div ref={chatContainerRef} className="flex-1 overflow-y-auto relative z-10">
         <ChatWindow
-        messages={messages}
-        isTyping={isTyping}
-        typingMessage={typingMessage}
-        isLoading={isLoading}
-        loadingLabel={loadingLabel}
-        error={error}
-        messagesEndRef={messagesEndRef}
+            messages={messages}
+            isTyping={isTyping}
+            typingMessage={typingMessage}
+            isLoading={isLoading}
+            loadingLabel={loadingLabel}
+            error={error}
+            messagesEndRef={messagesEndRef}
         />
+        </div>
 
-        {/* Input */}
-        <div className="p-4 border-t border-gray-700 relative z-10">
+        {/* Input - stays fixed at bottom */}
+        <div className="p-4 border-t border-gray-700 relative z-10 bg-dark-gray">
         <ChatInput
             value={inputValue}
             onChange={setInputValue}

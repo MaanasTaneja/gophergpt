@@ -1,13 +1,3 @@
-/* 
-
-Note: This file should include the function escapeHtml, linkify, boldify, and formatBotMessage.
-Essentially anything regarding message formatting.
-
-This file should include all functions that format the message (formatBotMessage, escapeHtml, boldify, linkify, etc).
-
-*/
-
-
 // Basic client-side formatter for bot messages (no external deps)
 // - escape HTML
 // - convert **bold** markers to <strong>
@@ -85,7 +75,7 @@ export function formatBotMessage(raw) {
             const html = linkify(boldify(escapeHtml(rest)));
             parts.push(`<li><strong>${escapeHtml(title)}</strong> ${html}</li>`);
         } else {
-            const html = linkify(boldify(escapeHtml(content)));
+            const html = linkify(escapeHtml(boldify(content)));
             parts.push(`<li>${html}</li>`);
         }
         continue;
@@ -100,7 +90,7 @@ export function formatBotMessage(raw) {
             inUl = true;
         }
         const content = ulMatch[1];
-        const html = linkify(boldify(escapeHtml(content)));
+        const html = linkify(escapeHtml(boldify(content)));
         parts.push(`<li>${html}</li>`);
         continue;
         }

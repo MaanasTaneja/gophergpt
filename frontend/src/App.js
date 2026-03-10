@@ -3,6 +3,7 @@ import "./App.css";
 import { getLoadingLabel } from "./utils/loadingLabel";
 import ChatPage from "./pages/ChatPage";
 import Sidebar from "./components/Sidebar";
+import Research from "./pages/Research";
 
 function App() {
   const [inputValue, setInputValue] = useState("");
@@ -12,15 +13,40 @@ function App() {
   const [typingMessage, setTypingMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [loadingLabel, setLoadingLabel] = useState("Thinking");
+  const [currentPage, setCurrentPage] = useState("chat");
   const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
+  const userScrolledUp = useRef(false);
+
+  const isNearBottom = () => {
+    const container = chatContainerRef.current;
+    if (!container) return true;
+    const threshold = 50; // tightened from 150
+    return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+  };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!userScrolledUp.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "instant" }); // was "smooth"
+    }
   };
 
   useEffect(() => {
     scrollToBottom();
   }, [messages, typingMessage]);
+
+  // Listen for manual scrolling
+  useEffect(() => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      userScrolledUp.current = !isNearBottom();
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [currentPage]);
 
   const typeMessage = (text, callback) => {
     setIsTyping(true);
@@ -41,6 +67,8 @@ function App() {
 
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading || isTyping) return;
+
+    userScrolledUp.current = false; // reset scroll lock on new message
 
     const userMessage = inputValue.trim();
     setLoadingLabel(getLoadingLabel(userMessage));
@@ -85,39 +113,36 @@ function App() {
     setMessages([]);
     setInputValue("");
     setError(null);
+    userScrolledUp.current = false; // reset scroll lock on new chat
   };
 
   return (
-    <div className="flex min-h-screen bg-dark-gray text-white">
-      <Sidebar onNewChat={handleNewChat} />
-      <ChatPage
-        messages={messages}
-        isTyping={isTyping}
-        typingMessage={typingMessage}
-        isLoading={isLoading}
-        loadingLabel={loadingLabel}
-        error={error}
-        messagesEndRef={messagesEndRef}
-        inputValue={inputValue}
-        setInputValue={setInputValue}
-        onSend={sendMessage}
+    <div className="flex h-screen overflow-hidden bg-dark-gray text-white">
+      <Sidebar
+        onNewChat={handleNewChat}
+        onNavigate={setCurrentPage}
+        currentPage={currentPage}
       />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {currentPage === "chat" && (
+          <ChatPage
+            messages={messages}
+            isTyping={isTyping}
+            typingMessage={typingMessage}
+            isLoading={isLoading}
+            loadingLabel={loadingLabel}
+            error={error}
+            messagesEndRef={messagesEndRef}
+            chatContainerRef={chatContainerRef}
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            onSend={sendMessage}
+          />
+        )}
+        {currentPage === "research" && <Research />}
+      </div>
     </div>
   );
 }
 
 export default App;
-
-
-
-/*
-
-Note:
-
-This file once refactored should only render in the sidebar and whatever page is currently active
-
-Goal:
-- Only actively render Sidebar, and their components, and whatever page is actively being rendered, all functions should be compartmentalized into their respective files.
-
-
-*/
