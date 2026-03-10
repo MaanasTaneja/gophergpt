@@ -8,47 +8,8 @@ import { Message } from "./components/Message";
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { MinnesotaMLogo } from "./components/MinnesotaMLogo";
 import { GoldyMascot } from "./components/GoldyMascot";
-
-// Input Component
-const ChatInput = ({
-  value,
-  onChange,
-  onSend,
-  onFocus,
-  placeholder,
-  disabled = false,
-}) => {
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      onSend();
-    }
-  };
-
-  return (
-    <div className="gradient-border w-full max-w-2xl mx-auto relative">
-      <div className="flex items-center">
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyPress={handleKeyPress}
-          onFocus={onFocus}
-          placeholder={placeholder}
-          disabled={disabled}
-          className="gradient-border-input flex-1 pr-12"
-        />
-        <button
-          onClick={onSend}
-          disabled={disabled || !value.trim()}
-          className="absolute right-2 w-8 h-8 bg-gold rounded-full flex items-center justify-center hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed send-button"
-        >
-          <Send size={16} className="text-maroon" />
-        </button>
-      </div>
-    </div>
-  );
-};
+import ChatWindow from "./components/ChatWindow";
+import ChatInput from "./components/ChatInput";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("landing"); // 'landing', 'transition', 'chat'
@@ -265,23 +226,15 @@ function App() {
           </div>
 
           {/* Messages Container */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10">
-            {messages.map((message, index) => (
-              <Message
-                key={index}
-                message={message.text}
-                isUser={message.isUser}
-              />
-            ))}
-            {isTyping && typingMessage && (
-              <Message message={typingMessage} isUser={false} />
-            )}
-            {isLoading && <LoadingIndicator label={loadingLabel} />}
-            {error && (
-              <div className="text-red-400 text-center text-sm">{error}</div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+          <ChatWindow
+            messages={messages}
+            isTyping={isTyping}
+            typingMessage={typingMessage}
+            isLoading={isLoading}
+            loadingLabel={loadingLabel}
+            error={error}
+            messagesEndRef={messagesEndRef}
+          />
 
           {/* Input Box - Smoothly expands to full width */}
           <div className="w-full px-4 pb-4 transition-all duration-700">
@@ -321,20 +274,15 @@ function App() {
           </div>
 
           {/* Messages Container */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10">
-            {messages.map((message, index) => (
-              <Message
-                key={index}
-                message={message.text}
-                isUser={message.isUser}
-              />
-            ))}
-            {isLoading && <LoadingIndicator label={loadingLabel} />}
-            {error && (
-              <div className="text-red-400 text-center text-sm">{error}</div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+          <ChatWindow
+            messages={messages}
+            isTyping={isTyping}
+            typingMessage={typingMessage}
+            isLoading={isLoading}
+            loadingLabel={loadingLabel}
+            error={error}
+            messagesEndRef={messagesEndRef}
+          />
 
           {/* Input Box */}
           <div className="p-4 border-t border-gray-700 relative z-10">
