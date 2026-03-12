@@ -17,7 +17,7 @@ const Sidebar = ({ onNewChat, onNavigate, currentPage }) => (
         }}
         className="w-full py-2 px-4 mb-6 text-left text-white rounded-lg hover:bg-gray-700 transition-colors"
         >
-        + New Chat
+        New Chat
         </button>
 
         {/* Apps Section */}
@@ -33,15 +33,15 @@ const Sidebar = ({ onNewChat, onNavigate, currentPage }) => (
                 : "text-gray-400 hover:bg-gray-700"
             }`}
         >
-            🔬 Research
+            Research
         </button>
 
         {/* Placeholder tools - not yet ready */}
         <button disabled className="w-full py-2 px-4 mb-1 text-left text-gray-400 rounded-lg cursor-not-allowed">
-            🔧 Tool 2
+            Tool 2
         </button>
         <button disabled className="w-full py-2 px-4 mb-1 text-left text-gray-400 rounded-lg cursor-not-allowed">
-            🔧 Tool 3
+            Tool 3
         </button>
         </div>
 
@@ -49,14 +49,14 @@ const Sidebar = ({ onNewChat, onNavigate, currentPage }) => (
         <div className="mb-6">
         <p className="text-gray-500 text-xs uppercase tracking-wider mb-2 px-2">History</p>
         <button disabled className="w-full py-2 px-4 text-left text-gray-400 rounded-lg cursor-not-allowed">
-            🕘 Coming Soon
+            Coming Soon
         </button>
         </div>
 
         {/* Settings - pinned to bottom */}
         <div className="mt-auto">
         <button disabled className="w-full py-2 px-4 text-left text-gray-400 rounded-lg cursor-not-allowed">
-            ⚙️ Settings
+            Settings
         </button>
         </div>
 
