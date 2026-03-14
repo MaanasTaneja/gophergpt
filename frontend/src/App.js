@@ -21,13 +21,13 @@ function App() {
   const isNearBottom = () => {
     const container = chatContainerRef.current;
     if (!container) return true;
-    const threshold = 50; // tightened from 150
+    const threshold = 50;
     return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
   };
 
   const scrollToBottom = () => {
     if (!userScrolledUp.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "instant" }); // was "smooth"
+      messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
     }
   };
 
@@ -54,6 +54,15 @@ function App() {
     let index = 0;
 
     const typeInterval = setInterval(() => {
+      // If tab is hidden, complete instantly to avoid browser throttling
+      if (document.hidden) {
+        clearInterval(typeInterval);
+        setTypingMessage(text);
+        setIsTyping(false);
+        if (callback) callback();
+        return;
+      }
+
       if (index < text.length) {
         setTypingMessage(text.slice(0, index + 1));
         index++;
