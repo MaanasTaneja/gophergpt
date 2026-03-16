@@ -18,7 +18,7 @@ code {
 
 .gradient-border {
     position: relative;
-    background: #4D4D4D;
+    background: linear-gradient(90deg, #7A0019, #FFCC33);
     padding: 2px;
     border-radius: 20px;
 }
