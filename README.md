@@ -24,3 +24,5 @@ Notes
 - The backend reads `.env` (docker-compose loads it into containers). Do not commit real secrets into the repository.
 - If you want to run only the backend locally without Docker, create a venv, install the project's dependencies, and run `uvicorn webservice.app:app --reload`.
 
+For full Docker setup and image build instructions, see [DOCKER_README.md](DOCKER_README.md).
+

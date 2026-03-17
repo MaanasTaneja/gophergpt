@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './App.css';
+import "../App.js"
 
 export default function Research() {
     const [query, setQuery] = useState('Climate change adaptation');
