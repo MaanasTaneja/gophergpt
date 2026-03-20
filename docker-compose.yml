@@ -11,6 +11,8 @@ services:
     env_file:
       - .env
     restart: always
+    volumes:
+      - ./webservice/data:/app/data
   
   frontend:
     build:
@@ -23,5 +25,6 @@ services:
     #compose and docker do all the dns stuff for us.
       - backend
     restart : always 
+
 
 

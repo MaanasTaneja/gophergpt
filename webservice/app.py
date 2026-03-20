@@ -18,6 +18,11 @@ import re
 
 from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
 
+# History Storage
+DATA_DIR = "/app/data"
+os.makedirs(DATA_DIR, exist_ok=True)
+CONVERSATION_FILE = os.path.join(DATA_DIR, "conversations.json")
+
 # GopherGrades Testing Endpoint
 class CourseLookupRequest(BaseModel):
     query: str
@@ -64,6 +69,14 @@ class ChatAgent:
         final_state = self.react_agent.invoke_agent({"messages": [{"role": "user", "content": message}]})
         generation = final_state["messages"][-1].content
         return generation
+    
+
+# History Classes
+
+class ConversationRequest(BaseModel):
+    id: int
+    title: str
+    messages: list
 
 
 gopher_assistant  = None
@@ -147,3 +160,56 @@ def lookup_professor(request: ProfessorLookupRequest):
             "name": name,
             "error": str(e)
         }
+    
+
+# Implementing History Permanent Storage 
+
+# receives a conversation object from frontend, and store it
+@app.post("/save")
+def save_endpoint(request: ConversationRequest):
+    # checks if json already exist, before saving.
+    if os.path.exists(CONVERSATION_FILE):
+        # exist, so read file
+        with open(CONVERSATION_FILE, "r") as file:
+            conversations = json.load(file)
+    else:
+        # doesn't exist, so make list to store temporarily
+        conversations = []
+
+    # catch duplicates
+    if any(c["id"] == request.id for c in conversations):
+        return {"ok": True}
+
+
+    # adds conversations components
+    conversations.append({
+        "id": request.id,
+        "title": request.title,
+        "messages": request.messages
+    })
+
+    # open file to write, creates if doesn't exist
+    with open(CONVERSATION_FILE, "w") as file:
+        json.dump(conversations, file, indent=2)
+
+    # Good Return
+    return {"ok": True}
+
+
+# returns all saved conversations to the frontend
+@app.get("/history")
+def history_endpoint():
+    # checks if file exist
+    if os.path.exists(CONVERSATION_FILE):
+
+        # opens and read file
+        with open(CONVERSATION_FILE, "r") as file:
+
+            # load file into parsed format
+            conversations = json.load(file)
+
+            # return file
+            return {"ok": True, "conversations": list(reversed(conversations))}
+    else:
+        # file doesn't exist, return empty list
+        return {"ok": True, "conversations": []}
