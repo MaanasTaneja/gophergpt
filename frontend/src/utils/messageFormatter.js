@@ -36,6 +36,8 @@ export function boldify(text) {
 // then escape, restore HTML, then linkify remaining raw URLs
 export function processLine(text) {
 
+    const cleaned = text.replace(/\*\*\s*\*\*/g, "").trim();
+
     const bolded = text.replace(/\*\*\s*(.*?)\s*\*\*/g, "\x00BOLD_START\x00$1\x00BOLD_END\x00");
 
     const linkedMd = bolded.replace(
