@@ -14,6 +14,7 @@ function App() {
   const [isTyping, setIsTyping] = useState(false);
   const [loadingLabel, setLoadingLabel] = useState("Thinking");
   const [currentPage, setCurrentPage] = useState("chat");
+  const [conversations, setConversations] = useState([]);
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
   const userScrolledUp = useRef(false);
@@ -117,8 +118,29 @@ function App() {
     }
   };
 
-  // this isn't ready, just wipes chat logs, doesn't save, pending backend to support this feature...
+  // saves current conversation into database, can be accessed again by button from history list
+  const saveConversation = () => {
+
+    // checks if the page is empty, shouldn't save empty conversation into history
+    if (messages.length === 0) {
+      return;
+    };
+
+    // create data structure for conversation
+    const conversation = {
+      id: Date.now(), // unique id
+      title: messages[0].text.slice(0, 30), // store 30char length of first prompt as title
+      messages: messages // store full conversation
+    };
+
+
+    setConversations(prev => [conversation, ...prev]);
+  };
+
+
+  // saves current conversation to history, then starts a fresh chat
   const handleNewChat = () => {
+    saveConversation(); // stores full conversation before wiping
     setMessages([]);
     setInputValue("");
     setError(null);
