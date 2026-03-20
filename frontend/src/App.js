@@ -15,6 +15,8 @@ function App() {
   const [loadingLabel, setLoadingLabel] = useState("Thinking");
   const [currentPage, setCurrentPage] = useState("chat");
   const [conversations, setConversations] = useState([]);
+  const isLoadedConversation = useRef(false); // prevent duplication of pages
+
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
   const userScrolledUp = useRef(false);
@@ -81,6 +83,9 @@ function App() {
     userScrolledUp.current = false; // reset scroll lock on new message
 
     const userMessage = inputValue.trim();
+
+    isLoadedConversation.current = false; // prevent duplication of pages
+
     setLoadingLabel(getLoadingLabel(userMessage));
     setIsLoading(true);
     setInputValue("");
@@ -121,6 +126,11 @@ function App() {
   // saves current conversation into database, can be accessed again by button from history list
   const saveConversation = () => {
 
+    // prevent duplication of pages
+    if (isLoadedConversation.current) {
+      return;
+    }
+
     // checks if the page is empty, shouldn't save empty conversation into history
     if (messages.length === 0) {
       return;
@@ -140,6 +150,7 @@ function App() {
 
   // saves current conversation to history, then starts a fresh chat
   const handleNewChat = () => {
+    isLoadedConversation.current = false;
     saveConversation(); // stores full conversation before wiping
     setMessages([]);
     setInputValue("");
@@ -147,12 +158,26 @@ function App() {
     userScrolledUp.current = false; // reset scroll lock on new chat
   };
 
+
+  const loadPrevChat = (conversation) => {
+    saveConversation(); // stores full conversation before loading prev
+    setMessages(conversation.messages);
+    setInputValue("");
+    setCurrentPage("chat");
+
+    isLoadedConversation.current = true; // prevent duplication of pages
+
+    userScrolledUp.current = false;
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-dark-gray text-white">
       <Sidebar
         onNewChat={handleNewChat}
         onNavigate={setCurrentPage}
         currentPage={currentPage}
+        conversations={conversations}
+        onLoad={loadPrevChat}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         {currentPage === "chat" && (
