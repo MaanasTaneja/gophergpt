@@ -16,6 +16,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState("chat");
   const [conversations, setConversations] = useState([]);
   const isLoadedConversation = useRef(false); // prevent duplication of pages
+  const conversationId = useRef(Date.now()); // stable id for current conversation, prevent duplications?
 
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -81,11 +82,9 @@ function App() {
     if (!inputValue.trim() || isLoading || isTyping) return;
 
     userScrolledUp.current = false; // reset scroll lock on new message
-
-    const userMessage = inputValue.trim();
-
     isLoadedConversation.current = false; // prevent duplication of pages
 
+    const userMessage = inputValue.trim();
     setLoadingLabel(getLoadingLabel(userMessage));
     setIsLoading(true);
     setInputValue("");
@@ -93,7 +92,7 @@ function App() {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:8000/chat", {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userMessage }),
@@ -123,52 +122,78 @@ function App() {
     }
   };
 
+  // History Implementations
+
+  // when app loads, fetch all saved conversations
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_BASE}/history`)
+      .then(res => res.json())
+      .then(data => {
+        setConversations(data.conversations);
+      });
+  }, []);
+
   // saves current conversation into database, can be accessed again by button from history list
-  const saveConversation = () => {
+  const saveConversation = async () => {
 
-    // prevent duplication of pages
-    if (isLoadedConversation.current) {
-      return;
-    }
+    // prevent duplication of loaded conversations
+    if (isLoadedConversation.current) return;
 
-    // checks if the page is empty, shouldn't save empty conversation into history
-    if (messages.length === 0) {
-      return;
-    };
+    // don't save empty or single message conversations
+    if (messages.length < 2) return;
 
-    // create data structure for conversation
+    // create data structure using stable conversationId
     const conversation = {
-      id: Date.now(), // unique id
-      title: messages[0].text.slice(0, 30), // store 30char length of first prompt as title
-      messages: messages // store full conversation
+      id: conversationId.current, // stable id — same for entire conversation lifetime
+      title: messages[0].text.slice(0, 30),
+      messages: messages
     };
 
+    // sends conversation into storage
+    const response = await fetch(`${process.env.REACT_APP_API_BASE}/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: conversation.id,
+        title: conversation.title,
+        messages: conversation.messages
+      })
+    });
 
-    setConversations(prev => [conversation, ...prev]);
+    // re-fetch from backend to stay in sync
+    const data = await response.json();
+    if (data.ok) {
+      fetch(`${process.env.REACT_APP_API_BASE}/history`)
+        .then(res => res.json())
+        .then(data => {
+          setConversations(data.conversations);
+        });
+    }
   };
 
-
   // saves current conversation to history, then starts a fresh chat
-  const handleNewChat = () => {
+  const handleNewChat = async () => {
     isLoadedConversation.current = false;
-    saveConversation(); // stores full conversation before wiping
+    await saveConversation(); // stores full conversation before wiping
+    conversationId.current = Date.now(); // generate new id for next conversation
     setMessages([]);
     setInputValue("");
     setError(null);
     userScrolledUp.current = false; // reset scroll lock on new chat
   };
 
-
-  const loadPrevChat = (conversation) => {
-    saveConversation(); // stores full conversation before loading prev
+  // loads the previous conversation
+  const loadPrevChat = async (conversation) => {
+    await saveConversation(); // stores current conversation before loading prev
+    conversationId.current = conversation.id; // use loaded conversation's id
     setMessages(conversation.messages);
     setInputValue("");
     setCurrentPage("chat");
-
     isLoadedConversation.current = true; // prevent duplication of pages
+    userScrolledUp.current = false; // reset scroll
+  };
 
-    userScrolledUp.current = false;
-  }
+  // End of History
 
   return (
     <div className="flex h-screen overflow-hidden bg-dark-gray text-white">

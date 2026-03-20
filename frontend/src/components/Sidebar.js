@@ -3,7 +3,7 @@ import { History } from "./History";
 import MinnesotaMLogo from "./MinnesotaMLogo";
 
 const Sidebar = ({ onNewChat, onNavigate, currentPage, conversations, onLoad }) => (
-    <div className="w-64 h-screen sticky top-0 bg-dark-gray border-r border-gray-700 flex flex-col p-3 overflow-y-auto">
+    <div className="w-64 h-screen sticky top-0 bg-dark-gray border-r border-gray-700 flex flex-col p-3">
 
         {/* Logo */}
         <div className="flex items-center justify-center mb-4">
@@ -47,7 +47,7 @@ const Sidebar = ({ onNewChat, onNavigate, currentPage, conversations, onLoad }) 
         </div>
 
         {/* History Section */}
-        <div className="mb-6">
+        <div className="flex-1 overflow-y-auto min-h-0">
             <p className="text-gray-500 text-xs uppercase tracking-wider mb-2 px-2">History</p>
             <History conversations={conversations} onLoad={onLoad} />
         </div>
