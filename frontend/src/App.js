@@ -4,6 +4,7 @@ import { getLoadingLabel } from "./utils/loadingLabel";
 import ChatPage from "./pages/ChatPage";
 import Sidebar from "./components/Sidebar";
 import Research from "./pages/Research";
+import Compare from "./pages/CourseCompare";
 
 function App() {
   const [inputValue, setInputValue] = useState("");
@@ -221,6 +222,7 @@ function App() {
           />
         )}
         {currentPage === "research" && <Research />}
+        {currentPage === "compare" && <Compare />}
       </div>
     </div>
   );
