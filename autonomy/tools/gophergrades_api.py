@@ -26,7 +26,7 @@ def _base_api() -> str:
     # GOPHERGRADES_API_BASE=http://localhost:3000/api
     return os.getenv("GOPHERGRADES_API_BASE", "https://umn.lol/api").rstrip("/")
 
-
+# Returns class_name, description, and total student aggregated. 
 @tool
 def gophergrades_search(query: str) -> str:
     """
@@ -39,7 +39,7 @@ def gophergrades_search(query: str) -> str:
     url = f"{base}/search?{qs}"
     return json.dumps(_get_json(url), ensure_ascii=False)
 
-
+# Returns course info: {desc, total_student, grades, SRT, profs, and their ratings}
 @tool
 def gophergrades_class(class_code: str) -> str:
     """
@@ -52,7 +52,7 @@ def gophergrades_class(class_code: str) -> str:
     url = f"{base}/class/{normalized}"
     return json.dumps(_get_json(url), ensure_ascii=False)
 
-
+# Returns prof's RMP, courses, overall grade breakdown, and SRT value
 @tool
 def gophergrades_prof(prof_code: str) -> str:
     """
@@ -64,7 +64,7 @@ def gophergrades_prof(prof_code: str) -> str:
     url = f"{base}/prof/{prof_code}"
     return json.dumps(_get_json(url), ensure_ascii=False)
 
-
+# Returns full list of courses and their grade breakdown with student ratings, and SRT values
 @tool
 def gophergrades_dept(dept_code: str) -> str:
     """
