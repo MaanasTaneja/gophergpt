@@ -75,3 +75,4 @@ def gophergrades_dept(dept_code: str) -> str:
     base = _base_api()
     url = f"{base}/dept/{dept_code.upper()}"
     return json.dumps(_get_json(url), ensure_ascii=False)
+

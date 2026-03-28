@@ -13,6 +13,8 @@ import os
 from pydantic import BaseModel
 from fastapi import APIRouter
 from webservice.routers.research import router as research_router
+from webservice.routers.rag import router as rag_router
+from webservice.rag.vector_store import get_client
 import json
 import re
 
@@ -113,13 +115,22 @@ class ConversationRequest(BaseModel):
 gopher_assistant  = None
 
 @asynccontextmanager
-async def lifespan_function(app : FastAPI):
-    global gopher_assistant 
+async def lifespan_function(app: FastAPI):
+    global gopher_assistant
     gopher_assistant = ChatAgent()
+
+    # initialize chromadb connection on startup so routers can use it
+    try:
+        get_client()  # validates connection is healthy before serving requests
+        print("ChromaDB connected successfully.")
+    except Exception as e:
+        print(f"WARNING: ChromaDB connection failed: {e}")
+
     yield
 
 app = FastAPI(lifespan=lifespan_function)
 app.include_router(research_router)
+app.include_router(rag_router) 
 app.add_middleware(CORSMiddleware, 
     allow_origins=["*"],
     allow_credentials=True,

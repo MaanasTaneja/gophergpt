@@ -1,0 +1,1 @@
+# CLI script to trigger a full re-index?

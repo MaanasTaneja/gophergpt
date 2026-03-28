@@ -13,7 +13,10 @@ services:
     restart: always
     volumes:
       - ./webservice/data:/app/data
-  
+    depends_on:        # backend needs chromadb ready before it starts
+      chromadb:
+        condition: service_healthy
+
   frontend:
     build:
       context: ./frontend
@@ -24,7 +27,21 @@ services:
     depends_on: #link both services, and change in react app to access instead of local host to backend, 
     #compose and docker do all the dns stuff for us.
       - backend
-    restart : always 
+    restart: always
 
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: gophergpt-chromadb
+    ports:
+      - "8001:8000"   # exposes to host for debugging; backend uses internal DNS (http://chromadb:8000)
+    volumes:
+      - chroma_data:/chroma/chroma   # named volume — persists across container restarts
+    restart: always
+    healthcheck:      # backend waits for this to pass before starting
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-
+volumes:
+  chroma_data:        # docker manages this — use `docker volume rm gophergpt_chroma_data` to reset
