@@ -25,16 +25,15 @@ const Sidebar = ({ onNewChat, onNavigate, currentPage, conversations, onLoad }) 
         <div className="mb-6">
         <p className="text-gray-500 text-xs uppercase tracking-wider mb-2 px-2">Apps</p>
 
-        {/* Research */}
         <button
-            onClick={() => onNavigate("research")}
+            onClick={() => onNavigate("schedule")}
             className={`w-full py-2 px-4 mb-1 text-left rounded-lg transition-colors ${
-            currentPage === "research"
+            currentPage === "schedule"
                 ? "bg-gray-700 text-white"
                 : "text-gray-400 hover:bg-gray-700"
             }`}
         >
-            Research
+            Schedule Builder
         </button>
 
         {/* Compare */}

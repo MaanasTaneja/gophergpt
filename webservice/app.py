@@ -12,9 +12,10 @@ import os
 
 from pydantic import BaseModel
 from fastapi import APIRouter
-from webservice.routers.research import router as research_router
+from webservice.routers.research import router as research_router, run_research_query, ResearchRequest
 import json
 import re
+
 
 from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
 
@@ -107,8 +108,36 @@ def chat_endpoint(request: ChatRequest):
     global gopher_assistant
     if gopher_assistant is None:
         return {"error": "Agent not initialized."}
+
+    message = request.message.lower()
+
+    if "research" in message:
+        research_data = run_research_query(ResearchRequest(query=request.message, max_results=5))
+        summary_text = summarize_research_text(research_data.summary, limit=320)
+
+        return {
+            "response": "Here's a research snapshot with the strongest matches I found.",
+            "content": [
+                {
+                    "type": "research",
+                    "summary": summary_text,
+                    "results": [
+                        {
+                            "title": summarize_research_text(result.title, limit=90),
+                            "url": result.url,
+                            "snippet": summarize_research_text(result.snippet, limit=190)
+                        }
+                        for result in research_data.results
+                    ][:4]
+                }
+            ]
+        }
+
     response = gopher_assistant.invoke(request.message)
-    return {"response": response}
+    return {
+        "response": response,
+        "content": []
+    }
 
 # GopherGrades testing as well as helpers for the agent to better identify when tools are needed
 # This will also push for a better, more detailed response from the agent
@@ -213,3 +242,17 @@ def history_endpoint():
     else:
         # file doesn't exist, return empty list
         return {"ok": True, "conversations": []}
+
+
+def summarize_research_text(text, limit=200):
+    if not text:
+        return ""
+
+    cleaned = re.sub(r"\s+", " ", str(text)).strip()
+    cleaned = re.sub(r"(#{1,6}\s*)+", "", cleaned)
+
+    if len(cleaned) <= limit:
+        return cleaned
+
+    shortened = cleaned[:limit].rsplit(" ", 1)[0].strip()
+    return f"{shortened}..."

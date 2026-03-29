@@ -132,5 +132,33 @@
         "isUser": false
       }
     ]
+  },
+  {
+    "id": 1774396735327,
+    "title": "Tell me about csci 1933",
+    "messages": [
+      {
+        "text": "Tell me about csci 1933",
+        "isUser": true
+      },
+      {
+        "text": "CSCI 1933 is an \"Introduction to Algorithms and Data Structures\" course at the University of Minnesota, Twin Cities. This class focuses on advanced object-oriented programming to implement abstract data types such as stacks, queues, linked lists, hash tables, and binary trees using the Java programming language. Key topics include inheritance, searching/sorting algorithms, basic algorithmic analysis, and the use of software development tools. The course has a weekly lab component and carries 4 credits.\n\n### Prerequisites:\n- Calculus I (Math 1271, Math 1371, or Math 1571H) as a corequisite.\n- CSCI 1133 as a prerequisite.\n\n### Grade Distribution:\n- **Total Students:** 5972\n- **Grades Distribution:** \n  - A: 1481\n  - A-: 454\n  - B: 730\n  - B+: 455\n  - B-: 481\n  - C: 378\n  - C+: 212\n  - C-: 327\n  - D: 207\n  - F: 270\n  - W (Withdrawn): 643\n\nSome notable professors who have taught this course:\n- **Chad Myers** with a RateMyProfessor score of 4.3.\n- **Chris Dovolis** with a RateMyProfessor score of 3.3.\n- **James Moen** with a RateMyProfessor score of 4.1.\n- **Nabil Khan** with a RateMyProfessor score of 4.7.\n- **Camden Sikes** with a perfect 5.0 RateMyProfessor score.\n\nFor more detailed information on current enrollment and terms, you can check the [OneStop course page](https://umtc.catalog.prod.coursedog.com/courses/8103461).",
+        "isUser": false
+      }
+    ]
+  },
+  {
+    "id": 1774480956162,
+    "title": "Tell me about CSCI 4041",
+    "messages": [
+      {
+        "text": "Tell me about CSCI 4041",
+        "isUser": true
+      },
+      {
+        "text": "CSCI 4041, titled **Algorithms and Data Structures**, is a course offered at the University of Minnesota, Twin Cities campus. Here are some details about the course and its grade distributions:\n\n### Course Description:\n- **Class Description**: This course offers a rigorous analysis of algorithms and their implementation. Topics include algorithm analysis, sorting algorithms, binary trees, heaps and priority queues, heapsort, balanced binary search trees, AVL trees, hash tables and hashing, graphs, graph traversal, single-source shortest path, and minimum cost spanning trees.\n- **Prerequisites**: [(CSCI 1913 or CSCI 1933) and CSCI 2011] or instructor consent, or graduate standing.\n- **Credits**: 4 credits\n\n### Grade Distribution (Total Students: 7442):\n- **A**: 2257\n- **A-**: 1404\n- **B**: 831\n- **B+**: 1092\n- **B-**: 471\n- **C**: 191\n- **C+**: 307\n- **C-**: 129\n- **D**: 65\n- **D+**: 26\n- **F**: 119\n- **S**: 211 (Satisfactory)\n- **W**: 301 (Withdrawn)\n- **N**: 38 (No Grade)\n\n### Instructors:\n- **Andrew Exley**, **Carl Sturtivant**, **Daniel Orban**, **James Moen**, **James Parker**, **Kathryn Jensen**, **Nathan Taylor**, **Phillip Barry**, **Camden Sikes**, **Alexi Brooks**.\n\nFor more details, you can visit the [course catalog entry here](https://umtc.catalog.prod.coursedog.com/courses/0036751).\n\nThis course is essential for a deep understanding of algorithmic concepts and data structure techniques, providing a foundation for advanced computer science areas.",
+        "isUser": false
+      }
+    ]
   }
 ]
