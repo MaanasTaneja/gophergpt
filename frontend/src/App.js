@@ -6,6 +6,18 @@ import Sidebar from "./components/Sidebar";
 import Research from "./pages/Research";
 import Compare from "./pages/CourseCompare";
 
+function getOrCreateUserId() {
+  const existing = localStorage.getItem("gophergpt_user_id");
+  if (existing) return existing;
+
+  const newId = 
+    window.crypto?.randomUUID?.() ||
+    `user_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+
+  localStorage.setItem("gophergpt_user_id", newId);
+  return newId;
+}
+
 function App() {
   const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState([]);
@@ -22,6 +34,8 @@ function App() {
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
   const userScrolledUp = useRef(false);
+
+  const [userId] = useState(getOrCreateUserId());
 
   const isNearBottom = () => {
     const container = chatContainerRef.current;
@@ -96,7 +110,10 @@ function App() {
       const response = await fetch(`${process.env.REACT_APP_API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ 
+          user_id: userId,
+          message: userMessage 
+        }),
       });
 
       if (!response.ok) {
@@ -127,12 +144,12 @@ function App() {
 
   // when app loads, fetch all saved conversations
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_BASE}/history`)
+    fetch(`${process.env.REACT_APP_API_BASE}/history?user_id=${encodeURIComponent(userId)}`)
       .then(res => res.json())
       .then(data => {
         setConversations(data.conversations);
       });
-  }, []);
+  }, [userId]);
 
   // saves current conversation into database, can be accessed again by button from history list
   const saveConversation = async () => {
@@ -155,6 +172,7 @@ function App() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        user_id: userId,
         id: conversation.id,
         title: conversation.title,
         messages: conversation.messages
@@ -164,7 +182,7 @@ function App() {
     // re-fetch from backend to stay in sync
     const data = await response.json();
     if (data.ok) {
-      fetch(`${process.env.REACT_APP_API_BASE}/history`)
+      fetch(`${process.env.REACT_APP_API_BASE}/history?user_id=${encodeURIComponent(userId)}`)
         .then(res => res.json())
         .then(data => {
           setConversations(data.conversations);

@@ -31,6 +31,7 @@ class ProfessorLookupRequest(BaseModel):
     name: str
 
 class ChatRequest(BaseModel):
+    user_id: str
     message: str
 
 class ChatAgent:
@@ -74,6 +75,7 @@ class ChatAgent:
 # History Classes
 
 class ConversationRequest(BaseModel):
+    user_id: str
     id: int
     title: str
     messages: list
