@@ -5,6 +5,7 @@ import ChatPage from "./pages/ChatPage";
 import Sidebar from "./components/Sidebar";
 import Research from "./pages/Research";
 import Compare from "./pages/CourseCompare";
+import DepartmentExplorer from "./pages/DepartmentExplorer";
 
 function App() {
   const [inputValue, setInputValue] = useState("");
@@ -223,6 +224,7 @@ function App() {
         )}
         {currentPage === "research" && <Research />}
         {currentPage === "compare" && <Compare />}
+        {currentPage === "department" && <DepartmentExplorer />}
       </div>
     </div>
   );
