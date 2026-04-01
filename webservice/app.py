@@ -13,6 +13,7 @@ import os
 from pydantic import BaseModel
 from fastapi import APIRouter
 from webservice.routers.research import router as research_router
+from webservice.routers.difficulty import router as difficulty_router
 import json
 import re
 
@@ -120,6 +121,7 @@ async def lifespan_function(app : FastAPI):
 
 app = FastAPI(lifespan=lifespan_function)
 app.include_router(research_router)
+app.include_router(difficulty_router)
 app.add_middleware(CORSMiddleware, 
     allow_origins=["*"],
     allow_credentials=True,
