@@ -6,7 +6,7 @@ const emptyProfile = {
   personalization_notes: "",
 };
 
-export default function ProfileSettings({ userId }) {
+export default function ProfileSettings({ userId, onClose }) {
   const [profile, setProfile] = useState(emptyProfile);
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState("");
@@ -85,10 +85,23 @@ export default function ProfileSettings({ userId }) {
   return (
     <div className="min-h-screen bg-dark-gray text-white p-8">
       <div className="max-w-3xl mx-auto bg-gray-900 rounded-xl p-6 border border-gray-700">
-        <h1 className="text-2xl font-bold mb-2">Profile Settings</h1>
-        <p className="text-gray-400 mb-6">
-          These settings help personalize GopherGPT responses.
-        </p>
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">Profile Settings</h1>
+            <p className="text-gray-400">
+              These settings help personalize GopherGPT responses.
+            </p>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white text-xl px-2"
+            aria-label="Close profile settings"
+            title="Close"
+          >
+            &times;
+          </button>
+        </div>
 
         <div className="grid gap-4">
           <div>

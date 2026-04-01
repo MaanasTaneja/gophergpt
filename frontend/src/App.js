@@ -242,7 +242,7 @@ function App() {
         )}
         {currentPage === "research" && <Research />}
         {currentPage === "compare" && <Compare />}
-        {currentPage === "profile" && <ProfileSettings userId={userId} />}
+        {currentPage === "profile" && <ProfileSettings userId={userId} onClose={() => setCurrentPage("chat")}/>}
       </div>
     </div>
   );
