@@ -49,9 +49,15 @@ const Sidebar = ({ onNewChat, onNavigate, currentPage, conversations, onLoad }) 
             Course Compare
         </button>
 
-        {/* Placeholder tools - not yet ready */}
-        <button disabled className="w-full py-2 px-4 mb-1 text-left text-gray-400 rounded-lg cursor-not-allowed">
-            Tool 3
+        <button
+            onClick={() => onNavigate("department")}
+            className={`w-full py-2 px-4 mb-1 text-left rounded-lg transition-colors ${
+                currentPage === "department"
+                ? "bg-gray-700 text-white"
+                : "text-gray-400 hover:bg-gray-700"
+            }`}
+        >
+            Department Explorer
         </button>
         </div>
 
