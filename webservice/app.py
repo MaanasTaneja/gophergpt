@@ -19,10 +19,16 @@ import re
 
 from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
 
+
 # History Storage
-DATA_DIR = "/app/data"
-os.makedirs(DATA_DIR, exist_ok=True)
-CONVERSATION_FILE = os.path.join(DATA_DIR, "conversations.json")
+# """
+# This defines where we are storing the conversation history into.
+# Will be using as a memory cache, to continue dialogue with agent.
+# """
+DATA_DIR = "/app/data" # where the file will be stored
+os.makedirs(DATA_DIR, exist_ok=True) # makes directory if doesn't exist, nothing if does exist
+CONVERSATION_FILE = os.path.join(DATA_DIR, "conversations.json") # full path of where JSON file is stored
+
 
 # GopherGrades Testing Endpoint
 class CourseLookupRequest(BaseModel):
@@ -31,11 +37,18 @@ class CourseLookupRequest(BaseModel):
 class ProfessorLookupRequest(BaseModel):
     name: str
 
+# class ChatRequest(BaseModel):
+#     message: str
+
 class DepartmentLookupRequest(BaseModel):
     dept: str
 
 class ChatRequest(BaseModel):
-    message: str
+
+    message: str 
+
+    # ensures loading the correct history and not all
+    conversation_id: int | None = None # makes it optional, provide stability to frontend, since no history may exist
 
 
 def _parse_srt_vals(raw):
@@ -208,13 +221,31 @@ class ChatAgent:
                                           "If a professor name is ambiguous, use search first before using a professor tool."
                                           ))
 
-    def invoke(self, message: str) -> str:
+    # def invoke(self, message: str) -> str:
+    #     """
+    #     Replace this method with your LLM/agent logic.
+    #     For now, it just echoes back the message.
+    #     """
+    #     final_state = self.react_agent.invoke_agent({"messages": [{"role": "user", "content": message}]})
+    #     generation = final_state["messages"][-1].content
+    #     return generation
+    
+    def invoke(self, message: str, history: list = []) -> str: # added new param "history", which accepts list of prior messages, default is empty (no history)
+        """ 
+        Replaced the previous method above, this should maintain agent memory/cache
+        Allowing for back-and-forth communication, instead of monologue
         """
-        Replace this method with your LLM/agent logic.
-        For now, it just echoes back the message.
-        """
-        final_state = self.react_agent.invoke_agent({"messages": [{"role": "user", "content": message}]})
+
+        # prepends all prior messages to pass into agent
+        messages = history + [{"role": "user", "content": message}]
+
+        # runs agent with full history instead of current
+        final_state = self.react_agent.invoke_agent({"messages": messages})
+
+        # grabs agent final response from output, last thought, most refined answer.
         generation = final_state["messages"][-1].content
+
+        # sends response to endpoint
         return generation
     
 
@@ -247,14 +278,42 @@ app.add_middleware(CORSMiddleware,
 def root():
     return {"message": "The greatest openai wrapper ever made."}
 
-
-#this is epheremel, we need to store the chat history in the frtonend, but we will do this later.
+# responsible for loading/retrieving chat messages
 @app.post("/chat") 
 def chat_endpoint(request: ChatRequest):
     global gopher_assistant
     if gopher_assistant is None:
         return {"error": "Agent not initialized."}
-    response = gopher_assistant.invoke(request.message)
+    
+
+    """
+    Loads the conversation history from file "app/data"
+    """
+
+    # empty history, append each if exist, else pass empty (default)
+    history = []
+
+    # only load history if we have an ID to lookup (from frontend) and file that exist
+    if request.conversation_id is not None and os.path.exists(CONVERSATION_FILE):
+
+        # open and read/parse conversations from file into memory
+        with open(CONVERSATION_FILE, "r") as file:
+            conversations = json.load(file)
+
+        # find the correct matching conversation_id to return
+        match = next((c for c in conversations if c["id"] == request.conversation_id), None)
+
+        # if found extract the role and contents from stored messages in format for agent
+        if match:
+            history = [{
+                "role": "user" if msg["isUser"] else "assistant", 
+                "content": msg["text"]}
+                for msg in match["messages"]
+            ]
+
+        
+    # pass history back into agent
+    response = gopher_assistant.invoke(request.message, history=history)
     return {"response": response}
 
 # GopherGrades testing as well as helpers for the agent to better identify when tools are needed
@@ -354,26 +413,36 @@ def lookup_department(request: DepartmentLookupRequest):
 # receives a conversation object from frontend, and store it
 @app.post("/save")
 def save_endpoint(request: ConversationRequest):
+    
     # checks if json already exist, before saving.
     if os.path.exists(CONVERSATION_FILE):
+
         # exist, so read file
         with open(CONVERSATION_FILE, "r") as file:
             conversations = json.load(file)
     else:
+
         # doesn't exist, so make list to store temporarily
         conversations = []
 
-    # catch duplicates
-    if any(c["id"] == request.id for c in conversations):
-        return {"ok": True}
+    # find index of the existing conversation in list, if exist.
+    match_index = next((i for i, c in enumerate(conversations) if c["id"] == request.id), None)
 
-
-    # adds conversations components
-    conversations.append({
-        "id": request.id,
-        "title": request.title,
-        "messages": request.messages
-    })
+    # if conversation exist, overwrite it with updated version.
+    if match_index is not None:
+        # found index, loading message
+        conversations[match_index] = {
+            "id": request.id,
+            "title": request.title,
+            "messages": request.messages
+        }
+    else:
+        # adds conversations components
+        conversations.append({
+            "id": request.id,
+            "title": request.title,
+            "messages": request.messages
+        })
 
     # open file to write, creates if doesn't exist
     with open(CONVERSATION_FILE, "w") as file:

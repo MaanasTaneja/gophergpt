@@ -97,7 +97,10 @@ function App() {
       const response = await fetch(`${process.env.REACT_APP_API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ 
+          message: userMessage,
+          conversation_id: conversationId.current
+        }),
       });
 
       if (!response.ok) {
@@ -109,7 +112,13 @@ function App() {
       setTimeout(() => {
         setIsLoading(false);
         typeMessage(data.response, () => {
-          setMessages((prev) => [...prev, { text: data.response, isUser: false }]);
+          setMessages((prev) => {
+            const updated = [...prev, { text: data.response, isUser: false }];
+        
+            setTimeout(() => saveConversation(), 0);
+
+            return updated;
+        });
           setTypingMessage("");
         });
       }, 1000);
