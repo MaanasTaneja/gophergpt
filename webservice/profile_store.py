@@ -1,7 +1,7 @@
 import json
 import os
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+DATA_DIR = "/app/data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
 PROFILES_PATH = os.path.join(DATA_DIR, "profiles.json")

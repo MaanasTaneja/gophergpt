@@ -42,8 +42,8 @@ class ChatRequest(BaseModel):
 
 class ProfileRequest(BaseModel):
     user_id: str
-    major: str
-    year: str
+    major: str = ""
+    year: str = ""
     personalization_notes: str = ""
 
 class ChatAgent:

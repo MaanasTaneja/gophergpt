@@ -1,136 +1,34 @@
-[
-  {
-    "id": 1773987981375,
-    "title": "Recommend me some CSCI courses",
-    "messages": [
-      {
-        "text": "Recommend me some CSCI courses",
-        "isUser": true
-      },
-      {
-        "text": "Here are some recommended CSCI courses at the University of Minnesota:\n\n1. **CSCI 1133**: Introduction to Computing and Programming Concepts\n   - A foundational course introducing computing and basic programming skills.\n\n2. **CSCI 2011**: Discrete Structures of Computer Science\n   - Covers the essential discrete mathematics needed in computer science.\n\n3. **CSCI 4041**: Algorithms and Data Structures\n   - Focuses on developing an understanding of algorithms and their applications.\n\n4. **CSCI 2021**: Machine Architecture and Organization\n   - Explores computer architecture, hardware functionality, and data organization.\n\n5. **CSCI 2041**: Advanced Programming Principles\n   - Emphasizes on advanced programming techniques and software design.\n\n6. **CSCI 1933**: Introduction to Algorithms and Data Structures\n   - Provides a deeper understanding of algorithms, data structures, and software development.\n\n7. **CSCI 4061**: Introduction to Operating Systems\n   - An introductory course to the concepts and design of operating systems.\n\n8. **CSCI 3081W**: Program Design and Development\n   - Covers program design, software engineering, and quality assurance.\n\n9. **CSCI 2033**: Elementary Computational Linear Algebra\n   - Introduction to linear algebra concepts used in computer science.\n\n10. **CSCI 1113**: Introduction to C/C++ Programming for Scientists and Engineers\n    - Teaches programming in C/C++ targeted towards scientific and engineering problems. \n\nThese courses are popular and widely taken by students in the Computer Science department.",
-        "isUser": false
-      }
-    ]
-  },
-  {
-    "id": 1773988000772,
-    "title": "Where are some good study loca",
-    "messages": [
-      {
-        "text": "Where are some good study locations?",
-        "isUser": true
-      },
-      {
-        "text": "Here are some popular study locations at the University of Minnesota:\n\n1. **Walter Library**: Known for its beautiful architecture and study-friendly environment, Walter Library offers various study spaces, including quiet areas and group study rooms.\n\n2. **Wilson Library**: Located on the West Bank, Wilson Library provides a quiet atmosphere with several study areas and resources, ideal for focused studying.\n\n3. **Coffman Memorial Union**: Coffman offers several study spots, including lounges, the Great Hall, and individual study rooms.\n\n4. **Biomedical Library**: This library is perfect for students in the health sciences, offering a quiet and resource-rich environment for study.\n\n5. **Magrath Library**: On the St. Paul campus, Magrath Library provides a peaceful space with access to resources and study rooms.\n\n6. **Keller Hall**: For engineering students, Keller Hall has designated study spaces and computer labs.\n\n7. **The Rarig Center**: Offers various study spaces and lounges, especially convenient for students in the performing arts.\n\n8. **Group Study Rooms**: Many libraries and buildings across campus offer group study rooms that can be reserved for collaborative work.\n\n9. **Campus Caf\u00e9s**: Various caf\u00e9s around campus, such as Starbucks, Caribou, and local spots, provide a cozy environment for studying with coffee.\n\nThese locations vary in terms of noise level and amenities, so you can choose based on your preference for a quiet or more lively environment.",
-        "isUser": false
-      }
-    ]
-  },
-  {
-    "id": 1773988017749,
-    "title": "What are some things to do on ",
-    "messages": [
-      {
-        "text": "What are some things to do on campus?",
-        "isUser": true
-      },
-      {
-        "text": "Here are some things you can do on the University of Minnesota campus:\n\n1. **Explore the Weisman Art Museum**: Enjoy the unique architecture and explore various art exhibits.\n\n2. **Visit Northrop Auditorium**: Attend concerts, dance performances, or lectures in this historic venue.\n\n3. **Walk Around the Campus**: Take a stroll around the East and West Banks, featuring beautiful landscapes and historic buildings.\n\n4. **Recreation and Wellness Center**: Participate in fitness classes, work out in the gym, or swim in the pool.\n\n5. **Attend Sporting Events**: Support the Golden Gophers by attending various sports events at stadiums like TCF Bank Stadium or Williams Arena.\n\n6. **Join a Student Organization**: Engage with one of the many student clubs and organizations to meet people and pursue your interests.\n\n7. **Relax at the Campus Parks**: Visit places like the Mississippi Riverfront or the Scholars Walk for a peaceful outdoor experience.\n\n8. **Use the University Libraries**: Explore the extensive resources and study in the comfortable and quiet libraries.\n\n9. **Enjoy Campus Eateries**: Check out popular spots like The Purple Onion Caf\u00e9 or Coffman Memorial Union's food court.\n\n10. **Participate in Campus Events**: Join in on various cultural events, lectures, and workshops offered throughout the year.\n\nThese activities offer a great way to enjoy campus life and connect with the UMN community!",
-        "isUser": false
-      }
-    ]
-  },
-  {
-    "id": 1773988187747,
-    "title": "What are some food locations o",
-    "messages": [
-      {
-        "text": "What are some food locations on campus?",
-        "isUser": true
-      },
-      {
-        "text": "The University of Minnesota's campus has a variety of food locations offering a range of cuisines and dining experiences. Some popular dining areas include:\n\n1. **Coffman Memorial Union**: This central hub includes a variety of dining options such as fast food, coffee shops, and sit-down restaurants.\n\n2. **Walter Library**: Offers a cafe with coffee, pastries, and light snacks.\n\n3. **The RecWell Center**: Hosts a juice bar and healthy food options.\n\n4. **St. Paul Student Center**: Includes Subway, and other quick dining choices.\n\n5. **Biological Sciences Building**: Offers a cafe with sandwiches, salads, and coffee.\n\n6. **Washington Avenue**: Home to various restaurants and cafes offering international cuisines.\n\n7. **Dinnaken House and University Village**: Features several fast-food chains and local eateries.\n\nThese are just a few examples, and there are many more eateries scattered across campus providing diverse food options to cater to different tastes and dietary needs.",
-        "isUser": false
-      }
-    ]
-  },
-  {
-    "id": 1773988488325,
-    "title": "Tell me about the Tate hall",
-    "messages": [
-      {
-        "text": "Tell me about the Tate hall",
-        "isUser": true
-      },
-      {
-        "text": "Tate Hall, located at the University of Minnesota, is an important facility for the School of Physics and Astronomy, which includes the Minnesota Institute for Astrophysics. The building is equipped with around 20 teaching labs and more than 15 research labs, accommodating approximately 350 faculty members, post-doctoral researchers, and other staff.\n\nFor more details, you can visit [John T. Tate Hall | Minnesota Institute for Astrophysics](https://cse.umn.edu/mifa/about/tate-hall) or check the [campus map and hours](https://campusmaps.umn.edu/john-t-tate-hall).",
-        "isUser": false
-      }
-    ]
-  },
-  {
-    "id": 1773988526969,
-    "title": "Recommend me some general elec",
-    "messages": [
-      {
-        "text": "Recommend me some general electives",
-        "isUser": true
-      },
-      {
-        "text": "I couldn't find specific information about general electives at the University of Minnesota using GopherGrades. However, I can provide some general guidance:\n\nWhen choosing electives, consider the following popular and interesting options:\n\n1. **Introduction to Psychology (PSY 1001)** - A great way to understand the basics of human behavior and mental processes.\n2. **Public Speaking (COMM 1101)** - Useful for developing communication skills applicable in almost any career.\n3. **Art History (ARTH 1001)** - Offers a broad overview of art movements and their cultural impacts.\n4. **Environmental Science (ESCI 1001)** - Provides insight into environmental issues affecting our world today.\n5. **Introduction to Sociology (SOC 1001)** - Explores societal structures and relationships.\n6. **Creative Writing (ENGW 1101)** - Enhances writing skills and creativity.\n7. **Music Appreciation (MUS 1011)** - Explores different music genres, history, and their cultural significance.\n\nFor more tailored recommendations, consider exploring the University of Minnesota's course catalog or discussing with your academic advisor.",
-        "isUser": false
-      }
-    ]
-  },
-  {
-    "id": 1773988586003,
-    "title": "What is the average tuition?",
-    "messages": [
-      {
-        "text": "What is the average tuition?",
-        "isUser": true
-      },
-      {
-        "text": "The average tuition rates for the University of Minnesota for the year 2023-2024 are as follows:\n\n1. **Undergraduate Tuition (Twin Cities Campus)**\n   - Resident: $23,820 per year\n   - Nonresident: $31,140 per year\n\n2. **Per Credit Rates**\n   - Resident: $1,985 per credit\n   - Nonresident: $2,595 per credit\n\nThese rates apply to undergraduate students taking 12-20 credits per semester. You can find more detailed information on tuition rates [here](https://onestop.umn.edu/finances/costs/tuition).",
-        "isUser": false
-      },
-      {
-        "text": "How expensive is the University of Minnesota?",
-        "isUser": true
-      },
-      {
-        "text": "The University of Minnesota's tuition and fees for the 2023-2024 academic year vary depending on the campus and the program. Here are some general insights from the Twin Cities campus:\n\n- **Undergraduate Tuition**: \n  - Resident students: $1,985 per credit or $23,820 for 12-20 credits per semester.\n  - Non-resident students: $2,595 per credit or $31,140 for 12-20 credits per semester.\n\n- **Graduate and Professional Programs**: These rates vary by program and can depend on factors like residency status and credit load. \n\nFor detailed information and specific tuition rates, you can visit the University of Minnesota's [One Stop Student Services](https://onestop.umn.edu/finances/costs/tuition) or the [Institutional Data and Research site](https://idr.umn.edu/reports-by-topic-tuition-fees/tuition-and-fees).",
-        "isUser": false
-      }
-    ]
-  },
-  {
-    "id": 1773988634988,
-    "title": "Can you recommend me a 4 year ",
-    "messages": [
-      {
-        "text": "Can you recommend me a 4 year plan?",
-        "isUser": true
-      },
-      {
-        "text": "Creating a 4-year plan depends on your major, interests, prerequisites, and the requirements set by your college at the University of Minnesota. Generally, you'll want to:\n\n1. **Understand your degree requirements**: Look into required courses for your major, electives, general education requirements, and any other specific criteria.\n\n2. **Balance your course load**: Mix general education courses with major-specific courses to keep your schedule manageable.\n\n3. **Plan prerequisites early**: Identify prerequisite courses and ensure you take them early enough to allow upper-level courses in later years.\n\n4. **Consider involvement in extracurriculars**: Plan space in your schedule for internships, research opportunities, clubs, and organizations.\n\n5. **Meet with an academic advisor**: They can provide a personalized plan based on your academic goals and interests.\n\nIf you have a specific major or program in mind, I can help you find relevant courses and professors using the GopherGrades tools. Let me know what you're interested in!",
-        "isUser": false
-      }
-    ]
-  },
-  {
-    "id": 1773988696813,
-    "title": "List me the libraries on campu",
-    "messages": [
-      {
-        "text": "List me the libraries on campus",
-        "isUser": true
-      },
-      {
-        "text": "The University of Minnesota has several libraries on its campus, catering to various academic needs. Some of the main libraries include:\n\n1. **Walter Library**: Primarily serves the science and engineering disciplines.\n\n2. **Wilson Library**: Focuses on arts, humanities, social sciences, and special collections.\n\n3. **Bio-Medical Library**: Supports the Academic Health Center, including the Medical School, School of Nursing, School of Pharmacy, and other health-related fields.\n\n4. **Magrath Library**: Located on the St. Paul campus, it serves the College of Food, Agricultural and Natural Resource Sciences, College of Design, and the College of Education and Human Development.\n\n5. **Architecture and Landscape Architecture Library**: Supports programs in architecture and landscape architecture.\n\n6. **Music Library**: Caters to music students and faculty with scores, sound recordings, and reference material.\n\n7. **Law Library**: Supports the Law School with extensive legal resources.\n\nThese libraries provide a wide range of resources and study spaces for students and faculty. For the most current information, visiting the University of Minnesota Libraries' official website would be beneficial.",
-        "isUser": false
-      }
-    ]
-  }
-]
+{
+  "006b8ff0-a2fb-49df-a303-e8e4451ece90": [
+    {
+      "id": 1775014487130,
+      "title": "Hi, tell me about my user prof",
+      "messages": [
+        {
+          "text": "Hi, tell me about my user profile.",
+          "isUser": true
+        },
+        {
+          "text": "I understand you're a Freshman studying Mechanical Engineering at the University of Minnesota. If you have any questions about courses, professors, or anything related to your studies, feel free to ask! I'm here to help and will make sure to explain things in a simple and clear way.",
+          "isUser": false
+        },
+        {
+          "text": "Can you list me some classes related to my profile?",
+          "isUser": true
+        },
+        {
+          "text": "Here are some Mechanical Engineering classes that might interest you:\n\n1. **ME 4053 - Mechanical Engineering Modeling**\n   - Description: Focuses on modeling techniques used in mechanical engineering.\n   - Total Students: 1200\n\n2. **ME 4080 - Topics in Mechanical Engineering**\n   - Description: Covers various topics within the field of mechanical engineering.\n   - Total Students: 94\n\n3. **ME 8332 - Advanced Fluid Dynamics in Mechanical Engineering**\n   - Description: Advanced study of fluid dynamics as applied to mechanical engineering.\n   - Total Students: 91\n\n4. **ME 5070 - Topics in Mechanical Engineering**\n   - Description: Exploration of specialized topics in mechanical engineering.\n   - Total Students: 11\n\nThese courses should align well with your focus on Mechanical Engineering. Let me know if you need more information on any specific class!",
+          "isUser": false
+        },
+        {
+          "text": "Are these freshman level courses?",
+          "isUser": true
+        },
+        {
+          "text": "Please provide me with the course codes or names so that I can check if they are freshman-level courses for you.",
+          "isUser": false
+        }
+      ]
+    }
+  ]
+}
