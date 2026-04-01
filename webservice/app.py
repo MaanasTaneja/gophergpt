@@ -16,12 +16,18 @@ from webservice.routers.research import router as research_router
 import json
 import re
 
-from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
+from typing import Optional
 
-# History Storage
-DATA_DIR = "/app/data"
-os.makedirs(DATA_DIR, exist_ok=True)
-CONVERSATION_FILE = os.path.join(DATA_DIR, "conversations.json")
+from webservice.profile_store import (
+    init_store,
+    get_profile,
+    save_profile,
+    save_conversation,
+    get_conversations,
+)
+from webservice.personalization import build_personalized_prompt
+
+from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
 
 # GopherGrades Testing Endpoint
 class CourseLookupRequest(BaseModel):
@@ -33,6 +39,12 @@ class ProfessorLookupRequest(BaseModel):
 class ChatRequest(BaseModel):
     user_id: str
     message: str
+
+class ProfileRequest(BaseModel):
+    user_id: str
+    major: str
+    year: str
+    personalization_notes: str = ""
 
 class ChatAgent:
     def __init__(self, name="Assistant"):
@@ -62,12 +74,18 @@ class ChatAgent:
                                           "If a professor name is ambiguous, use search first before using a professor tool."
                                           ))
 
-    def invoke(self, message: str) -> str:
+    def invoke(self, message: str, profile: Optional[dict]) -> str:
         """
         Replace this method with your LLM/agent logic.
         For now, it just echoes back the message.
         """
-        final_state = self.react_agent.invoke_agent({"messages": [{"role": "user", "content": message}]})
+        personalized_context = build_personalized_prompt(profile or {})
+        full_message = message
+
+        if personalized_context:
+            full_message = f"{personalized_context}\n\nUser message:\n{message}"
+
+        final_state = self.react_agent.invoke_agent({"messages": [{"role": "user", "content": full_message}]})
         generation = final_state["messages"][-1].content
         return generation
     
@@ -86,6 +104,7 @@ gopher_assistant  = None
 @asynccontextmanager
 async def lifespan_function(app : FastAPI):
     global gopher_assistant 
+    init_store()
     gopher_assistant = ChatAgent()
     yield
 
@@ -109,8 +128,27 @@ def chat_endpoint(request: ChatRequest):
     global gopher_assistant
     if gopher_assistant is None:
         return {"error": "Agent not initialized."}
-    response = gopher_assistant.invoke(request.message)
+    
+    profile = get_profile(request.user_id)
+    response = gopher_assistant.invoke(request.message, profile=profile)
     return {"response": response}
+
+@app.get("/profile")
+def get_profile_endpoint(user_id: str):
+    profile = get_profile(user_id)
+    return {"ok": True, "profile": profile}
+
+@app.put("/profile")
+def update_profile_endpoint(request: ProfileRequest):
+    profile = save_profile(
+        request.user_id,
+        {
+            "major": request.major,
+            "year": request.year,
+            "personalization_notes": request.personalization_notes,
+        }
+    )
+    return {"ok": True, "profile": profile}
 
 # GopherGrades testing as well as helpers for the agent to better identify when tools are needed
 # This will also push for a better, more detailed response from the agent
@@ -170,48 +208,16 @@ def lookup_professor(request: ProfessorLookupRequest):
 @app.post("/save")
 def save_endpoint(request: ConversationRequest):
     # checks if json already exist, before saving.
-    if os.path.exists(CONVERSATION_FILE):
-        # exist, so read file
-        with open(CONVERSATION_FILE, "r") as file:
-            conversations = json.load(file)
-    else:
-        # doesn't exist, so make list to store temporarily
-        conversations = []
-
-    # catch duplicates
-    if any(c["id"] == request.id for c in conversations):
-        return {"ok": True}
-
-
-    # adds conversations components
-    conversations.append({
-        "id": request.id,
-        "title": request.title,
-        "messages": request.messages
-    })
-
-    # open file to write, creates if doesn't exist
-    with open(CONVERSATION_FILE, "w") as file:
-        json.dump(conversations, file, indent=2)
-
-    # Good Return
+    save_conversation(
+        user_id=request.user_id,
+        conversation_id=request.id,
+        title=request.title,
+        messages=request.messages,
+    )
     return {"ok": True}
-
 
 # returns all saved conversations to the frontend
 @app.get("/history")
-def history_endpoint():
-    # checks if file exist
-    if os.path.exists(CONVERSATION_FILE):
-
-        # opens and read file
-        with open(CONVERSATION_FILE, "r") as file:
-
-            # load file into parsed format
-            conversations = json.load(file)
-
-            # return file
-            return {"ok": True, "conversations": list(reversed(conversations))}
-    else:
-        # file doesn't exist, return empty list
-        return {"ok": True, "conversations": []}
+def history_endpoint(user_id: str):
+    conversations = get_conversations(user_id)
+    return {"ok": True, "conversations": conversations}

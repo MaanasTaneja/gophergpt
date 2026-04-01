@@ -68,6 +68,17 @@ const Sidebar = ({ onNewChat, onNavigate, currentPage, conversations, onLoad }) 
         </button>
         </div>
 
+        <button
+            onClick={() => onNavigate("profile")}
+            className={`w-full py-2 px-4 text-left rounded-lg transition-colors ${
+                currentPage === "profile"
+                    ? "bg-gray-700 text-white"
+                    : "text-gray-400 hover:bg-gray-700"
+            }`}
+        >
+            Profile Settings
+        </button>
+
     </div>
 );
 

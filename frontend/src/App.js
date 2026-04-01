@@ -5,6 +5,7 @@ import ChatPage from "./pages/ChatPage";
 import Sidebar from "./components/Sidebar";
 import Research from "./pages/Research";
 import Compare from "./pages/CourseCompare";
+import ProfileSettings from "./pages/ProfileSettings";
 
 function getOrCreateUserId() {
   const existing = localStorage.getItem("gophergpt_user_id");
@@ -241,6 +242,7 @@ function App() {
         )}
         {currentPage === "research" && <Research />}
         {currentPage === "compare" && <Compare />}
+        {currentPage === "profile" && <ProfileSettings userId={userId} />}
       </div>
     </div>
   );
