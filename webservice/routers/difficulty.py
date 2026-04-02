@@ -41,9 +41,22 @@ def difficulty_endpoint(request: DifficultyRequest):
             source="error"
         )
 
-    # Extract average GPA if available
+    # Calculate average GPA from total_grades distribution
     try:
-        avg_gpa = course_data.get("average_gpa") or course_data.get("gpa")
+        grade_points = {
+            "A": 4.0, "A-": 3.7,
+            "B+": 3.3, "B": 3.0, "B-": 2.7,
+            "C+": 2.3, "C": 2.0, "C-": 1.7,
+            "D+": 1.3, "D": 1.0, "F": 0.0
+        }
+        total_grades = course_data.get("data", {}).get("total_grades", {})
+        total_points = 0.0
+        total_students = 0
+        for grade, count in total_grades.items():
+            if grade in grade_points:
+                total_points += grade_points[grade] * count
+                total_students += count
+        avg_gpa = round(total_points / total_students, 2) if total_students > 0 else None
     except Exception:
         avg_gpa = None
 
