@@ -143,6 +143,27 @@ def extract_course_codes(text):
     return seen
 
 
+def is_research_followup(message, history):
+    """Returns True if this looks like a follow-up to a prior research query."""
+    if not re.match(r'^(what|how)\s+about|^and\b|^what if', message.strip(), re.IGNORECASE):
+        return False
+    recent = history[-6:] if len(history) > 6 else history
+    return any(re.search(r'rea?sea?rch', msg["content"].lower()) for msg in recent)
+
+
+def build_research_query(current_message, history):
+    """Construct a full research query from a follow-up message using prior context."""
+    for msg in reversed(history):
+        if msg["role"] == "user" and re.search(r'rea?sea?rch', msg["content"].lower()):
+            # Extract the new subject from the follow-up (e.g. "what about for biology" → "biology")
+            m = re.search(r'(?:for|about|in)\s+([\w\s]+?)(?:\?|$)', current_message, re.IGNORECASE)
+            if m:
+                subject = m.group(1).strip()
+                return f"research opportunities for {subject} at University of Minnesota"
+            break
+    return current_message
+
+
 # responsible for loading/retrieving chat messages
 @app.post("/chat")
 def chat_endpoint(request: ChatRequest):
@@ -165,8 +186,9 @@ def chat_endpoint(request: ChatRequest):
                 for msg in match["messages"]
             ]
 
-    if "research" in message:
-        research_data = run_research_query(ResearchRequest(query=request.message, max_results=5))
+    if re.search(r'rea?sea?rch', message) or is_research_followup(message, history):
+        query = request.message if re.search(r'rea?sea?rch', message) else build_research_query(message, history)
+        research_data = run_research_query(ResearchRequest(query=query, max_results=5))
         summary_text = summarize_research_text(research_data.summary, limit=320)
 
         return {
@@ -207,14 +229,14 @@ def chat_endpoint(request: ChatRequest):
         if courses:
             guided_message = (
                 request.message
-                + "\n\n[System: Grade distributions and SRT ratings for the requested courses will be "
-                "displayed to the user as interactive charts. Do NOT list or repeat any numerical grade "
-                "or rating data in your response. Instead give a brief high-level comparison or insight.]"
+                + "\n\n[System: Grade distributions and SRT ratings will be shown visually. "
+                "Write 2-3 sentences max giving a high-level insight or recommendation. "
+                "Do NOT mention any numbers, grades, or ratings — those are already in the charts.]"
             )
-            ai_response = gopher_assistant.invoke(guided_message, history=history)
+            ai_summary = gopher_assistant.invoke(guided_message, history=history)
             return {
-                "response": ai_response,
-                "content": [{"type": "compare", "courses": courses}]
+                "response": "",
+                "content": [{"type": "compare", "courses": courses, "summary": ai_summary}]
             }
 
     response = gopher_assistant.invoke(request.message, history=history)

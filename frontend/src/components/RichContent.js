@@ -73,6 +73,7 @@ function ResearchCard({ item }) {
 
 function CourseCompareCard({ item }) {
     const courses = Array.isArray(item.courses) ? item.courses : [];
+    const summary = item.summary || "";
 
     return (
         <div className="mt-4 overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-[#20252f] via-[#1a1f28] to-[#141922] shadow-[0_18px_50px_rgba(0,0,0,0.35)]">
@@ -81,6 +82,9 @@ function CourseCompareCard({ item }) {
                 <h3 className="mt-2 text-2xl font-semibold leading-tight text-white">
                     {courses.map(c => c.code).join(" vs ")}
                 </h3>
+                {summary && (
+                    <p className="mt-4 max-w-4xl text-sm leading-7 text-gray-300">{summary}</p>
+                )}
             </div>
 
             <div className={`grid gap-6 p-5 ${courses.length >= 2 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}>
