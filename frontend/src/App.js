@@ -3,8 +3,6 @@ import "./App.css";
 import { getLoadingLabel } from "./utils/loadingLabel";
 import ChatPage from "./pages/ChatPage";
 import Sidebar from "./components/Sidebar";
-import Compare from "./pages/CourseCompare";
-import Schedule from "./pages/ScheduleBuilder";
 
 function App() {
   const [inputValue, setInputValue] = useState("");
@@ -201,7 +199,6 @@ function App() {
       <Sidebar
         onNewChat={handleNewChat}
         onNavigate={setCurrentPage}
-        currentPage={currentPage}
         conversations={conversations}
         onLoad={loadPrevChat}
       />
@@ -221,8 +218,6 @@ function App() {
             onSend={sendMessage}
           />
         )}
-        {currentPage === "compare" && <Compare />}
-        {currentPage === "schedule" && <Schedule />}
       </div>
     </div>
   );

@@ -1,4 +1,6 @@
 import React from "react";
+import GradeChart from "./compare/GradeChart";
+import SRTRatings from "./compare/SRTRatings";
 
 function shorten(text, max = 220) {
     if (!text) return "";
@@ -69,6 +71,37 @@ function ResearchCard({ item }) {
     );
 }
 
+function CourseCompareCard({ item }) {
+    const courses = Array.isArray(item.courses) ? item.courses : [];
+
+    return (
+        <div className="mt-4 overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-[#20252f] via-[#1a1f28] to-[#141922] shadow-[0_18px_50px_rgba(0,0,0,0.35)]">
+            <div className="border-b border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(255,204,51,0.16),_transparent_38%)] px-5 py-5">
+                <p className="text-[11px] uppercase tracking-[0.28em] text-gold/80">Course Compare</p>
+                <h3 className="mt-2 text-2xl font-semibold leading-tight text-white">
+                    {courses.map(c => c.code).join(" vs ")}
+                </h3>
+            </div>
+
+            <div className={`grid gap-6 p-5 ${courses.length >= 2 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}>
+                {courses.map((course) => (
+                    <div key={course.code} className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
+                        <h4 className="text-lg font-bold text-gold mb-4">{course.code}</h4>
+                        {course.data?.total_grades && (
+                            <GradeChart grades={course.data.total_grades} />
+                        )}
+                        {course.data?.srt_vals && (
+                            <div className="mt-6">
+                                <SRTRatings srtVals={course.data.srt_vals} />
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export default function RichContent({ content = [] }) {
     if (!content.length) return null;
 
@@ -78,7 +111,9 @@ export default function RichContent({ content = [] }) {
                 if (item.type === "research") {
                     return <ResearchCard key={index} item={item} />;
                 }
-
+                if (item.type === "compare") {
+                    return <CourseCompareCard key={index} item={item} />;
+                }
                 return null;
             })}
         </div>

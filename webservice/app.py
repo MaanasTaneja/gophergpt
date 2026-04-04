@@ -103,7 +103,18 @@ def root():
 
 
 #this is epheremel, we need to store the chat history in the frtonend, but we will do this later.
-@app.post("/chat") 
+def extract_course_codes(text):
+    """Extract normalized UMN course codes (e.g. CSCI4041) from a message."""
+    pattern = r'\b([A-Z]{2,6})\s*(\d{4})\b'
+    seen = []
+    for m in re.finditer(pattern, text.upper()):
+        code = f"{m.group(1)}{m.group(2)}"
+        if code not in seen:
+            seen.append(code)
+    return seen
+
+
+@app.post("/chat")
 def chat_endpoint(request: ChatRequest):
     global gopher_assistant
     if gopher_assistant is None:
@@ -132,6 +143,36 @@ def chat_endpoint(request: ChatRequest):
                 }
             ]
         }
+
+    # Detect course comparison requests
+    course_codes = extract_course_codes(request.message)
+    is_compare_request = "compare" in message and len(course_codes) >= 1
+
+    if is_compare_request or len(course_codes) >= 2:
+        courses = []
+        for code in course_codes[:2]:
+            try:
+                class_result = json.loads(gophergrades_class.invoke(code))
+                if class_result.get("data"):
+                    courses.append({
+                        "code": code,
+                        "data": class_result["data"]
+                    })
+            except Exception:
+                pass
+
+        if courses:
+            guided_message = (
+                request.message
+                + "\n\n[System: Grade distributions and SRT ratings for the requested courses will be "
+                "displayed to the user as interactive charts. Do NOT list or repeat any numerical grade "
+                "or rating data in your response. Instead give a brief high-level comparison or insight.]"
+            )
+            ai_response = gopher_assistant.invoke(guided_message)
+            return {
+                "response": ai_response,
+                "content": [{"type": "compare", "courses": courses}]
+            }
 
     response = gopher_assistant.invoke(request.message)
     return {
