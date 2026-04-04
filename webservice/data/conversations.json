@@ -132,5 +132,27 @@
         "isUser": false
       }
     ]
+  },
+  {
+    "id": 1775344620590,
+    "title": "Can you tell me about CSCI?",
+    "messages": [
+      {
+        "text": "Can you tell me about CSCI?",
+        "isUser": true
+      },
+      {
+        "text": "Sorry, I encountered an error. Please try again.",
+        "isUser": false
+      },
+      {
+        "text": "CSCI",
+        "isUser": true
+      },
+      {
+        "text": "Sorry, I encountered an error. Please try again.",
+        "isUser": false
+      }
+    ]
   }
 ]

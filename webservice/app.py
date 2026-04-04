@@ -87,14 +87,20 @@ def _compute_course_metrics(course):
         high_grade_rate = (
             grades.get("A", 0) + grades.get("A-", 0) + grades.get("B+", 0)
         ) / total_outcomes
-        challenge_rate = (
+        challenging_count = (
             grades.get("C-", 0)
             + grades.get("D+", 0)
             + grades.get("D", 0)
             + grades.get("F", 0)
             + grades.get("W", 0)
             + grades.get("N", 0)
-        ) / total_outcomes
+        )
+        # Bayesian smoothing: blend observed rate toward a prior (7%) weighted
+        # by 100 pseudo-students. Small classes get pulled toward the prior;
+        # large classes are barely affected.
+        _PRIOR_RATE = 0.07
+        _PRIOR_WEIGHT = 100
+        challenge_rate = (challenging_count + _PRIOR_WEIGHT * _PRIOR_RATE) / (total_outcomes + _PRIOR_WEIGHT)
         withdraw_rate = grades.get("W", 0) / total_outcomes
 
     return {
