@@ -12,9 +12,10 @@ import os
 
 from pydantic import BaseModel
 from fastapi import APIRouter
-from webservice.routers.research import router as research_router
+from webservice.routers.research import router as research_router, run_research_query, ResearchRequest
 import json
 import re
+
 
 from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
 
@@ -131,43 +132,96 @@ app.add_middleware(CORSMiddleware,
 def root():
     return {"message": "The greatest openai wrapper ever made."}
 
+def extract_course_codes(text):
+    """Extract normalized UMN course codes (e.g. CSCI4041) from a message."""
+    pattern = r'\b([A-Z]{2,6})\s*(\d{4})\b'
+    seen = []
+    for m in re.finditer(pattern, text.upper()):
+        code = f"{m.group(1)}{m.group(2)}"
+        if code not in seen:
+            seen.append(code)
+    return seen
+
+
 # responsible for loading/retrieving chat messages
-@app.post("/chat") 
+@app.post("/chat")
 def chat_endpoint(request: ChatRequest):
     global gopher_assistant
     if gopher_assistant is None:
         return {"error": "Agent not initialized."}
-    
 
-    """
-    Loads the conversation history from file "app/data"
-    """
+    message = request.message.lower()
 
-    # empty history, append each if exist, else pass empty (default)
+    # Loads the conversation history from file "app/data"
     history = []
-
-    # only load history if we have an ID to lookup (from frontend) and file that exist
     if request.conversation_id is not None and os.path.exists(CONVERSATION_FILE):
-
-        # open and read/parse conversations from file into memory
         with open(CONVERSATION_FILE, "r") as file:
             conversations = json.load(file)
-
-        # find the correct matching conversation_id to return
         match = next((c for c in conversations if c["id"] == request.conversation_id), None)
-
-        # if found extract the role and contents from stored messages in format for agent
         if match:
             history = [{
-                "role": "user" if msg["isUser"] else "assistant", 
+                "role": "user" if msg["isUser"] else "assistant",
                 "content": msg["text"]}
                 for msg in match["messages"]
             ]
 
-        
-    # pass history back into agent
+    if "research" in message:
+        research_data = run_research_query(ResearchRequest(query=request.message, max_results=5))
+        summary_text = summarize_research_text(research_data.summary, limit=320)
+
+        return {
+            "response": "Here's a research snapshot with the strongest matches I found.",
+            "content": [
+                {
+                    "type": "research",
+                    "summary": summary_text,
+                    "results": [
+                        {
+                            "title": summarize_research_text(result.title, limit=90),
+                            "url": result.url,
+                            "snippet": summarize_research_text(result.snippet, limit=190)
+                        }
+                        for result in research_data.results
+                    ][:4]
+                }
+            ]
+        }
+
+    # Detect course comparison requests
+    course_codes = extract_course_codes(request.message)
+    is_compare_request = "compare" in message and len(course_codes) >= 1
+
+    if is_compare_request or len(course_codes) >= 2:
+        courses = []
+        for code in course_codes[:2]:
+            try:
+                class_result = json.loads(gophergrades_class.invoke(code))
+                if class_result.get("data"):
+                    courses.append({
+                        "code": code,
+                        "data": class_result["data"]
+                    })
+            except Exception:
+                pass
+
+        if courses:
+            guided_message = (
+                request.message
+                + "\n\n[System: Grade distributions and SRT ratings for the requested courses will be "
+                "displayed to the user as interactive charts. Do NOT list or repeat any numerical grade "
+                "or rating data in your response. Instead give a brief high-level comparison or insight.]"
+            )
+            ai_response = gopher_assistant.invoke(guided_message, history=history)
+            return {
+                "response": ai_response,
+                "content": [{"type": "compare", "courses": courses}]
+            }
+
     response = gopher_assistant.invoke(request.message, history=history)
-    return {"response": response}
+    return {
+        "response": response,
+        "content": []
+    }
 
 # GopherGrades testing as well as helpers for the agent to better identify when tools are needed
 # This will also push for a better, more detailed response from the agent
@@ -282,3 +336,17 @@ def history_endpoint():
     else:
         # file doesn't exist, return empty list
         return {"ok": True, "conversations": []}
+
+
+def summarize_research_text(text, limit=200):
+    if not text:
+        return ""
+
+    cleaned = re.sub(r"\s+", " ", str(text)).strip()
+    cleaned = re.sub(r"(#{1,6}\s*)+", "", cleaned)
+
+    if len(cleaned) <= limit:
+        return cleaned
+
+    shortened = cleaned[:limit].rsplit(" ", 1)[0].strip()
+    return f"{shortened}..."
