@@ -10,7 +10,7 @@ export const Message = ({ message, isUser }) => (
         {isUser ? (
             <>
             <div className="gradient-border-message ml-auto">
-                <div className="px-3 py-2 text-gray-100">{message}</div>
+                <div className="px-3 py-2 text-gray-100 user-message-content">{message}</div>
             </div>
             <div
                 className="w-8 h-8 rounded-full flex-shrink-0 ml-3"
@@ -24,7 +24,7 @@ export const Message = ({ message, isUser }) => (
             <GoldyMascot className="w-8 h-8 flex-shrink-0 mr-3" />
             <div className="gradient-border-message flex-1">
                 <div
-                className="px-3 py-2 text-gray-100"
+                className="px-4 py-3 text-gray-100 bot-message-content"
                 dangerouslySetInnerHTML={{ __html: formatBotMessage(message) }}
                 />
             </div>

@@ -27,9 +27,15 @@ export function linkify(text) {
     });
 }
 
-export function boldify(text) {
-    // Replace **bold** with <strong>, trim inner whitespace
-    return text.replace(/\*\*\s*(.*?)\s*\*\*/g, "<strong>$1</strong>");
+function splitIntoBulletPoints(text) {
+    return text
+        .split(/(?:\.\s+|;\s+|\n+)/)
+        .map((part) => part.trim())
+        .filter(Boolean);
+}
+
+function wrapSection(content, className = "response-section") {
+    return `<section class="${className}">${content}</section>`;
 }
 
 // Safely process a line: boldify and linkify before escaping using placeholder tokens,
@@ -58,40 +64,128 @@ export function processLine(text) {
         return linkify(restored);
 }
 
+function isLocationHeading(text) {
+    const trimmed = text.trim();
+
+    if (!trimmed || trimmed.length > 90) {
+        return false;
+    }
+
+    if (!/[A-Za-z]/.test(trimmed) || /[.?!]$/.test(trimmed)) {
+        return false;
+    }
+
+    return /(?:library|hall|union|center|centre|building|plaza|mall|commons|cafe|caf[ée]|bridge|park|lounge|lab|room|museum|rec|recreation|study|campus|quadrangle|quad)$/i.test(trimmed)
+        || /^(?:northrop|coffman|walter|wilson|bruininks|lind|keller|appleby|tate|folwell|magrath|mccarthy|pillsbury|weisman)\b/i.test(trimmed);
+}
+
+function tryFormatLocationSections(raw) {
+    const lines = String(raw).split(/\r?\n/);
+    const parts = [];
+    let index = 0;
+    let foundSection = false;
+
+    while (index < lines.length) {
+        const current = lines[index].trim();
+
+        if (!current) {
+            index += 1;
+            continue;
+        }
+
+        const headingMatch = current.match(/^(?:\d+\.\s+)?(?:\*\*)?([^:]+?)(?:\*\*)?:\s*(.*)$/);
+        const title = headingMatch?.[1]?.trim();
+
+        if (!title || !isLocationHeading(title)) {
+            parts.push(wrapSection(`<p>${processLine(current)}</p>`));
+            index += 1;
+            continue;
+        }
+
+        foundSection = true;
+        const bulletPoints = [];
+        const inlineDescription = headingMatch[2]?.trim();
+
+        if (inlineDescription) {
+            bulletPoints.push(...splitIntoBulletPoints(inlineDescription));
+        }
+
+        index += 1;
+
+        while (index < lines.length) {
+            const nextLine = lines[index].trim();
+
+            if (!nextLine) {
+                index += 1;
+                break;
+            }
+
+            if (/^(?:\d+\.\s+)?(?:\*\*)?[^:]+(?:\*\*)?:\s*/.test(nextLine)) {
+                break;
+            }
+
+            const existingBulletMatch = nextLine.match(/^[-*\u2022]\s+(.*)$/);
+            if (existingBulletMatch) {
+                bulletPoints.push(existingBulletMatch[1].trim());
+            } else {
+                bulletPoints.push(...splitIntoBulletPoints(nextLine));
+            }
+
+            index += 1;
+        }
+
+        const normalizedBullets = bulletPoints.filter(Boolean);
+        const bulletMarkup = normalizedBullets.length
+            ? `<ul>${normalizedBullets.map((item) => `<li>${processLine(item)}</li>`).join("")}</ul>`
+            : "";
+
+        parts.push(
+            wrapSection(
+                `<p class="location-title"><strong>${processLine(title)}</strong></p>${bulletMarkup}`,
+                "response-section location-section"
+            )
+        );
+    }
+
+    return foundSection ? parts.join("") : null;
+}
+
 export function formatBotMessage(raw) {
+    const locationMarkup = tryFormatLocationSections(raw);
+    if (locationMarkup) {
+        return locationMarkup;
+    }
+
     // Convert raw text into safe, readable HTML with lists and headings
     const lines = String(raw).split(/\r?\n/);
     const parts = [];
-    let inOl = false;
-    let inUl = false;
+    let activeListType = null;
+    let activeListItems = [];
 
     const flushLists = () => {
-        if (inOl) {
-            parts.push("</ol>");
-            inOl = false;
+        if (!activeListType) {
+            return;
         }
-        if (inUl) {
-            parts.push("</ul>");
-            inUl = false;
-        }
+
+        const listTag = activeListType === "ol" ? "ol" : "ul";
+        parts.push(wrapSection(`<${listTag}>${activeListItems.join("")}</${listTag}>`));
+        activeListType = null;
+        activeListItems = [];
     };
 
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i].trim();
         if (!line) {
-            // blank line -> paragraph break
             flushLists();
-            parts.push("<p></p>");
             continue;
         }
 
         // Ordered list item: starts with '1. ' or '2) '
         const olMatch = line.match(/^\d+\s*[\.|\)]\s*(.*)$/);
         if (olMatch) {
-            if (!inOl) {
+            if (activeListType !== "ol") {
                 flushLists();
-                parts.push("<ol>");
-                inOl = true;
+                activeListType = "ol";
             }
             const content = olMatch[1];
             // If content has a title-like part ending with ':' separate it
@@ -99,9 +193,9 @@ export function formatBotMessage(raw) {
             if (titleMatch) {
                 const title = titleMatch[1];
                 const rest = titleMatch[2];
-                parts.push(`<li><strong>${processLine(title)}</strong> ${processLine(rest)}</li>`);
+                activeListItems.push(`<li><strong>${processLine(title)}</strong> ${processLine(rest)}</li>`);
             } else {
-                parts.push(`<li>${processLine(content)}</li>`);
+                activeListItems.push(`<li>${processLine(content)}</li>`);
             }
             continue;
         }
@@ -109,13 +203,12 @@ export function formatBotMessage(raw) {
         // Unordered list item: starts with -, *, or •
         const ulMatch = line.match(/^[-\*\u2022]\s+(.*)$/);
         if (ulMatch) {
-            if (!inUl) {
+            if (activeListType !== "ul") {
                 flushLists();
-                parts.push("<ul>");
-                inUl = true;
+                activeListType = "ul";
             }
             const content = ulMatch[1];
-            parts.push(`<li>${processLine(content)}</li>`);
+            activeListItems.push(`<li>${processLine(content)}</li>`);
             continue;
         }
 
@@ -124,7 +217,7 @@ export function formatBotMessage(raw) {
         if (headingMatch) {
             flushLists();
             const content = headingMatch[2];
-            parts.push(`<p><strong>${processLine(content)}</strong></p>`);
+            parts.push(wrapSection(`<p class="response-heading"><strong>${processLine(content)}</strong></p>`));
             continue;
         }
 
@@ -136,16 +229,15 @@ export function formatBotMessage(raw) {
             (strippedLine.length < 60 && strippedLine === strippedLine.toUpperCase())
         ) {
             flushLists();
-            parts.push(`<p>${processLine(line)}</p>`);
+            parts.push(wrapSection(`<p class="response-heading">${processLine(line)}</p>`));
             continue;
         }
 
         // Default paragraph
         flushLists();
-        parts.push(`<p>${processLine(line)}</p>`);
+        parts.push(wrapSection(`<p>${processLine(line)}</p>`));
     }
 
     flushLists();
-    // Join parts and collapse adjacent empty paragraphs
-    return parts.join("").replace(/<p><\/p><p><\/p>/g, "<p></p>");
+    return parts.join("");
 }

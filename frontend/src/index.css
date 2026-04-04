@@ -47,10 +47,95 @@ code {
     border: 2px solid #4D4D4D;
     border-radius: 20px;
     position: relative;
+    overflow: hidden;
 }
 
 .gradient-border-message::before {
     display: none;
+}
+
+.user-message-content {
+    line-height: 1.5;
+}
+
+.bot-message-content {
+    line-height: 1.7;
+    font-size: 0.98rem;
+}
+
+.bot-message-content > *:last-child {
+    margin-bottom: 0;
+}
+
+.bot-message-content p {
+    margin: 0;
+}
+
+.bot-message-content strong {
+    color: #fff6cc;
+    font-weight: 700;
+}
+
+.bot-message-content ul,
+.bot-message-content ol {
+    margin: 0.45rem 0 1rem 0;
+    padding-left: 1.35rem;
+}
+
+.bot-message-content li {
+    margin-bottom: 0.45rem;
+    padding-left: 0.1rem;
+}
+
+.bot-message-content li:last-child {
+    margin-bottom: 0;
+}
+
+.bot-message-content a {
+    color: #ffdb66;
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
+}
+
+.response-section {
+    margin-bottom: 0.85rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(255, 204, 51, 0.16);
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255, 204, 51, 0.08), rgba(255, 255, 255, 0.02));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.response-section:last-child {
+    margin-bottom: 0;
+}
+
+.response-heading {
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+}
+
+.response-section ul,
+.response-section ol {
+    margin: 0;
+}
+
+.location-section {
+    margin-bottom: 1rem;
+}
+
+.location-section:last-child {
+    margin-bottom: 0;
+}
+
+.location-title {
+    margin: 0 0 0.55rem;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+}
+
+.location-section ul {
+    margin-bottom: 0;
 }
 
 /* Smooth transitions */

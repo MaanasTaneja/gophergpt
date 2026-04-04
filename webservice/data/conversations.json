@@ -132,5 +132,27 @@
         "isUser": false
       }
     ]
+  },
+  {
+    "id": 1775004115326,
+    "title": "hello",
+    "messages": [
+      {
+        "text": "hello",
+        "isUser": true
+      },
+      {
+        "text": "Hello! How can I assist you today, especially regarding courses, professors, or departments at the University of Minnesota?",
+        "isUser": false
+      },
+      {
+        "text": "what are some good study areas on campus?",
+        "isUser": true
+      },
+      {
+        "text": "Some popular study areas on the University of Minnesota campus include:\n\n1. **Walter Library:** Known for its beautiful architecture and quiet study spaces, Walter Library offers individual and group study rooms, as well as computer labs.\n\n2. **Wilson Library:** This library has numerous study spots, group study rooms, and a wide range of resources. It's a favorite among students for its quiet atmosphere.\n\n3. **Bio-Medical Library:** Ideal for health sciences students, this library offers advanced resources and quiet study areas.\n\n4. **Keller Hall:** Home to the College of Science and Engineering, Keller Hall offers study lounges and computer labs.\n\n5. **Coffman Memorial Union:** Apart from being a social hub, Coffman has plenty of open spaces and study lounges for students.\n\n6. **Magrath Library:** Located on the St. Paul campus, it's a great spot for students looking for a quieter study environment.\n\n7. **Recreation and Wellness Center:** Some students prefer studying in an active environment; the Wellness Center has lounge areas perfect for a less conventional study session.\n\n8. **Hanson Hall:** Known for its business-focused environment, Hanson Hall has great facilities and study areas for Carlson School of Management students.\n\nEach of these locations offers a unique atmosphere, so you might want to explore a few to find your ideal study spot!",
+        "isUser": false
+      }
+    ]
   }
 ]
