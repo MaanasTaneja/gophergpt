@@ -3,6 +3,7 @@ import "./App.css";
 import { getLoadingLabel } from "./utils/loadingLabel";
 import ChatPage from "./pages/ChatPage";
 import Sidebar from "./components/Sidebar";
+import DepartmentExplorer from "./pages/DepartmentExplorer";
 
 function App() {
   const [inputValue, setInputValue] = useState("");
@@ -225,6 +226,7 @@ function App() {
             onSend={sendMessage}
           />
         )}
+        {currentPage === "department" && <DepartmentExplorer />}
       </div>
     </div>
   );
