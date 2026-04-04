@@ -41,7 +41,7 @@ class ChatAgent:
         os.environ["TAVILY_API_KEY"] = os.getenv("TAVILY_API_KEY")
 
         self.llm = OpenAILLM(model_name="gpt-4o").get_model()
-        search_tool = TavilySearch(max_results = "5", topic = "general", include_domains=["umn.edu"])
+        search_tool = TavilySearch(max_results=5, topic="general", include_domains=["umn.edu"])
 
         self.toolkit = ToolkitManager()
 
@@ -107,8 +107,12 @@ def chat_endpoint(request: ChatRequest):
     global gopher_assistant
     if gopher_assistant is None:
         return {"error": "Agent not initialized."}
-    response = gopher_assistant.invoke(request.message)
-    return {"response": response}
+    try:
+        response = gopher_assistant.invoke(request.message)
+        return {"response": response}
+    except Exception as e:
+        print(f"Chat error: {e}")
+        return {"response": f"I ran into an error while processing your request: {str(e)}"}
 
 # GopherGrades testing as well as helpers for the agent to better identify when tools are needed
 # This will also push for a better, more detailed response from the agent
