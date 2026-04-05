@@ -1,1 +1,6 @@
-# CLI script to trigger a full re-index?
+import asyncio
+from webservice.rag.indexer import run_indexing
+
+
+# an async function from a regular script
+asyncio.run(run_indexing())

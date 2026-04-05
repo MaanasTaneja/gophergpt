@@ -1,4 +1,3 @@
-version: '3.9'
 services:
   backend:
     build:
@@ -13,9 +12,8 @@ services:
     restart: always
     volumes:
       - ./webservice/data:/app/data
-    depends_on:        # backend needs chromadb ready before it starts
-      chromadb:
-        condition: service_healthy
+    depends_on:        # wait for chromadb container to start before backend
+      - chromadb
 
   frontend:
     build:
@@ -37,11 +35,6 @@ services:
     volumes:
       - chroma_data:/chroma/chroma   # named volume — persists across container restarts
     restart: always
-    healthcheck:      # backend waits for this to pass before starting
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 volumes:
   chroma_data:        # docker manages this — use `docker volume rm gophergpt_chroma_data` to reset

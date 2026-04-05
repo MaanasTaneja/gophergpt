@@ -62,7 +62,7 @@ def upsert_chunks(chunks: list[dict], embeddings: list[list[float]]) -> None:
     collection = get_collection()
 
     # builds a stable, unique ID from source + position for re-indexing
-    ids = [f"{chunk['source_name']}::{chunk['chunk_index']}" for chunk in chunks] 
+    ids = [f"{chunk['source_url']}::{chunk['chunk_index']}" for chunk in chunks]
 
     documents = [chunk["text"] for chunk in chunks]
 
