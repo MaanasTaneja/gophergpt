@@ -25,33 +25,15 @@ const Sidebar = ({ onNewChat, onNavigate, currentPage, conversations, onLoad }) 
         <div className="mb-6">
         <p className="text-gray-500 text-xs uppercase tracking-wider mb-2 px-2">Apps</p>
 
-        {/* Research */}
         <button
-            onClick={() => onNavigate("research")}
+            onClick={() => onNavigate("department")}
             className={`w-full py-2 px-4 mb-1 text-left rounded-lg transition-colors ${
-            currentPage === "research"
+                currentPage === "department"
                 ? "bg-gray-700 text-white"
                 : "text-gray-400 hover:bg-gray-700"
             }`}
         >
-            Research
-        </button>
-
-        {/* Compare */}
-        <button
-            onClick={() => onNavigate("compare")}
-            className={`w-full py-2 px-4 mb-1 text-left rounded-lg transition-colors ${
-                currentPage === "compare"
-                ? "bg-gray-700 text-white"
-                : "text-gray-400 hover:bg-gray-700"
-            }`}
-        >
-            Course Compare
-        </button>
-
-        {/* Placeholder tools - not yet ready */}
-        <button disabled className="w-full py-2 px-4 mb-1 text-left text-gray-400 rounded-lg cursor-not-allowed">
-            Tool 3
+            Department Explorer
         </button>
         </div>
 

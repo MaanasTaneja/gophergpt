@@ -3,8 +3,7 @@ import "./App.css";
 import { getLoadingLabel } from "./utils/loadingLabel";
 import ChatPage from "./pages/ChatPage";
 import Sidebar from "./components/Sidebar";
-import Research from "./pages/Research";
-import Compare from "./pages/CourseCompare";
+import DepartmentExplorer from "./pages/DepartmentExplorer";
 
 function App() {
   const [inputValue, setInputValue] = useState("");
@@ -89,7 +88,7 @@ function App() {
     setLoadingLabel(getLoadingLabel(userMessage));
     setIsLoading(true);
     setInputValue("");
-    setMessages((prev) => [...prev, { text: userMessage, isUser: true }]);
+    setMessages((prev) => [...prev, { text: userMessage, isUser: true, content: []}]);
     setError(null);
 
     try {
@@ -112,12 +111,10 @@ function App() {
         setIsLoading(false);
         typeMessage(data.response, () => {
           setMessages((prev) => {
-            const updated = [...prev, { text: data.response, isUser: false }];
-        
+            const updated = [...prev, { text: data.response, isUser: false, content: Array.isArray(data.content) ? data.content : [] }];
             setTimeout(() => saveConversation(), 0);
-
             return updated;
-        });
+          });
           setTypingMessage("");
         });
       }, 1000);
@@ -127,7 +124,7 @@ function App() {
       setError("Sorry, I encountered an error. Please try again.");
       setMessages((prev) => [
         ...prev,
-        { text: "Sorry, I encountered an error. Please try again.", isUser: false },
+        { text: "Sorry, I encountered an error. Please try again.", isUser: false, content: []},
       ]);
     }
   };
@@ -154,7 +151,7 @@ function App() {
 
     // create data structure using stable conversationId
     const conversation = {
-      id: conversationId.current, // stable id — same for entire conversation lifetime
+      id: conversationId.current, // stable id â€” same for entire conversation lifetime
       title: messages[0].text.slice(0, 30),
       messages: messages
     };
@@ -210,7 +207,6 @@ function App() {
       <Sidebar
         onNewChat={handleNewChat}
         onNavigate={setCurrentPage}
-        currentPage={currentPage}
         conversations={conversations}
         onLoad={loadPrevChat}
       />
@@ -230,8 +226,7 @@ function App() {
             onSend={sendMessage}
           />
         )}
-        {currentPage === "research" && <Research />}
-        {currentPage === "compare" && <Compare />}
+        {currentPage === "department" && <DepartmentExplorer />}
       </div>
     </div>
   );

@@ -9,14 +9,18 @@ from autonomy.tools.base import ToolkitManager
 from dotenv import load_dotenv
 from langchain_tavily import TavilySearch
 import os
+import statistics
 
 from pydantic import BaseModel
 from fastapi import APIRouter
-from webservice.routers.research import router as research_router
+
+from webservice.routers.research import router as research_router, run_research_query, ResearchRequest
 from webservice.routers.rag import router as rag_router
 from webservice.rag.vector_store import get_client
+
 import json
 import re
+
 
 from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
 
@@ -41,12 +45,164 @@ class ProfessorLookupRequest(BaseModel):
 # class ChatRequest(BaseModel):
 #     message: str
 
+class DepartmentLookupRequest(BaseModel):
+    dept: str
+
 class ChatRequest(BaseModel):
 
     message: str 
 
     # ensures loading the correct history and not all
     conversation_id: int | None = None # makes it optional, provide stability to frontend, since no history may exist
+
+
+def _parse_srt_vals(raw):
+    if raw is None or raw == "null":
+        return None
+
+    if isinstance(raw, dict):
+        return raw
+
+    try:
+        return json.loads(raw)
+    except (TypeError, json.JSONDecodeError):
+        return None
+
+
+def _sum_grade_counts(grades):
+    if not grades:
+        return 0
+
+    return sum(value for value in grades.values() if isinstance(value, (int, float)))
+
+
+def _compute_course_metrics(course):
+    grades = course.get("total_grades") or {}
+    total_outcomes = _sum_grade_counts(grades)
+    srt_vals = _parse_srt_vals(course.get("srt_vals"))
+
+    recommend = srt_vals.get("RECC") if srt_vals else None
+    responses = srt_vals.get("RESP") if srt_vals else None
+
+    high_grade_rate = None
+    challenge_rate = None
+    withdraw_rate = None
+
+    if total_outcomes > 0:
+        high_grade_rate = (
+            grades.get("A", 0) + grades.get("A-", 0) + grades.get("B+", 0)
+        ) / total_outcomes
+        challenging_count = (
+            grades.get("C-", 0)
+            + grades.get("D+", 0)
+            + grades.get("D", 0)
+            + grades.get("F", 0)
+            + grades.get("W", 0)
+            + grades.get("N", 0)
+        )
+        # Bayesian smoothing: blend observed rate toward a prior (7%) weighted
+        # by 100 pseudo-students. Small classes get pulled toward the prior;
+        # large classes are barely affected.
+        _PRIOR_RATE = 0.07
+        _PRIOR_WEIGHT = 100
+        challenge_rate = (challenging_count + _PRIOR_WEIGHT * _PRIOR_RATE) / (total_outcomes + _PRIOR_WEIGHT)
+        withdraw_rate = grades.get("W", 0) / total_outcomes
+
+    return {
+        "recommend": recommend,
+        "responses": responses,
+        "deep_understanding": srt_vals.get("DEEP_UND") if srt_vals else None,
+        "stimulating_interest": srt_vals.get("STIM_INT") if srt_vals else None,
+        "technical_effectiveness": srt_vals.get("TECH_EFF") if srt_vals else None,
+        "accessible_support": srt_vals.get("ACC_SUP") if srt_vals else None,
+        "effort": srt_vals.get("EFFORT") if srt_vals else None,
+        "grading_standards": srt_vals.get("GRAD_STAND") if srt_vals else None,
+        "high_grade_rate": high_grade_rate,
+        "challenge_rate": challenge_rate,
+        "withdraw_rate": withdraw_rate,
+    }
+
+
+def _normalize_department_course(course):
+    return {
+        "id": course.get("id"),
+        "course_num": course.get("course_num", ""),
+        "title": course.get("class_desc", ""),
+        "description": course.get("onestop_desc", ""),
+        "catalog_url": course.get("onestop", ""),
+        "credits": {
+            "min": course.get("cred_min"),
+            "max": course.get("cred_max"),
+        },
+        "total_students": course.get("total_students", 0),
+        "grades": course.get("total_grades") or {},
+        "metrics": _compute_course_metrics(course),
+    }
+
+
+def _build_department_summary(courses):
+    student_counts = [course.get("total_students", 0) for course in courses]
+    recommend_values = [
+        course["metrics"]["recommend"]
+        for course in courses
+        if course["metrics"]["recommend"] is not None
+    ]
+
+    return {
+        "course_count": len(courses),
+        "total_students": sum(student_counts),
+        "median_course_size": int(statistics.median(student_counts)) if student_counts else 0,
+        "courses_with_srt": len(recommend_values),
+        "avg_recommend": (
+            round(sum(recommend_values) / len(recommend_values), 3)
+            if recommend_values
+            else None
+        ),
+    }
+
+
+def _build_department_featured(courses):
+    popular = sorted(
+        courses,
+        key=lambda course: course.get("total_students", 0),
+        reverse=True,
+    )[:8]
+
+    best_rated_pool = [
+        course
+        for course in courses
+        if course["metrics"]["recommend"] is not None
+        and (course["metrics"]["responses"] or 0) >= 50
+    ]
+    best_rated = sorted(
+        best_rated_pool,
+        key=lambda course: (
+            course["metrics"]["recommend"],
+            course["metrics"]["responses"] or 0,
+        ),
+        reverse=True,
+    )[:8]
+
+    challenging_pool = [
+        course
+        for course in courses
+        if course["metrics"]["challenge_rate"] is not None
+        and _sum_grade_counts(course.get("grades")) >= 100
+    ]
+    most_challenging = sorted(
+        challenging_pool,
+        key=lambda course: (
+            course["metrics"]["challenge_rate"],
+            course.get("total_students", 0),
+        ),
+        reverse=True,
+    )[:8]
+
+    return {
+        "popular": popular,
+        "best_rated": best_rated,
+        "most_challenging": most_challenging,
+    }
 
 class ChatAgent:
     def __init__(self, name="Assistant"):
@@ -142,43 +298,118 @@ app.add_middleware(CORSMiddleware,
 def root():
     return {"message": "The greatest openai wrapper ever made."}
 
+def extract_course_codes(text):
+    """Extract normalized UMN course codes (e.g. CSCI4041) from a message."""
+    pattern = r'\b([A-Z]{2,6})\s*(\d{4})\b'
+    seen = []
+    for m in re.finditer(pattern, text.upper()):
+        code = f"{m.group(1)}{m.group(2)}"
+        if code not in seen:
+            seen.append(code)
+    return seen
+
+
+def is_research_followup(message, history):
+    """Returns True if this looks like a follow-up to a prior research query."""
+    if not re.match(r'^(what|how)\s+about|^and\b|^what if', message.strip(), re.IGNORECASE):
+        return False
+    recent = history[-6:] if len(history) > 6 else history
+    return any(re.search(r'rea?sea?rch', msg["content"].lower()) for msg in recent)
+
+
+def build_research_query(current_message, history):
+    """Construct a full research query from a follow-up message using prior context."""
+    for msg in reversed(history):
+        if msg["role"] == "user" and re.search(r'rea?sea?rch', msg["content"].lower()):
+            # Extract the new subject from the follow-up (e.g. "what about for biology" → "biology")
+            m = re.search(r'(?:for|about|in)\s+([\w\s]+?)(?:\?|$)', current_message, re.IGNORECASE)
+            if m:
+                subject = m.group(1).strip()
+                return f"research opportunities for {subject} at University of Minnesota"
+            break
+    return current_message
+
+
 # responsible for loading/retrieving chat messages
-@app.post("/chat") 
+@app.post("/chat")
 def chat_endpoint(request: ChatRequest):
     global gopher_assistant
     if gopher_assistant is None:
         return {"error": "Agent not initialized."}
-    
 
-    """
-    Loads the conversation history from file "app/data"
-    """
+    message = request.message.lower()
 
-    # empty history, append each if exist, else pass empty (default)
+    # Loads the conversation history from file "app/data"
     history = []
-
-    # only load history if we have an ID to lookup (from frontend) and file that exist
     if request.conversation_id is not None and os.path.exists(CONVERSATION_FILE):
-
-        # open and read/parse conversations from file into memory
         with open(CONVERSATION_FILE, "r") as file:
             conversations = json.load(file)
-
-        # find the correct matching conversation_id to return
         match = next((c for c in conversations if c["id"] == request.conversation_id), None)
-
-        # if found extract the role and contents from stored messages in format for agent
         if match:
             history = [{
-                "role": "user" if msg["isUser"] else "assistant", 
+                "role": "user" if msg["isUser"] else "assistant",
                 "content": msg["text"]}
                 for msg in match["messages"]
             ]
 
-        
-    # pass history back into agent
+    if re.search(r'rea?sea?rch', message) or is_research_followup(message, history):
+        query = request.message if re.search(r'rea?sea?rch', message) else build_research_query(message, history)
+        research_data = run_research_query(ResearchRequest(query=query, max_results=5))
+        summary_text = summarize_research_text(research_data.summary, limit=320)
+
+        return {
+            "response": "Here's a research snapshot with the strongest matches I found.",
+            "content": [
+                {
+                    "type": "research",
+                    "summary": summary_text,
+                    "results": [
+                        {
+                            "title": summarize_research_text(result.title, limit=90),
+                            "url": result.url,
+                            "snippet": summarize_research_text(result.snippet, limit=190)
+                        }
+                        for result in research_data.results
+                    ][:4]
+                }
+            ]
+        }
+
+    # Detect course comparison requests
+    course_codes = extract_course_codes(request.message)
+    is_compare_request = "compare" in message and len(course_codes) >= 1
+
+    if is_compare_request or len(course_codes) >= 2:
+        courses = []
+        for code in course_codes[:2]:
+            try:
+                class_result = json.loads(gophergrades_class.invoke(code))
+                if class_result.get("data"):
+                    courses.append({
+                        "code": code,
+                        "data": class_result["data"]
+                    })
+            except Exception:
+                pass
+
+        if courses:
+            guided_message = (
+                request.message
+                + "\n\n[System: Grade distributions and SRT ratings will be shown visually. "
+                "Write 2-3 sentences max giving a high-level insight or recommendation. "
+                "Do NOT mention any numbers, grades, or ratings — those are already in the charts.]"
+            )
+            ai_summary = gopher_assistant.invoke(guided_message, history=history)
+            return {
+                "response": "",
+                "content": [{"type": "compare", "courses": courses, "summary": ai_summary}]
+            }
+
     response = gopher_assistant.invoke(request.message, history=history)
-    return {"response": response}
+    return {
+        "response": response,
+        "content": []
+    }
 
 # GopherGrades testing as well as helpers for the agent to better identify when tools are needed
 # This will also push for a better, more detailed response from the agent
@@ -228,6 +459,46 @@ def lookup_professor(request: ProfessorLookupRequest):
         return {
             "ok": False,
             "name": name,
+            "error": str(e)
+        }
+    
+
+@app.post("/umn/dept")
+def lookup_department(request: DepartmentLookupRequest):
+    dept = request.dept.strip().upper()
+
+    try:
+        raw_result = json.loads(gophergrades_dept.invoke(dept))
+
+        if not raw_result.get("success") or not raw_result.get("data"):
+            return {
+                "ok": False,
+                "dept": dept,
+                "error": "Department not found."
+            }
+
+        data = raw_result["data"]
+        normalized_courses = [
+            _normalize_department_course(course)
+            for course in data.get("distributions", [])
+        ]
+
+        return {
+            "ok": True,
+            "dept": {
+                "campus": data.get("campus"),
+                "code": data.get("dept_abbr"),
+                "name": data.get("dept_name"),
+            },
+            "summary": _build_department_summary(normalized_courses),
+            "featured": _build_department_featured(normalized_courses),
+            "courses": normalized_courses,
+        }
+
+    except Exception as e:
+        return {
+            "ok": False,
+            "dept": dept,
             "error": str(e)
         }
     
@@ -293,3 +564,17 @@ def history_endpoint():
     else:
         # file doesn't exist, return empty list
         return {"ok": True, "conversations": []}
+
+
+def summarize_research_text(text, limit=200):
+    if not text:
+        return ""
+
+    cleaned = re.sub(r"\s+", " ", str(text)).strip()
+    cleaned = re.sub(r"(#{1,6}\s*)+", "", cleaned)
+
+    if len(cleaned) <= limit:
+        return cleaned
+
+    shortened = cleaned[:limit].rsplit(" ", 1)[0].strip()
+    return f"{shortened}..."
