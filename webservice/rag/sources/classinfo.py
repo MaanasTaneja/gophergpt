@@ -2,9 +2,6 @@ import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-# base URL for the classinfo site
-BASE_URL = "https://classinfo.umn.edu/" #TODO: UPDATE URL
-
 # human readable label used in metadata and chunk IDs
 SOURCE_NAME = "UMN Class Info"
 
