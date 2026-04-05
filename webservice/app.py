@@ -208,7 +208,7 @@ class ChatAgent:
         os.environ["TAVILY_API_KEY"] = os.getenv("TAVILY_API_KEY")
 
         self.llm = OpenAILLM(model_name="gpt-4o").get_model()
-        search_tool = TavilySearch(max_results = "5", topic = "general", include_domains=["umn.edu"])
+        search_tool = TavilySearch(max_results=5, topic="general", include_domains=["umn.edu"])
 
         self.toolkit = ToolkitManager()
 
@@ -218,15 +218,30 @@ class ChatAgent:
         gopherGradeTools = [gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept]
         self.toolkit.register_tools(gopherGradeTools, type="retriever")
 
-        # Giving the agent a base system prompt to give some guidence in its role
-        self.react_agent = ReActAgent(llm=self.llm, toolkit=self.toolkit, 
+        self.react_agent = ReActAgent(llm=self.llm, toolkit=self.toolkit,
                                       system_prompt=(
-                                          "You are a helpful assistant for University of Minnesota students. "
-                                          "When a user asks about UMN courses, professors, grade distributions, GPA trends, "
-                                          "or departments, use the GopherGrades tools to retrieve accurate information. "
-                                          "Prefer tool-based answers over guessing. "
-                                          "If a professor name is ambiguous, use search first before using a professor tool."
-                                          ))
+                                          "You are GopherGPT, a helpful assistant for University of Minnesota (UMN) students. "
+                                          "You help with courses, professors, grade distributions, GPA trends, and campus resources. "
+                                          "\n\nTOOL USAGE:"
+                                          "\n- gophergrades_search: Use for free-text searches (topic, professor name, partial course name). Returns matching courses and instructors with IDs."
+                                          "\n- gophergrades_class: Use this to get a course's full data — grade distribution, SRT ratings, AND the list of professors who teach it. "
+                                          "If someone asks 'who teaches MATH 1271' or 'who teaches CSCI 1933', call gophergrades_class('MATH1271') — the professor list is in the response. "
+                                          "Input must be a code with no spaces like 'MATH1271' or 'CSCI1933'."
+                                          "\n- gophergrades_prof: Use to get a specific professor's full profile. Get the prof code from gophergrades_class or gophergrades_search results — never guess the code."
+                                          "\n- gophergrades_dept: Use when asked about a full department (e.g. 'tell me about the CSCI department'). "
+                                          "Input is a dept code like 'CSCI'. The response is large — summarize the highlights: top courses, total students, avg recommend score. Do NOT dump the full list."
+                                          "\n- tavily_search: Use for general UMN questions (campus life, buildings, events, resources) not covered by GopherGrades."
+                                          "\n\nRESPONSE STYLE:"
+                                          "\n- Be concise and direct. Lead with the most useful insight."
+                                          "\n- For grade data: highlight A/B rates, average GPA context, and any standout patterns."
+                                          "\n- For professors: mention their rating, courses taught, and grade tendencies."
+                                          "\n- Use bullet points or numbered lists when presenting multiple items."
+                                          "\n- Give concrete recommendations when asked (e.g. which section to take, which prof is better)."
+                                          "\n- Never say 'I don't have access' — use your tools first."
+                                          "\n- If a user asks about a full department (e.g. 'tell me about the CSCI department'), "
+                                          "do NOT attempt to retrieve department-wide data. Instead, let them know they can explore "
+                                          "the Department Explorer tab in the sidebar for full department breakdowns."
+                                      ))
 
     # def invoke(self, message: str) -> str:
     #     """
@@ -243,8 +258,11 @@ class ChatAgent:
         Allowing for back-and-forth communication, instead of monologue
         """
 
+        # Cap history to last 10 messages to avoid context overflow
+        capped_history = history[-10:] if len(history) > 10 else history
+
         # prepends all prior messages to pass into agent
-        messages = history + [{"role": "user", "content": message}]
+        messages = capped_history + [{"role": "user", "content": message}]
 
         # runs agent with full history instead of current
         final_state = self.react_agent.invoke_agent({"messages": messages})
@@ -531,6 +549,14 @@ def save_endpoint(request: ConversationRequest):
         json.dump(conversations, file, indent=2)
 
     # Good Return
+    return {"ok": True}
+
+
+# clears all saved conversations
+@app.delete("/history/clear")
+def clear_history_endpoint():
+    if os.path.exists(CONVERSATION_FILE):
+        os.remove(CONVERSATION_FILE)
     return {"ok": True}
 
 

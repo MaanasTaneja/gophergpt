@@ -17,50 +17,47 @@ const formatPercent = (value) => {
 
 const formatCredits = (credits) => {
   if (!credits) return "N/A";
-
   const min = credits.min;
   const max = credits.max;
-
   if (min === null || min === undefined) return "N/A";
   if (max === null || max === undefined || min === max) return `${min}`;
-
   return `${min}-${max}`;
 };
 
 const SummaryCard = ({ label, value }) => (
-  <div className="rounded-xl border border-gray-700 bg-gray-900 p-4">
-    <p className="text-xs uppercase tracking-wide text-gray-400">{label}</p>
-    <p className="mt-2 text-2xl font-bold text-white">{value}</p>
+  <div className="rounded-xl border border-[#4a1020] bg-[#1e0a10] p-4">
+    <p className="text-xs uppercase tracking-wide text-[#a06070]">{label}</p>
+    <p className="mt-2 text-2xl font-bold text-gold">{value}</p>
   </div>
 );
 
 const FeaturedList = ({ title, subtitle, items, metricLabel, renderMetric }) => (
-  <div className="rounded-xl border border-gray-700 bg-gray-900 p-4">
+  <div className="rounded-xl border border-[#4a1020] bg-[#1e0a10] p-4">
     <div className="mb-4">
       <h3 className="text-lg font-bold text-white">{title}</h3>
-      <p className="text-sm text-gray-400">{subtitle}</p>
+      <p className="text-sm text-[#a06070]">{subtitle}</p>
     </div>
 
     <div className="space-y-3">
       {items.map((course) => (
-        <div key={`${title}-${course.id}`} className="rounded-lg border border-gray-800 bg-gray-950 p-3">
+        <div key={`${title}-${course.id}`} className="rounded-lg border border-[#3a1018] bg-[#150709] p-3">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="font-semibold text-gold">{course.course_num}</p>
               <p className="text-sm text-white">{course.title}</p>
             </div>
-            <div className="text-right text-sm text-gray-300">
-              <p>{metricLabel}</p>
+            <div className="text-right text-sm">
+              <p className="text-[#a06070]">{metricLabel}</p>
               <p className="font-semibold text-white">{renderMetric(course)}</p>
             </div>
           </div>
-          <p className="mt-2 text-xs text-gray-400">
+          <p className="mt-2 text-xs text-[#7a3040]">
             {formatNumber(course.total_students)} students
           </p>
         </div>
       ))}
       {items.length === 0 && (
-        <p className="text-sm text-gray-400">No courses matched this view.</p>
+        <p className="text-sm text-[#a06070]">No courses matched this view.</p>
       )}
     </div>
   </div>
@@ -106,9 +103,7 @@ const DepartmentExplorer = () => {
   };
 
   const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      fetchDepartment();
-    }
+    if (event.key === "Enter") fetchDepartment();
   };
 
   const displayedCourses = deptData
@@ -116,7 +111,6 @@ const DepartmentExplorer = () => {
         .filter((course) => {
           const query = filterText.trim().toLowerCase();
           if (!query) return true;
-
           return (
             course.course_num.toLowerCase().includes(query) ||
             course.title.toLowerCase().includes(query)
@@ -151,40 +145,43 @@ const DepartmentExplorer = () => {
   return (
     <div className="flex-1 overflow-y-auto bg-dark-gray p-6">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
+
+        {/* Page header */}
         <div>
           <h2 className="text-3xl font-bold text-white">Department Explorer</h2>
-          <p className="mt-2 max-w-3xl text-sm text-gray-400">
+          <p className="mt-2 max-w-3xl text-sm text-[#a06070]">
             Explore a UMN department by course volume, grade patterns, and student ratings.
             Search by department code like CSCI, MATH, or STAT.
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 rounded-xl border border-gray-700 bg-gray-900 p-4 md:flex-row">
+        {/* Search bar */}
+        <div className="flex flex-col gap-3 rounded-xl border border-[#4a1020] bg-[#1e0a10] p-4 md:flex-row">
           <input
             type="text"
             value={inputValue}
-            onChange={(event) => setInputValue(event.target.value)}
+            onChange={(event) => setInputValue(event.target.value.toUpperCase())}
             onKeyDown={handleKeyDown}
             placeholder="Enter department code (e.g. CSCI)"
-            className="flex-1 rounded-lg border border-gray-600 bg-gray-800 p-3 text-white"
+            className="flex-1 rounded-lg border border-[#4a1020] bg-[#150709] p-3 text-white placeholder-[#7a3040] outline-none focus:border-gold/50"
           />
           <button
             onClick={fetchDepartment}
             disabled={loading}
-            className="rounded-lg bg-gold px-4 py-3 font-semibold text-maroon disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-lg bg-gold px-6 py-3 font-semibold text-maroon disabled:cursor-not-allowed disabled:opacity-70 hover:bg-[#ffd966] transition-colors"
           >
             {loading ? "Loading..." : "Explore"}
           </button>
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-800 bg-red-950 p-4 text-sm text-red-200">
+          <div className="rounded-xl border border-[#7A0019] bg-[#2a0a10] p-4 text-sm text-red-200">
             {error}
           </div>
         )}
 
         {!deptData && !loading && !error && (
-          <div className="rounded-xl border border-dashed border-gray-700 bg-gray-900/60 p-8 text-center text-gray-400">
+          <div className="rounded-xl border border-dashed border-[#4a1020] bg-[#1a0810]/60 p-8 text-center text-[#a06070]">
             Search for a department to see summary metrics, featured course views, and a
             sortable course explorer.
           </div>
@@ -192,41 +189,32 @@ const DepartmentExplorer = () => {
 
         {deptData && (
           <>
-            <div className="rounded-xl border border-gray-700 bg-gray-900 p-5">
+            {/* Dept header + summary cards */}
+            <div className="rounded-xl border border-[#4a1020] bg-gradient-to-br from-[#1e0a10] via-[#17080e] to-[#10050a] p-5">
               <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                 <div>
-                  <p className="text-sm uppercase tracking-wide text-gray-400">
+                  <p className="text-sm uppercase tracking-wide text-[#a06070]">
                     {deptData.dept.campus}
                   </p>
                   <h3 className="text-2xl font-bold text-white">
-                    {deptData.dept.name} ({deptData.dept.code})
+                    {deptData.dept.name}{" "}
+                    <span className="text-gold">({deptData.dept.code})</span>
                   </h3>
                 </div>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-[#7a3040]">
                   Ranked using historical GopherGrades distributions and SRT data.
                 </p>
               </div>
 
               <div className="mt-5 grid gap-4 md:grid-cols-4">
-                <SummaryCard
-                  label="Courses"
-                  value={formatNumber(deptData.summary.course_count)}
-                />
-                <SummaryCard
-                  label="Total Students"
-                  value={formatNumber(deptData.summary.total_students)}
-                />
-                <SummaryCard
-                  label="Median Size"
-                  value={formatNumber(deptData.summary.median_course_size)}
-                />
-                <SummaryCard
-                  label="Avg Recommend"
-                  value={formatMetric(deptData.summary.avg_recommend)}
-                />
+                <SummaryCard label="Courses" value={formatNumber(deptData.summary.course_count)} />
+                <SummaryCard label="Total Students" value={formatNumber(deptData.summary.total_students)} />
+                <SummaryCard label="Median Size" value={formatNumber(deptData.summary.median_course_size)} />
+                <SummaryCard label="Avg Recommend" value={formatMetric(deptData.summary.avg_recommend)} />
               </div>
             </div>
 
+            {/* Featured lists */}
             <div className="grid gap-4 xl:grid-cols-3">
               <FeaturedList
                 title="Popular Courses"
@@ -251,11 +239,12 @@ const DepartmentExplorer = () => {
               />
             </div>
 
-            <div className="rounded-xl border border-gray-700 bg-gray-900 p-5">
+            {/* Course table */}
+            <div className="rounded-xl border border-[#4a1020] bg-[#1e0a10] p-5">
               <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <h3 className="text-xl font-bold text-white">Course Explorer</h3>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-[#a06070]">
                     Filter and sort the full department catalog without making another request.
                   </p>
                 </div>
@@ -266,12 +255,12 @@ const DepartmentExplorer = () => {
                     value={filterText}
                     onChange={(event) => setFilterText(event.target.value)}
                     placeholder="Filter by number or title"
-                    className="rounded-lg border border-gray-600 bg-gray-800 p-2.5 text-white"
+                    className="rounded-lg border border-[#4a1020] bg-[#150709] p-2.5 text-white placeholder-[#7a3040] outline-none focus:border-gold/50"
                   />
                   <select
                     value={sortKey}
                     onChange={(event) => setSortKey(event.target.value)}
-                    className="rounded-lg border border-gray-600 bg-gray-800 p-2.5 text-white"
+                    className="rounded-lg border border-[#4a1020] bg-[#150709] p-2.5 text-white outline-none"
                   >
                     <option value="total_students">Students</option>
                     <option value="course_num">Course Number</option>
@@ -281,7 +270,7 @@ const DepartmentExplorer = () => {
                   <select
                     value={sortDirection}
                     onChange={(event) => setSortDirection(event.target.value)}
-                    className="rounded-lg border border-gray-600 bg-gray-800 p-2.5 text-white"
+                    className="rounded-lg border border-[#4a1020] bg-[#150709] p-2.5 text-white outline-none"
                   >
                     <option value="desc">Descending</option>
                     <option value="asc">Ascending</option>
@@ -291,7 +280,7 @@ const DepartmentExplorer = () => {
 
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm">
-                  <thead className="border-b border-gray-700 text-gray-400">
+                  <thead className="border-b border-[#4a1020] text-[#a06070]">
                     <tr>
                       <th className="px-3 py-3 font-medium">Course</th>
                       <th className="px-3 py-3 font-medium">Title</th>
@@ -304,15 +293,13 @@ const DepartmentExplorer = () => {
                   </thead>
                   <tbody>
                     {displayedCourses.map((course) => (
-                      <tr key={course.id} className="border-b border-gray-800 align-top">
+                      <tr key={course.id} className="border-b border-[#2a0d15] align-top hover:bg-[#1a0810] transition-colors">
                         <td className="px-3 py-4 font-semibold text-gold">{course.course_num}</td>
                         <td className="px-3 py-4">
                           <div className="font-medium text-white">{course.title}</div>
-                          <div className="mt-1 max-w-xl text-xs leading-5 text-gray-400">
+                          <div className="mt-1 max-w-xl text-xs leading-5 text-[#a06070]">
                             {course.description
-                              ? `${course.description.slice(0, 160)}${
-                                  course.description.length > 160 ? "..." : ""
-                                }`
+                              ? `${course.description.slice(0, 160)}${course.description.length > 160 ? "..." : ""}`
                               : "No description available."}
                           </div>
                           {course.catalog_url && (
@@ -320,27 +307,17 @@ const DepartmentExplorer = () => {
                               href={course.catalog_url}
                               target="_blank"
                               rel="noreferrer"
-                              className="mt-2 inline-block text-xs text-gold underline"
+                              className="mt-2 inline-block text-xs text-gold underline hover:text-[#ffd966]"
                             >
                               View Catalog Entry
                             </a>
                           )}
                         </td>
-                        <td className="px-3 py-4 text-gray-300">
-                          {formatCredits(course.credits)}
-                        </td>
-                        <td className="px-3 py-4 text-gray-300">
-                          {formatNumber(course.total_students)}
-                        </td>
-                        <td className="px-3 py-4 text-gray-300">
-                          {formatMetric(course.metrics.recommend)}
-                        </td>
-                        <td className="px-3 py-4 text-gray-300">
-                          {formatNumber(course.metrics.responses)}
-                        </td>
-                        <td className="px-3 py-4 text-gray-300">
-                          {formatPercent(course.metrics.challenge_rate)}
-                        </td>
+                        <td className="px-3 py-4 text-gray-300">{formatCredits(course.credits)}</td>
+                        <td className="px-3 py-4 text-gray-300">{formatNumber(course.total_students)}</td>
+                        <td className="px-3 py-4 text-gray-300">{formatMetric(course.metrics.recommend)}</td>
+                        <td className="px-3 py-4 text-gray-300">{formatNumber(course.metrics.responses)}</td>
+                        <td className="px-3 py-4 text-gray-300">{formatPercent(course.metrics.challenge_rate)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -348,7 +325,7 @@ const DepartmentExplorer = () => {
               </div>
 
               {displayedCourses.length === 0 && (
-                <p className="mt-4 text-sm text-gray-400">
+                <p className="mt-4 text-sm text-[#a06070]">
                   No courses matched your current filter.
                 </p>
               )}

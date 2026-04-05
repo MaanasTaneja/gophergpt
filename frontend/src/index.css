@@ -53,6 +53,91 @@ code {
     display: none;
 }
 
+/* ── Bot message typography ─────────────────────────────── */
+.bot-message {
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    color: #e5e7eb;
+}
+
+.msg-p {
+    margin: 0 0 0.55em 0;
+}
+.msg-p:last-child { margin-bottom: 0; }
+
+/* Blank-line spacer between blocks */
+.msg-gap { height: 0.45em; }
+
+/* Section heading: **Bold Line** */
+.msg-section {
+    color: #FFCC33;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 1em 0 0.3em 0;
+    letter-spacing: 0.01em;
+}
+.msg-section:first-child { margin-top: 0; }
+
+/* Markdown headings */
+.msg-h1 {
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0.9em 0 0.4em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #3a1020;
+}
+.msg-h2 {
+    color: #FFCC33;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0.85em 0 0.35em;
+}
+.msg-h3 {
+    color: #ffd966;
+    font-size: 0.975rem;
+    font-weight: 600;
+    margin: 0.75em 0 0.3em;
+}
+.msg-h1:first-child,
+.msg-h2:first-child,
+.msg-h3:first-child { margin-top: 0; }
+
+/* Lists */
+.msg-ol {
+    list-style-type: decimal;
+    margin: 0.3em 0 0.65em 1.5em;
+    padding: 0;
+}
+.msg-ul {
+    list-style-type: disc;
+    margin: 0.3em 0 0.65em 1.4em;
+    padding: 0;
+}
+.msg-ol li,
+.msg-ul li {
+    margin-bottom: 0.3em;
+    line-height: 1.7;
+    padding-left: 0.2em;
+}
+
+/* Inline bold */
+.bot-message strong {
+    color: #f3f4f6;
+    font-weight: 600;
+}
+
+/* Links */
+.bot-message a {
+    color: #FFCC33;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 204, 51, 0.4);
+    transition: text-decoration-color 0.15s;
+}
+.bot-message a:hover {
+    text-decoration-color: #FFCC33;
+}
+
 /* Smooth transitions */
 .transition-all {
     transition: all 0.7s ease-in-out;

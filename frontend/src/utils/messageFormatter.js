@@ -1,9 +1,3 @@
-// Basic client-side formatter for bot messages (no external deps)
-// - escape HTML
-// - convert **bold** markers to <strong>
-// - auto-link URLs
-// - preserve newlines as <br>
-
 export function escapeHtml(str) {
     return String(str)
         .replace(/&/g, "&amp;")
@@ -13,139 +7,120 @@ export function escapeHtml(str) {
         .replace(/'/g, "&#39;");
 }
 
-export function linkify(text) {
-    // Simple URL regex (http/https)
-    // Negative lookbehind skips URLs already inside href attributes
-    const urlRegex = /(?<!href=")(https?:\/\/[^\s<>"]+)/g;
-    return text.replace(urlRegex, (url) => {
-        // If the URL is followed by closing punctuation (common in parentheses or end-of-sentence),
-        // trim those characters out of the href and append them after the anchor.
-        const m = url.match(/^(.*?)([)\].,;:!?]*)$/);
-        const clean = m ? m[1] : url;
-        const trailing = m ? m[2] : "";
-        return `<a class="text-gold underline" href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>${trailing}`;
+function processInline(text) {
+    // 1. Protect markdown links before escaping
+    const LINKS = [];
+    let t = text.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, (_, label, url) => {
+        const i = LINKS.length;
+        LINKS.push({ label, url });
+        return `\x00LINK${i}\x00`;
     });
-}
 
-export function boldify(text) {
-    // Replace **bold** with <strong>, trim inner whitespace
-    return text.replace(/\*\*\s*(.*?)\s*\*\*/g, "<strong>$1</strong>");
-}
+    // 2. Protect bold spans
+    const BOLDS = [];
+    t = t.replace(/\*\*(.*?)\*\*/g, (_, inner) => {
+        const i = BOLDS.length;
+        BOLDS.push(inner);
+        return `\x00BOLD${i}\x00`;
+    });
 
-// Safely process a line: boldify and linkify before escaping using placeholder tokens,
-// then escape, restore HTML, then linkify remaining raw URLs
-export function processLine(text) {
+    // 3. Escape HTML
+    t = escapeHtml(t);
 
-    const cleaned = text.replace(/\*\*\s*\*\*/g, "").replace(/\*\*\s*$/g, "").trim();
-
-    const bolded = cleaned.replace(/\*\*\s*(.*?)\s*\*\*/g, "\x00BOLD_START\x00$1\x00BOLD_END\x00");
-
-    const linkedMd = bolded.replace(
-        /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
-        "\x00LINK_START\x00$2\x00LINK_MID\x00$1\x00LINK_END\x00"
+    // 4. Restore bold
+    t = t.replace(/\x00BOLD(\d+)\x00/g, (_, i) =>
+        `<strong>${escapeHtml(BOLDS[i])}</strong>`
     );
 
-    const escaped = escapeHtml(linkedMd);
+    // 5. Restore markdown links
+    t = t.replace(/\x00LINK(\d+)\x00/g, (_, i) => {
+        const { label, url } = LINKS[i];
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
+    });
 
-    const restored = escaped
-        .replace(/\x00BOLD_START\x00/g, "<strong>")
-        .replace(/\x00BOLD_END\x00/g, "</strong>")
-        .replace(
-            /\x00LINK_START\x00(.*?)\x00LINK_MID\x00(.*?)\x00LINK_END\x00/g,
-            `<a class="text-gold underline" href="$1" target="_blank" rel="noopener noreferrer">$2</a>`
-        );
+    // 6. Auto-linkify bare URLs not already in an href
+    t = t.replace(/(?<!href=")(?<!">)(https?:\/\/[^\s<>"]+)/g, (url) => {
+        const m = url.match(/^(.*?)([)\].,;:!?]*)$/);
+        const clean = m ? m[1] : url;
+        const trail = m ? m[2] : "";
+        return `<a href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>${trail}`;
+    });
 
-        return linkify(restored);
+    return t;
+}
+
+function normalizeLine(line) {
+    // Fix unclosed ** at start: **Name → **Name**
+    const openCount = (line.match(/\*\*/g) || []).length;
+    if (openCount % 2 !== 0) {
+        // Odd number of ** — close the last one
+        if (line.startsWith("**") && openCount === 1) {
+            line = line + "**";
+        }
+    }
+    return line;
 }
 
 export function formatBotMessage(raw) {
-    // Convert raw text into safe, readable HTML with lists and headings
     const lines = String(raw).split(/\r?\n/);
     const parts = [];
     let inOl = false;
     let inUl = false;
 
     const flushLists = () => {
-        if (inOl) {
-            parts.push("</ol>");
-            inOl = false;
-        }
-        if (inUl) {
-            parts.push("</ul>");
-            inUl = false;
-        }
+        if (inOl) { parts.push("</ol>"); inOl = false; }
+        if (inUl) { parts.push("</ul>"); inUl = false; }
     };
 
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].trim();
+        let line = normalizeLine(lines[i].trim());
+
+        // Blank line → spacer
         if (!line) {
-            // blank line -> paragraph break
             flushLists();
-            parts.push("<p></p>");
-            continue;
-        }
-
-        // Ordered list item: starts with '1. ' or '2) '
-        const olMatch = line.match(/^\d+\s*[\.|\)]\s*(.*)$/);
-        if (olMatch) {
-            if (!inOl) {
-                flushLists();
-                parts.push("<ol>");
-                inOl = true;
-            }
-            const content = olMatch[1];
-            // If content has a title-like part ending with ':' separate it
-            const titleMatch = content.match(/^(.*?:)\s*(.*)$/);
-            if (titleMatch) {
-                const title = titleMatch[1];
-                const rest = titleMatch[2];
-                parts.push(`<li><strong>${processLine(title)}</strong> ${processLine(rest)}</li>`);
-            } else {
-                parts.push(`<li>${processLine(content)}</li>`);
-            }
-            continue;
-        }
-
-        // Unordered list item: starts with -, *, or •
-        const ulMatch = line.match(/^[-\*\u2022]\s+(.*)$/);
-        if (ulMatch) {
-            if (!inUl) {
-                flushLists();
-                parts.push("<ul>");
-                inUl = true;
-            }
-            const content = ulMatch[1];
-            parts.push(`<li>${processLine(content)}</li>`);
+            parts.push('<div class="msg-gap"></div>');
             continue;
         }
 
         // Markdown headings: ###, ##, #
-        const headingMatch = line.match(/^(#{1,3})\s+(.*)$/);
-        if (headingMatch) {
+        const hMatch = line.match(/^(#{1,3})\s+(.+)$/);
+        if (hMatch) {
             flushLists();
-            const content = headingMatch[2];
-            parts.push(`<p><strong>${processLine(content)}</strong></p>`);
+            const level = hMatch[1].length;
+            const cls = level === 1 ? "msg-h1" : level === 2 ? "msg-h2" : "msg-h3";
+            parts.push(`<div class="${cls}">${processInline(hMatch[2])}</div>`);
             continue;
         }
 
-        // Heading-like: line that ends with ':' or is short and in ALL CAPS -> bold
-        // Use strippedLine for detection only, process original line for output
-        const strippedLine = line.replace(/\*\*\s*(.*?)\s*\*\*/g, "$1");
-        if (
-            /[:]\s*$/.test(strippedLine) ||
-            (strippedLine.length < 60 && strippedLine === strippedLine.toUpperCase())
-        ) {
-            flushLists();
-            parts.push(`<p>${processLine(line)}</p>`);
+        // Ordered list: "1. " or "1) "
+        const olMatch = line.match(/^\d+[\.\)]\s+(.+)$/);
+        if (olMatch) {
+            if (!inOl) { flushLists(); parts.push('<ol class="msg-ol">'); inOl = true; }
+            parts.push(`<li>${processInline(olMatch[1])}</li>`);
             continue;
         }
 
-        // Default paragraph
+        // Unordered list: "- ", "* ", "• "
+        const ulMatch = line.match(/^[-*\u2022]\s+(.+)$/);
+        if (ulMatch) {
+            if (!inUl) { flushLists(); parts.push('<ul class="msg-ul">'); inUl = true; }
+            parts.push(`<li>${processInline(ulMatch[1])}</li>`);
+            continue;
+        }
+
         flushLists();
-        parts.push(`<p>${processLine(line)}</p>`);
+
+        // Bold-only line (section heading): **Some Title** or **Some Title:**
+        const boldOnly = line.match(/^\*\*(.+?)\*\*:?\s*$/);
+        if (boldOnly) {
+            parts.push(`<div class="msg-section">${escapeHtml(boldOnly[1])}</div>`);
+            continue;
+        }
+
+        // Regular paragraph
+        parts.push(`<p class="msg-p">${processInline(line)}</p>`);
     }
 
     flushLists();
-    // Join parts and collapse adjacent empty paragraphs
-    return parts.join("").replace(/<p><\/p><p><\/p>/g, "<p></p>");
+    return parts.join("");
 }
