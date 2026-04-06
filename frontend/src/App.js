@@ -53,6 +53,14 @@ function App() {
   }, [currentPage]);
 
   const typeMessage = (text, callback) => {
+    // Skip animation for empty text or very long responses
+    if (!text || text.length > 600) {
+      if (text) setTypingMessage(text);
+      setIsTyping(false);
+      if (callback) callback();
+      return;
+    }
+
     setIsTyping(true);
     setTypingMessage("");
     let index = 0;
@@ -68,66 +76,72 @@ function App() {
       }
 
       if (index < text.length) {
-        setTypingMessage(text.slice(0, index + 1));
-        index++;
+        // Type 3 characters at a time for snappier feel
+        index = Math.min(index + 3, text.length);
+        setTypingMessage(text.slice(0, index));
       } else {
         clearInterval(typeInterval);
         setIsTyping(false);
         if (callback) callback();
       }
-    }, 15);
+    }, 12);
   };
 
-  const sendMessage = async () => {
-    if (!inputValue.trim() || isLoading || isTyping) return;
+  const doSend = async (userMessage) => {
+    if (!userMessage.trim() || isLoading || isTyping) return;
 
-    userScrolledUp.current = false; // reset scroll lock on new message
-    isLoadedConversation.current = false; // prevent duplication of pages
+    userScrolledUp.current = false;
+    isLoadedConversation.current = false;
 
-    const userMessage = inputValue.trim();
     setLoadingLabel(getLoadingLabel(userMessage));
     setIsLoading(true);
     setInputValue("");
-    setMessages((prev) => [...prev, { text: userMessage, isUser: true, content: []}]);
+    setMessages((prev) => [...prev, { text: userMessage, isUser: true, content: [] }]);
     setError(null);
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 90000); // 90s timeout
+
       const response = await fetch(`${process.env.REACT_APP_API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           message: userMessage,
-          conversation_id: conversationId.current
+          conversation_id: conversationId.current,
         }),
+        signal: controller.signal,
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      clearTimeout(timeout);
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       const data = await response.json();
+      const botContent = Array.isArray(data.content) ? data.content : [];
 
-      setTimeout(() => {
-        setIsLoading(false);
-        typeMessage(data.response, () => {
-          setMessages((prev) => {
-            const updated = [...prev, { text: data.response, isUser: false, content: Array.isArray(data.content) ? data.content : [] }];
-            setTimeout(() => saveConversation(), 0);
-            return updated;
-          });
-          setTypingMessage("");
+      setIsLoading(false);
+      typeMessage(data.response, () => {
+        setMessages((prev) => {
+          const updated = [...prev, { text: data.response, isUser: false, content: botContent }];
+          setTimeout(() => saveConversation(updated), 0);
+          return updated;
         });
-      }, 1000);
+        setTypingMessage("");
+      });
     } catch (err) {
       console.error("Error sending message:", err);
       setIsLoading(false);
-      setError("Sorry, I encountered an error. Please try again.");
-      setMessages((prev) => [
-        ...prev,
-        { text: "Sorry, I encountered an error. Please try again.", isUser: false, content: []},
-      ]);
+      const errText = err.name === "AbortError"
+        ? "The request timed out. The agent may be overloaded — please try again."
+        : "Sorry, I encountered an error. Please try again.";
+      setError(errText);
+      setMessages((prev) => [...prev, { text: errText, isUser: false, content: [] }]);
     }
   };
+
+  const sendMessage = () => doSend(inputValue.trim());
+  const sendDirect = (text) => doSend(text);
 
   // History Implementations
 
@@ -141,19 +155,21 @@ function App() {
   }, []);
 
   // saves current conversation into database, can be accessed again by button from history list
-  const saveConversation = async () => {
-
+  const saveConversation = async (latestMessages) => {
     // prevent duplication of loaded conversations
     if (isLoadedConversation.current) return;
 
+    // use passed messages (avoids stale closure), fall back to state
+    const msgs = latestMessages || messages;
+
     // don't save empty or single message conversations
-    if (messages.length < 2) return;
+    if (msgs.length < 2) return;
 
     // create data structure using stable conversationId
     const conversation = {
-      id: conversationId.current, // stable id â€” same for entire conversation lifetime
-      title: messages[0].text.slice(0, 30),
-      messages: messages
+      id: conversationId.current,
+      title: msgs[0].text.slice(0, 40),
+      messages: msgs
     };
 
     // sends conversation into storage
@@ -163,7 +179,7 @@ function App() {
       body: JSON.stringify({
         id: conversation.id,
         title: conversation.title,
-        messages: conversation.messages
+        messages: msgs
       })
     });
 
@@ -200,6 +216,11 @@ function App() {
     userScrolledUp.current = false; // reset scroll
   };
 
+  const clearHistory = async () => {
+    await fetch(`${process.env.REACT_APP_API_BASE}/history/clear`, { method: "DELETE" });
+    setConversations([]);
+  };
+
   // End of History
 
   return (
@@ -207,8 +228,10 @@ function App() {
       <Sidebar
         onNewChat={handleNewChat}
         onNavigate={setCurrentPage}
+        currentPage={currentPage}
         conversations={conversations}
         onLoad={loadPrevChat}
+        onClearHistory={clearHistory}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         {currentPage === "chat" && (
@@ -224,6 +247,7 @@ function App() {
             inputValue={inputValue}
             setInputValue={setInputValue}
             onSend={sendMessage}
+            onSendDirect={sendDirect}
           />
         )}
         {currentPage === "department" && <DepartmentExplorer />}
