@@ -14,7 +14,7 @@ async def fetch_page(url: str) -> str:
     Keeping fetch and parse separate makes each easier to test and debug.
     """
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.get(url)
         return response.text
     
@@ -51,14 +51,17 @@ async def scrape(urls: list[str]) -> list[dict]:
     documents = []
 
     for url in urls:
-        html = await fetch_page(url)
-        text = parse_text(html)
+        try:
+            html = await fetch_page(url)
+            text = parse_text(html)
 
-        documents.append({
-            "text": text,
-            "source_url": url,
-            "source_name": SOURCE_NAME,
-            "scraped_at": datetime.utcnow().isoformat()
-        })
-
+            documents.append({
+                "text": text,
+                "source_url": url,
+                "source_name": SOURCE_NAME,
+                "scraped_at": datetime.utcnow().isoformat()
+            })
+        except Exception as e:
+            print(f"Skipping {url}: {e}")
+            
     return documents

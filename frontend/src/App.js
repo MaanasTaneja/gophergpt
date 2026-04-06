@@ -98,7 +98,8 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           message: userMessage,
-          conversation_id: conversationId.current
+          conversation_id: conversationId.current,
+          recent_messages: messages
         }),
       });
 

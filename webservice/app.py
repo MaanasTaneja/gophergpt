@@ -20,8 +20,14 @@ from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_cl
 
 # RAG Dependency
 from webservice.rag.retriever import retrieve, build_prompt
+from webservice.rag.indexer import run_indexing
 from webservice.routers.rag import router as rag_router
-from webservice.rag.vector_store import get_client
+from webservice.rag.vector_store import get_client, get_collection
+from openai import AsyncOpenAI
+import asyncio
+
+openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_KEY"))
+
 
 # History Storage
 # """
@@ -40,15 +46,14 @@ class CourseLookupRequest(BaseModel):
 class ProfessorLookupRequest(BaseModel):
     name: str
 
-# class ChatRequest(BaseModel):
-#     message: str
-
 class ChatRequest(BaseModel):
 
     message: str 
 
     # ensures loading the correct history and not all
     conversation_id: int | None = None # makes it optional, provide stability to frontend, since no history may exist
+
+    recent_messages: list | None = None
 
 class ChatAgent:
     def __init__(self, name="Assistant"):
@@ -116,6 +121,7 @@ class ConversationRequest(BaseModel):
 
 gopher_assistant  = None
 
+# RAG
 @asynccontextmanager
 async def lifespan_function(app: FastAPI):
     global gopher_assistant
@@ -125,6 +131,13 @@ async def lifespan_function(app: FastAPI):
     try:
         get_client()  # validates connection is healthy before serving requests
         print("ChromaDB connected successfully.")
+
+        collection = get_collection()
+
+        if collection.count() == 0:
+            print("Collection is empty — running indexer...")
+            asyncio.create_task(run_indexing)
+    
     except Exception as e:
         print(f"WARNING: ChromaDB connection failed: {e}")
 
@@ -159,20 +172,20 @@ async def chat_endpoint(request: ChatRequest):
     # empty history, append each if exist, else pass empty (default)
     history = []
 
-    # only load history if we have an ID to lookup (from frontend) and file that exist
-    if request.conversation_id is not None and os.path.exists(CONVERSATION_FILE):
-
-        # open and read/parse conversations from file into memory
+    # use in-memory messages from frontend if available, fall back to file
+    if request.recent_messages:
+        history = [{
+            "role": "user" if msg["isUser"] else "assistant", 
+            "content": msg["text"]}
+            for msg in request.recent_messages
+        ]
+    elif request.conversation_id is not None and os.path.exists(CONVERSATION_FILE):
         with open(CONVERSATION_FILE, "r") as file:
             conversations = json.load(file)
-
-        # find the correct matching conversation_id to return
         match = next((c for c in conversations if c["id"] == request.conversation_id), None)
-
-        # if found extract the role and contents from stored messages in format for agent
         if match:
             history = [{
-                "role": "user" if msg["isUser"] else "assistant", 
+                "role": "user" if msg["isUser"] else "assistant",
                 "content": msg["text"]}
                 for msg in match["messages"]
             ]
@@ -183,13 +196,20 @@ async def chat_endpoint(request: ChatRequest):
     If unable to find relevant information or DB doesn't exist, use backup option of Tavily.
     """
 
-    chunks = await retrieve(question=request.message)
-    
+    chunks, rewritten_question = await retrieve(question=request.message, history=history)
+    print(f"Rewritten question: {rewritten_question}")
+    print(f"Top chunk distance: {chunks[0]['distance'] if chunks else 'no chunks'}") 
+
+
     # If closest chunk is relevant enough to arbitrary threshold use RAG
     if chunks and chunks[0]["distance"] < 0.5:
         # RAG
-        prompt = build_prompt(question=request.message, chunks=chunks)
-        response = gopher_assistant.invoke(prompt, history=history)
+        prompt = build_prompt(question=rewritten_question, chunks=chunks)
+        result = await openai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        response = result.choices[0].message.content
     else:
         # Backup
         response = gopher_assistant.invoke(request.message, history=history)
