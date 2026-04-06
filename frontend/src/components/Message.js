@@ -1,8 +1,8 @@
 import React from "react";
-import { formatBotMessage } from "../utils/messageFormatter";
+import { formatBotMessage, escapeHtml } from "../utils/messageFormatter";
 import { GoldyMascot } from "./GoldyMascot";
 
-export const Message = ({ message, isUser }) => (
+export const Message = ({ message, isUser, isTyping }) => (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4 message-bubble`}>
         <div className="flex items-end w-full">
 
@@ -24,8 +24,9 @@ export const Message = ({ message, isUser }) => (
             <GoldyMascot className="w-8 h-8 flex-shrink-0 mr-3" />
             <div className="gradient-border-message flex-1">
                 <div
-                className="px-3 py-2 text-gray-100"
-                dangerouslySetInnerHTML={{ __html: formatBotMessage(message) }}
+                    className="px-3 py-2 text-gray-100"
+                    dangerouslySetInnerHTML={{ 
+                        __html: isTyping ? escapeHtml(message) : formatBotMessage(message) }}
                 />
             </div>
             </>
