@@ -6344,5 +6344,2664 @@
         "content": []
       }
     ]
+  },
+  {
+    "id": 1775453725368,
+    "title": "What classes should I take my next semes",
+    "messages": [
+      {
+        "text": "What classes should I take my next semester?",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "Since you are a freshman studying Computer Science and have no prior experience with coding, here are some courses you should consider taking in your next semester:\n\n1. **CSCI 1133: Introduction to Computing and Programming Concepts**\n   - This course is perfect for beginners, providing a foundation in programming and computational thinking.\n\n2. **CSCI 1933: Introduction to Algorithms and Data Structures**\n   - While more challenging, it's essential for understanding core concepts in algorithm design and data structures.\n\n3. **MATH 1271: Calculus I**\n   - A good math foundation is crucial for computer science; if you haven't taken calculus yet, this would be a beneficial course.\n\n4. **CSCI 2011: Discrete Structures of Computer Science**\n   - Discrete math is fundamental for computer science, covering topics like logic and proof techniques.\n\n5. **WRIT 1301: University Writing**\n   - Strong writing skills are valuable in any field, so taking a writing course will enhance your ability to communicate effectively.\n\nThese courses will build a strong foundation in computing principles and skills that you'll use throughout your academic and future professional career. Make sure to check prerequisites for each class and consult with your academic advisor to tailor your schedule to fit your goals and workload balance.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "Can you tell me about CSCI 1133?",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "**CSCI 1133: Introduction to Computing and Programming Concepts** is perfect for a beginner in Computer Science, particularly for someone with no prior coding experience. Here's a detailed look at what to expect:\n\n- **Course Description**: This course introduces fundamental programming concepts using the Python language. You'll learn problem-solving skills, recursion, and object-oriented programming. Additionally, algorithm development techniques, use of abstractions/modularity, and data structures/abstract data types are covered. The course is geared toward developing programs to solve real-world problems. Prerequisites are none, making it a great starting point.\n\n- **Credit Hours**: 4 credits\n\n- **Grade Distribution**: \n  - Strong A rates, with approximately 51% receiving an A.\n  - B and B+ rates are also quite respectable, around 13%.\n  - Withdrawal rate is about 9%, indicating a moderate level of difficulty.\n  \n- **SRT Ratings** (Scaled 1-6):\n  - **Deep Understanding**: 5.6\n  - **Stimulating Interest**: 5.41\n  - **Instructor's Tech Effectiveness**: 5.56\n  - **Accessibility & Support**: 5.50\n  - **Recommendation**: 5.43\n  \n- **Professors**:\n  - Some recent instructors include Andrew Exley (RMP score: 4.3) and Shana Watters (RMP score: 3.8). They are generally well-rated, contributing positively to the learning experience.\n\nThis course will provide you with a solid foundation in programming concepts, critical for progressing further in your Computer Science studies.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "What teachers teach this class",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "Here are some of the professors who teach **CSCI 1133: Introduction to Computing and Programming Concepts**:\n\n1. **Adel Al-Dawood**: No specific RMP score available.\n2. **Amy Larson**: RMP score of 2.9. \n3. **Andrea Walker**: No specific RMP score available.\n4. **Andrew Exley**: Highly rated with an RMP score of 4.3.\n5. **Angel Sylvester**: No specific RMP score available.\n6. **Shana Watters**: RMP score of 3.8.\n7. **Stephen Guy**: Well-regarded with an RMP score of 4.9.\n\nAndrew Exley, for instance, seems to be popular among the students, having a high rating on Rate My Professors (RMP). Similarly, Stephen Guy has received positive feedback, making them notable instructors for the course. These professors may help make the experience rewarding, especially since you're a freshman with no prior coding experience.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "Can you compare this class to CSCI 1933",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "",
+        "isUser": false,
+        "content": [
+          {
+            "type": "compare",
+            "courses": [
+              {
+                "code": "CSCI1933",
+                "data": {
+                  "id": 94,
+                  "campus": "UMNTC",
+                  "dept_abbr": "CSCI",
+                  "course_num": "1933",
+                  "class_desc": "Introduction to Algorithms and Data Structures",
+                  "total_students": 5972,
+                  "total_grades": {
+                    "A": 1481,
+                    "A-": 454,
+                    "B": 730,
+                    "B+": 455,
+                    "B-": 481,
+                    "C": 378,
+                    "C+": 212,
+                    "C-": 327,
+                    "D": 207,
+                    "F": 270,
+                    "N": 131,
+                    "W": 643,
+                    "S": 179,
+                    "D+": 24
+                  },
+                  "onestop": "https://umtc.catalog.prod.coursedog.com/courses/8103461",
+                  "onestop_desc": "Advanced object oriented programming to implement abstract data types (stacks, queues, linked lists, hash tables, binary trees) using Java language. Inheritance. Searching/sorting algorithms. Basic algorithmic analysis.  Use of software development tools. Weekly lab.\n\nprereq: Calc I (Math 1271 or Math 1371 or Math 1571H) as a corequisite, CSci 1133 as a prerequisite.",
+                  "cred_min": 4,
+                  "cred_max": 4,
+                  "srt_vals": "{\"DEEP_UND\": 5.308571428571428, \"STIM_INT\": 5.062857142857142, \"TECH_EFF\": 5.106428571428571, \"ACC_SUP\": 5.221428571428571, \"EFFORT\": 4.7871428571428565, \"GRAD_STAND\": 5.056428571428571, \"RECC\": 5.0042857142857144, \"RESP\": 1488.0}",
+                  "dept_name": "Computer Science",
+                  "right_id": null,
+                  "libEds": [],
+                  "distributions": [
+                    {
+                      "distribution_id": 1175,
+                      "students": 687,
+                      "term": 1253,
+                      "grades": {
+                        "A": 157,
+                        "A-": 51,
+                        "B": 118,
+                        "B+": 38,
+                        "B-": 33,
+                        "C": 67,
+                        "C+": 39,
+                        "C-": 29,
+                        "D": 20,
+                        "D+": 8,
+                        "F": 25,
+                        "W": 101,
+                        "S": 1
+                      },
+                      "professor_id": 1318,
+                      "professor_name": "Chad Myers",
+                      "professor_RMP_score": 4.3,
+                      "terms": [
+                        {
+                          "term": 1253,
+                          "grades": {
+                            "A": 36,
+                            "A-": 10,
+                            "B": 16,
+                            "B+": 5,
+                            "B-": 7,
+                            "C": 12,
+                            "C+": 2,
+                            "C-": 2,
+                            "D": 2,
+                            "D+": 3,
+                            "F": 6,
+                            "W": 6
+                          },
+                          "students": 107
+                        },
+                        {
+                          "term": 1223,
+                          "grades": {
+                            "A": 44,
+                            "A-": 14,
+                            "B": 24,
+                            "B+": 8,
+                            "B-": 7,
+                            "C": 12,
+                            "C+": 11,
+                            "C-": 10,
+                            "D": 4,
+                            "D+": 5,
+                            "F": 4,
+                            "W": 33
+                          },
+                          "students": 176
+                        },
+                        {
+                          "term": 1179,
+                          "grades": {
+                            "A": 37,
+                            "A-": 11,
+                            "B": 45,
+                            "B+": 9,
+                            "B-": 8,
+                            "C": 15,
+                            "C+": 13,
+                            "C-": 11,
+                            "D": 7,
+                            "F": 7,
+                            "S": 1,
+                            "W": 36
+                          },
+                          "students": 200
+                        },
+                        {
+                          "term": 1189,
+                          "grades": {
+                            "A": 40,
+                            "A-": 16,
+                            "B": 33,
+                            "B+": 16,
+                            "B-": 11,
+                            "C": 28,
+                            "C+": 13,
+                            "C-": 6,
+                            "D": 7,
+                            "F": 8,
+                            "W": 26
+                          },
+                          "students": 204
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 97,
+                      "students": 4764,
+                      "term": 1175,
+                      "grades": {
+                        "A": 1121,
+                        "A-": 337,
+                        "B": 545,
+                        "B+": 361,
+                        "B-": 421,
+                        "C": 294,
+                        "C+": 163,
+                        "C-": 279,
+                        "D": 181,
+                        "F": 224,
+                        "N": 126,
+                        "W": 524,
+                        "S": 175,
+                        "D+": 13
+                      },
+                      "professor_id": 1421,
+                      "professor_name": "Chris Dovolis",
+                      "professor_RMP_score": 3.3,
+                      "terms": [
+                        {
+                          "term": 1175,
+                          "grades": {
+                            "A": 9,
+                            "A-": 5,
+                            "B": 5,
+                            "B+": 7,
+                            "B-": 2,
+                            "C": 4,
+                            "C+": 5,
+                            "C-": 1,
+                            "D": 3,
+                            "F": 5,
+                            "N": 1,
+                            "W": 1
+                          },
+                          "students": 48
+                        },
+                        {
+                          "term": 1215,
+                          "grades": {
+                            "A": 18,
+                            "A-": 3,
+                            "B": 9,
+                            "B+": 2,
+                            "B-": 1,
+                            "C": 3,
+                            "C+": 2,
+                            "D": 4,
+                            "N": 4,
+                            "S": 6,
+                            "W": 4
+                          },
+                          "students": 56
+                        },
+                        {
+                          "term": 1225,
+                          "grades": {
+                            "A": 25,
+                            "A-": 5,
+                            "B": 9,
+                            "B+": 9,
+                            "B-": 2,
+                            "C": 9,
+                            "C+": 2,
+                            "C-": 4,
+                            "F": 6,
+                            "W": 6
+                          },
+                          "students": 77
+                        },
+                        {
+                          "term": 1223,
+                          "grades": {
+                            "A": 71,
+                            "A-": 6,
+                            "B": 21,
+                            "B+": 14,
+                            "B-": 18,
+                            "C": 19,
+                            "C+": 5,
+                            "C-": 10,
+                            "D": 3,
+                            "F": 14,
+                            "W": 27
+                          },
+                          "students": 208
+                        },
+                        {
+                          "term": 1183,
+                          "grades": {
+                            "A": 13,
+                            "A-": 28,
+                            "B": 31,
+                            "B+": 22,
+                            "B-": 27,
+                            "C": 22,
+                            "C+": 17,
+                            "C-": 18,
+                            "D": 13,
+                            "F": 6,
+                            "W": 25
+                          },
+                          "students": 222
+                        },
+                        {
+                          "term": 1199,
+                          "grades": {
+                            "A": 28,
+                            "A-": 17,
+                            "B": 36,
+                            "B+": 17,
+                            "B-": 19,
+                            "C": 26,
+                            "C+": 11,
+                            "C-": 19,
+                            "D": 13,
+                            "F": 17,
+                            "W": 30
+                          },
+                          "students": 233
+                        },
+                        {
+                          "term": 1193,
+                          "grades": {
+                            "A": 42,
+                            "A-": 13,
+                            "B": 36,
+                            "B+": 25,
+                            "B-": 27,
+                            "C": 17,
+                            "C+": 6,
+                            "C-": 15,
+                            "D": 15,
+                            "F": 12,
+                            "S": 1,
+                            "W": 30
+                          },
+                          "students": 239
+                        },
+                        {
+                          "term": 1253,
+                          "grades": {
+                            "A": 29,
+                            "A-": 28,
+                            "B": 28,
+                            "B+": 24,
+                            "B-": 21,
+                            "C": 18,
+                            "C+": 11,
+                            "C-": 26,
+                            "D": 10,
+                            "D+": 9,
+                            "F": 19,
+                            "W": 17
+                          },
+                          "students": 240
+                        },
+                        {
+                          "term": 1259,
+                          "grades": {
+                            "A": 39,
+                            "A-": 33,
+                            "B": 26,
+                            "B+": 28,
+                            "B-": 26,
+                            "C": 15,
+                            "C+": 16,
+                            "C-": 14,
+                            "D": 11,
+                            "F": 17,
+                            "S": 2,
+                            "W": 22
+                          },
+                          "students": 249
+                        },
+                        {
+                          "term": 1219,
+                          "grades": {
+                            "A": 89,
+                            "A-": 8,
+                            "B": 37,
+                            "B+": 11,
+                            "B-": 20,
+                            "C": 15,
+                            "C+": 14,
+                            "C-": 6,
+                            "D": 14,
+                            "F": 21,
+                            "N": 2,
+                            "W": 54
+                          },
+                          "students": 291
+                        },
+                        {
+                          "term": 1233,
+                          "grades": {
+                            "A": 97,
+                            "A-": 17,
+                            "B": 47,
+                            "B+": 22,
+                            "B-": 41,
+                            "C": 13,
+                            "C+": 7,
+                            "C-": 29,
+                            "D": 10,
+                            "F": 15,
+                            "W": 33
+                          },
+                          "students": 331
+                        },
+                        {
+                          "term": 1203,
+                          "grades": {
+                            "A": 81,
+                            "A-": 27,
+                            "B": 41,
+                            "B+": 15,
+                            "B-": 13,
+                            "C": 10,
+                            "C+": 4,
+                            "C-": 3,
+                            "D": 1,
+                            "F": 2,
+                            "N": 26,
+                            "S": 81,
+                            "W": 30
+                          },
+                          "students": 334
+                        },
+                        {
+                          "term": 1243,
+                          "grades": {
+                            "A": 106,
+                            "A-": 37,
+                            "B": 33,
+                            "B+": 22,
+                            "B-": 28,
+                            "C": 8,
+                            "C+": 15,
+                            "C-": 22,
+                            "D": 21,
+                            "D+": 4,
+                            "F": 25,
+                            "S": 1,
+                            "W": 33
+                          },
+                          "students": 355
+                        },
+                        {
+                          "term": 1209,
+                          "grades": {
+                            "A": 96,
+                            "A-": 34,
+                            "B": 36,
+                            "B+": 14,
+                            "B-": 23,
+                            "C": 15,
+                            "C+": 8,
+                            "C-": 11,
+                            "D": 3,
+                            "N": 43,
+                            "S": 40,
+                            "W": 33
+                          },
+                          "students": 356
+                        },
+                        {
+                          "term": 1229,
+                          "grades": {
+                            "A": 116,
+                            "A-": 9,
+                            "B": 42,
+                            "B+": 37,
+                            "B-": 37,
+                            "C": 23,
+                            "C+": 6,
+                            "C-": 21,
+                            "D": 8,
+                            "F": 20,
+                            "S": 1,
+                            "W": 46
+                          },
+                          "students": 366
+                        },
+                        {
+                          "term": 1213,
+                          "grades": {
+                            "A": 109,
+                            "A-": 16,
+                            "B": 32,
+                            "B+": 25,
+                            "B-": 32,
+                            "C": 13,
+                            "C+": 5,
+                            "C-": 6,
+                            "D": 3,
+                            "N": 49,
+                            "S": 42,
+                            "W": 52
+                          },
+                          "students": 384
+                        },
+                        {
+                          "term": 1249,
+                          "grades": {
+                            "A": 51,
+                            "A-": 45,
+                            "B": 33,
+                            "B+": 27,
+                            "B-": 37,
+                            "C": 29,
+                            "C+": 20,
+                            "C-": 51,
+                            "D": 21,
+                            "F": 20,
+                            "N": 1,
+                            "S": 1,
+                            "W": 51
+                          },
+                          "students": 387
+                        },
+                        {
+                          "term": 1239,
+                          "grades": {
+                            "A": 102,
+                            "A-": 6,
+                            "B": 43,
+                            "B+": 40,
+                            "B-": 47,
+                            "C": 35,
+                            "C+": 9,
+                            "C-": 23,
+                            "D": 28,
+                            "F": 25,
+                            "W": 30
+                          },
+                          "students": 388
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 20180,
+                      "students": 109,
+                      "term": 1233,
+                      "grades": {
+                        "A": 24,
+                        "A-": 28,
+                        "B": 15,
+                        "B+": 24,
+                        "B-": 5,
+                        "C": 2,
+                        "C+": 1,
+                        "C-": 1,
+                        "F": 2,
+                        "W": 7
+                      },
+                      "professor_id": 3240,
+                      "professor_name": "James Moen",
+                      "professor_RMP_score": 4.1,
+                      "terms": [
+                        {
+                          "term": 1233,
+                          "grades": {
+                            "A": 24,
+                            "A-": 28,
+                            "B": 15,
+                            "B+": 24,
+                            "B-": 5,
+                            "C": 2,
+                            "C+": 1,
+                            "C-": 1,
+                            "F": 2,
+                            "W": 7
+                          },
+                          "students": 109
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 13311,
+                      "students": 67,
+                      "term": 1205,
+                      "grades": {
+                        "A": 19,
+                        "A-": 9,
+                        "B": 7,
+                        "B+": 2,
+                        "B-": 3,
+                        "C": 5,
+                        "C+": 1,
+                        "C-": 1,
+                        "D": 1,
+                        "F": 8,
+                        "N": 5,
+                        "S": 2,
+                        "W": 4
+                      },
+                      "professor_id": 3246,
+                      "professor_name": "James Polzin",
+                      "professor_RMP_score": null,
+                      "terms": [
+                        {
+                          "term": 1205,
+                          "grades": {
+                            "A": 19,
+                            "A-": 9,
+                            "B": 7,
+                            "B+": 2,
+                            "B-": 3,
+                            "C": 5,
+                            "C+": 1,
+                            "C-": 1,
+                            "D": 1,
+                            "F": 8,
+                            "N": 5,
+                            "S": 2,
+                            "W": 4
+                          },
+                          "students": 67
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 7172,
+                      "students": 39,
+                      "term": 1185,
+                      "grades": {
+                        "A": 22,
+                        "A-": 3,
+                        "B": 7,
+                        "B+": 2,
+                        "C": 1,
+                        "C+": 1,
+                        "C-": 1,
+                        "S": 1,
+                        "W": 1
+                      },
+                      "professor_id": 5624,
+                      "professor_name": "Michael Tetzlaff",
+                      "professor_RMP_score": 0,
+                      "terms": [
+                        {
+                          "term": 1185,
+                          "grades": {
+                            "A": 22,
+                            "A-": 3,
+                            "B": 7,
+                            "B+": 2,
+                            "C": 1,
+                            "C+": 1,
+                            "C-": 1,
+                            "S": 1,
+                            "W": 1
+                          },
+                          "students": 39
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 20927,
+                      "students": 87,
+                      "term": 1235,
+                      "grades": {
+                        "A": 66,
+                        "A-": 4,
+                        "B": 5,
+                        "B+": 3,
+                        "B-": 7,
+                        "F": 1,
+                        "W": 1
+                      },
+                      "professor_id": 5834,
+                      "professor_name": "Nabil Khan",
+                      "professor_RMP_score": 4.7,
+                      "terms": [
+                        {
+                          "term": 1235,
+                          "grades": {
+                            "A": 66,
+                            "A-": 4,
+                            "B": 5,
+                            "B+": 3,
+                            "B-": 7,
+                            "F": 1,
+                            "W": 1
+                          },
+                          "students": 87
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 10656,
+                      "students": 49,
+                      "term": 1195,
+                      "grades": {
+                        "A": 9,
+                        "A-": 4,
+                        "B": 11,
+                        "B+": 6,
+                        "B-": 3,
+                        "C": 3,
+                        "C+": 1,
+                        "C-": 8,
+                        "D": 1,
+                        "F": 1,
+                        "W": 2
+                      },
+                      "professor_id": 7699,
+                      "professor_name": "Timothy Wrenn",
+                      "professor_RMP_score": 2.2,
+                      "terms": [
+                        {
+                          "term": 1195,
+                          "grades": {
+                            "A": 9,
+                            "A-": 4,
+                            "B": 11,
+                            "B+": 6,
+                            "B-": 3,
+                            "C": 3,
+                            "C+": 1,
+                            "C-": 8,
+                            "D": 1,
+                            "F": 1,
+                            "W": 2
+                          },
+                          "students": 49
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 21314,
+                      "students": 41,
+                      "term": 1239,
+                      "grades": {
+                        "A": 10,
+                        "B": 6,
+                        "B+": 8,
+                        "B-": 3,
+                        "C": 2,
+                        "C+": 1,
+                        "C-": 2,
+                        "D": 3,
+                        "F": 4,
+                        "W": 2
+                      },
+                      "professor_id": 8693,
+                      "professor_name": "Elizabeth Jensen",
+                      "professor_RMP_score": 1.8,
+                      "terms": [
+                        {
+                          "term": 1239,
+                          "grades": {
+                            "A": 10,
+                            "B": 6,
+                            "B+": 8,
+                            "B-": 3,
+                            "C": 2,
+                            "C+": 1,
+                            "C-": 2,
+                            "D": 3,
+                            "F": 4,
+                            "W": 2
+                          },
+                          "students": 41
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 24539,
+                      "students": 87,
+                      "term": 1245,
+                      "grades": {
+                        "A": 37,
+                        "A-": 16,
+                        "B": 10,
+                        "B+": 9,
+                        "B-": 3,
+                        "C": 1,
+                        "C+": 3,
+                        "C-": 2,
+                        "D": 1,
+                        "D+": 2,
+                        "F": 2,
+                        "W": 1
+                      },
+                      "professor_id": 10015,
+                      "professor_name": "Camden Sikes",
+                      "professor_RMP_score": 5,
+                      "terms": [
+                        {
+                          "term": 1245,
+                          "grades": {
+                            "A": 37,
+                            "A-": 16,
+                            "B": 10,
+                            "B+": 9,
+                            "B-": 3,
+                            "C": 1,
+                            "C+": 3,
+                            "C-": 2,
+                            "D": 1,
+                            "D+": 2,
+                            "F": 2,
+                            "W": 1
+                          },
+                          "students": 87
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 27794,
+                      "students": 42,
+                      "term": 1255,
+                      "grades": {
+                        "A": 16,
+                        "A-": 2,
+                        "B": 6,
+                        "B+": 2,
+                        "B-": 3,
+                        "C": 3,
+                        "C+": 2,
+                        "C-": 4,
+                        "D+": 1,
+                        "F": 3
+                      },
+                      "professor_id": 11003,
+                      "professor_name": "Maryam Kameli",
+                      "professor_RMP_score": 0,
+                      "terms": [
+                        {
+                          "term": 1255,
+                          "grades": {
+                            "A": 16,
+                            "A-": 2,
+                            "B": 6,
+                            "B+": 2,
+                            "B-": 3,
+                            "C": 3,
+                            "C+": 2,
+                            "C-": 4,
+                            "D+": 1,
+                            "F": 3
+                          },
+                          "students": 42
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "summary": "**CSCI 1133** is excellent for beginners, providing a solid introduction to computing and programming principles using Python, with high satisfaction and positive feedback from students. It sets a foundational understanding crucial as you transition to more complex topics.\n\n**CSCI 1933** builds on that foundation, diving into algorithms and data structures with Java, and presents a moderate challenge with mixed feedback. The course emphasizes object-oriented programming and is ideal for understanding essential concepts needed for advanced computer science studies."
+          }
+        ]
+      },
+      {
+        "text": "What are some research opportunities for Computer science?",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "Here's a research snapshot with the strongest matches I found.",
+        "isUser": false,
+        "content": [
+          {
+            "type": "research",
+            "summary": "Undergraduate research. Research as an undergraduate student is a fantastic opportunity to connect with existing projects and the faculty and researchers leading them (or launch your own!) as well as make connections with others who are interested in emerging possibilities and challenges within and across fields....",
+            "results": [
+              {
+                "title": "Undergraduate research | Department of Computer Science ...",
+                "url": "https://cse.umn.edu/cs/undergraduate-research",
+                "snippet": "Undergraduate research. Research as an undergraduate student is a fantastic opportunity to connect with existing projects and the faculty and researchers leading them (or launch your own!)..."
+              },
+              {
+                "title": "Explore Computer Science Research (ExploreCSR): Welcome to ...",
+                "url": "https://explorecsr.umn.edu/",
+                "snippet": "The Explore Computer Science Research (ExploreCSR) program is about students! Welcome to Exploring Computer Science Research (ExploreCSR). Explore Computer Science Research (ExploreCSR)...."
+              },
+              {
+                "title": "CSpotlight: Exploring Computer Science",
+                "url": "https://cse.umn.edu/cs/news/cspotlight-exploring-computer-science",
+                "snippet": "There are so many opportunities out there and you can really connect with a lot of people and find interests that you didn't know you had. There"
+              },
+              {
+                "title": "Computer Science Research",
+                "url": "https://scse.d.umn.edu/departments-and-programs/computer-science-department/research",
+                "snippet": "UMD Computer Science students frequently work side-by-side with faculty to conduct research in a wide variety of areas. Dr. Leal researches scalable GPU algorithms for spatial query..."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 1775454285515,
+    "title": "Who teaches MATH 1271?",
+    "messages": [
+      {
+        "text": "Who teaches MATH 1271?",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "MATH 1271, which covers Calculus I, is taught by several professors. Here are some notable ones:\n\n- **Alexis Dasher**: Highly rated with a 5/5 score on RateMyProfessors.\n- **Anastasia Nathanson**: Has a 3.8/5 rating.\n- **Angel Chavez**: Another highly-rated professor with a 5/5.\n- **Bryan Mosher**: Known for a good teaching experience with a 4.3/5 rating.\n\nThis course involves understanding calculus concepts such as differential calculus, integral calculus, and applications like optimization and related rates. As a freshman in Computer Science without prior coding experience, it might be helpful to attend sessions or study groups for this foundational course.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "Can you compare CSCI 1933 and CSCI 1133",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "Sorry, I encountered an error. Please try again.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "Can you compare CSCI 1933 and CSCI 4041",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "",
+        "isUser": false,
+        "content": [
+          {
+            "type": "compare",
+            "courses": [
+              {
+                "code": "CSCI1933",
+                "data": {
+                  "id": 94,
+                  "campus": "UMNTC",
+                  "dept_abbr": "CSCI",
+                  "course_num": "1933",
+                  "class_desc": "Introduction to Algorithms and Data Structures",
+                  "total_students": 5972,
+                  "total_grades": {
+                    "A": 1481,
+                    "A-": 454,
+                    "B": 730,
+                    "B+": 455,
+                    "B-": 481,
+                    "C": 378,
+                    "C+": 212,
+                    "C-": 327,
+                    "D": 207,
+                    "F": 270,
+                    "N": 131,
+                    "W": 643,
+                    "S": 179,
+                    "D+": 24
+                  },
+                  "onestop": "https://umtc.catalog.prod.coursedog.com/courses/8103461",
+                  "onestop_desc": "Advanced object oriented programming to implement abstract data types (stacks, queues, linked lists, hash tables, binary trees) using Java language. Inheritance. Searching/sorting algorithms. Basic algorithmic analysis.  Use of software development tools. Weekly lab.\n\nprereq: Calc I (Math 1271 or Math 1371 or Math 1571H) as a corequisite, CSci 1133 as a prerequisite.",
+                  "cred_min": 4,
+                  "cred_max": 4,
+                  "srt_vals": "{\"DEEP_UND\": 5.308571428571428, \"STIM_INT\": 5.062857142857142, \"TECH_EFF\": 5.106428571428571, \"ACC_SUP\": 5.221428571428571, \"EFFORT\": 4.7871428571428565, \"GRAD_STAND\": 5.056428571428571, \"RECC\": 5.0042857142857144, \"RESP\": 1488.0}",
+                  "dept_name": "Computer Science",
+                  "right_id": null,
+                  "libEds": [],
+                  "distributions": [
+                    {
+                      "distribution_id": 1175,
+                      "students": 687,
+                      "term": 1253,
+                      "grades": {
+                        "A": 157,
+                        "A-": 51,
+                        "B": 118,
+                        "B+": 38,
+                        "B-": 33,
+                        "C": 67,
+                        "C+": 39,
+                        "C-": 29,
+                        "D": 20,
+                        "D+": 8,
+                        "F": 25,
+                        "W": 101,
+                        "S": 1
+                      },
+                      "professor_id": 1318,
+                      "professor_name": "Chad Myers",
+                      "professor_RMP_score": 4.3,
+                      "terms": [
+                        {
+                          "term": 1253,
+                          "grades": {
+                            "A": 36,
+                            "A-": 10,
+                            "B": 16,
+                            "B+": 5,
+                            "B-": 7,
+                            "C": 12,
+                            "C+": 2,
+                            "C-": 2,
+                            "D": 2,
+                            "D+": 3,
+                            "F": 6,
+                            "W": 6
+                          },
+                          "students": 107
+                        },
+                        {
+                          "term": 1223,
+                          "grades": {
+                            "A": 44,
+                            "A-": 14,
+                            "B": 24,
+                            "B+": 8,
+                            "B-": 7,
+                            "C": 12,
+                            "C+": 11,
+                            "C-": 10,
+                            "D": 4,
+                            "D+": 5,
+                            "F": 4,
+                            "W": 33
+                          },
+                          "students": 176
+                        },
+                        {
+                          "term": 1179,
+                          "grades": {
+                            "A": 37,
+                            "A-": 11,
+                            "B": 45,
+                            "B+": 9,
+                            "B-": 8,
+                            "C": 15,
+                            "C+": 13,
+                            "C-": 11,
+                            "D": 7,
+                            "F": 7,
+                            "S": 1,
+                            "W": 36
+                          },
+                          "students": 200
+                        },
+                        {
+                          "term": 1189,
+                          "grades": {
+                            "A": 40,
+                            "A-": 16,
+                            "B": 33,
+                            "B+": 16,
+                            "B-": 11,
+                            "C": 28,
+                            "C+": 13,
+                            "C-": 6,
+                            "D": 7,
+                            "F": 8,
+                            "W": 26
+                          },
+                          "students": 204
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 97,
+                      "students": 4764,
+                      "term": 1175,
+                      "grades": {
+                        "A": 1121,
+                        "A-": 337,
+                        "B": 545,
+                        "B+": 361,
+                        "B-": 421,
+                        "C": 294,
+                        "C+": 163,
+                        "C-": 279,
+                        "D": 181,
+                        "F": 224,
+                        "N": 126,
+                        "W": 524,
+                        "S": 175,
+                        "D+": 13
+                      },
+                      "professor_id": 1421,
+                      "professor_name": "Chris Dovolis",
+                      "professor_RMP_score": 3.3,
+                      "terms": [
+                        {
+                          "term": 1175,
+                          "grades": {
+                            "A": 9,
+                            "A-": 5,
+                            "B": 5,
+                            "B+": 7,
+                            "B-": 2,
+                            "C": 4,
+                            "C+": 5,
+                            "C-": 1,
+                            "D": 3,
+                            "F": 5,
+                            "N": 1,
+                            "W": 1
+                          },
+                          "students": 48
+                        },
+                        {
+                          "term": 1215,
+                          "grades": {
+                            "A": 18,
+                            "A-": 3,
+                            "B": 9,
+                            "B+": 2,
+                            "B-": 1,
+                            "C": 3,
+                            "C+": 2,
+                            "D": 4,
+                            "N": 4,
+                            "S": 6,
+                            "W": 4
+                          },
+                          "students": 56
+                        },
+                        {
+                          "term": 1225,
+                          "grades": {
+                            "A": 25,
+                            "A-": 5,
+                            "B": 9,
+                            "B+": 9,
+                            "B-": 2,
+                            "C": 9,
+                            "C+": 2,
+                            "C-": 4,
+                            "F": 6,
+                            "W": 6
+                          },
+                          "students": 77
+                        },
+                        {
+                          "term": 1223,
+                          "grades": {
+                            "A": 71,
+                            "A-": 6,
+                            "B": 21,
+                            "B+": 14,
+                            "B-": 18,
+                            "C": 19,
+                            "C+": 5,
+                            "C-": 10,
+                            "D": 3,
+                            "F": 14,
+                            "W": 27
+                          },
+                          "students": 208
+                        },
+                        {
+                          "term": 1183,
+                          "grades": {
+                            "A": 13,
+                            "A-": 28,
+                            "B": 31,
+                            "B+": 22,
+                            "B-": 27,
+                            "C": 22,
+                            "C+": 17,
+                            "C-": 18,
+                            "D": 13,
+                            "F": 6,
+                            "W": 25
+                          },
+                          "students": 222
+                        },
+                        {
+                          "term": 1199,
+                          "grades": {
+                            "A": 28,
+                            "A-": 17,
+                            "B": 36,
+                            "B+": 17,
+                            "B-": 19,
+                            "C": 26,
+                            "C+": 11,
+                            "C-": 19,
+                            "D": 13,
+                            "F": 17,
+                            "W": 30
+                          },
+                          "students": 233
+                        },
+                        {
+                          "term": 1193,
+                          "grades": {
+                            "A": 42,
+                            "A-": 13,
+                            "B": 36,
+                            "B+": 25,
+                            "B-": 27,
+                            "C": 17,
+                            "C+": 6,
+                            "C-": 15,
+                            "D": 15,
+                            "F": 12,
+                            "S": 1,
+                            "W": 30
+                          },
+                          "students": 239
+                        },
+                        {
+                          "term": 1253,
+                          "grades": {
+                            "A": 29,
+                            "A-": 28,
+                            "B": 28,
+                            "B+": 24,
+                            "B-": 21,
+                            "C": 18,
+                            "C+": 11,
+                            "C-": 26,
+                            "D": 10,
+                            "D+": 9,
+                            "F": 19,
+                            "W": 17
+                          },
+                          "students": 240
+                        },
+                        {
+                          "term": 1259,
+                          "grades": {
+                            "A": 39,
+                            "A-": 33,
+                            "B": 26,
+                            "B+": 28,
+                            "B-": 26,
+                            "C": 15,
+                            "C+": 16,
+                            "C-": 14,
+                            "D": 11,
+                            "F": 17,
+                            "S": 2,
+                            "W": 22
+                          },
+                          "students": 249
+                        },
+                        {
+                          "term": 1219,
+                          "grades": {
+                            "A": 89,
+                            "A-": 8,
+                            "B": 37,
+                            "B+": 11,
+                            "B-": 20,
+                            "C": 15,
+                            "C+": 14,
+                            "C-": 6,
+                            "D": 14,
+                            "F": 21,
+                            "N": 2,
+                            "W": 54
+                          },
+                          "students": 291
+                        },
+                        {
+                          "term": 1233,
+                          "grades": {
+                            "A": 97,
+                            "A-": 17,
+                            "B": 47,
+                            "B+": 22,
+                            "B-": 41,
+                            "C": 13,
+                            "C+": 7,
+                            "C-": 29,
+                            "D": 10,
+                            "F": 15,
+                            "W": 33
+                          },
+                          "students": 331
+                        },
+                        {
+                          "term": 1203,
+                          "grades": {
+                            "A": 81,
+                            "A-": 27,
+                            "B": 41,
+                            "B+": 15,
+                            "B-": 13,
+                            "C": 10,
+                            "C+": 4,
+                            "C-": 3,
+                            "D": 1,
+                            "F": 2,
+                            "N": 26,
+                            "S": 81,
+                            "W": 30
+                          },
+                          "students": 334
+                        },
+                        {
+                          "term": 1243,
+                          "grades": {
+                            "A": 106,
+                            "A-": 37,
+                            "B": 33,
+                            "B+": 22,
+                            "B-": 28,
+                            "C": 8,
+                            "C+": 15,
+                            "C-": 22,
+                            "D": 21,
+                            "D+": 4,
+                            "F": 25,
+                            "S": 1,
+                            "W": 33
+                          },
+                          "students": 355
+                        },
+                        {
+                          "term": 1209,
+                          "grades": {
+                            "A": 96,
+                            "A-": 34,
+                            "B": 36,
+                            "B+": 14,
+                            "B-": 23,
+                            "C": 15,
+                            "C+": 8,
+                            "C-": 11,
+                            "D": 3,
+                            "N": 43,
+                            "S": 40,
+                            "W": 33
+                          },
+                          "students": 356
+                        },
+                        {
+                          "term": 1229,
+                          "grades": {
+                            "A": 116,
+                            "A-": 9,
+                            "B": 42,
+                            "B+": 37,
+                            "B-": 37,
+                            "C": 23,
+                            "C+": 6,
+                            "C-": 21,
+                            "D": 8,
+                            "F": 20,
+                            "S": 1,
+                            "W": 46
+                          },
+                          "students": 366
+                        },
+                        {
+                          "term": 1213,
+                          "grades": {
+                            "A": 109,
+                            "A-": 16,
+                            "B": 32,
+                            "B+": 25,
+                            "B-": 32,
+                            "C": 13,
+                            "C+": 5,
+                            "C-": 6,
+                            "D": 3,
+                            "N": 49,
+                            "S": 42,
+                            "W": 52
+                          },
+                          "students": 384
+                        },
+                        {
+                          "term": 1249,
+                          "grades": {
+                            "A": 51,
+                            "A-": 45,
+                            "B": 33,
+                            "B+": 27,
+                            "B-": 37,
+                            "C": 29,
+                            "C+": 20,
+                            "C-": 51,
+                            "D": 21,
+                            "F": 20,
+                            "N": 1,
+                            "S": 1,
+                            "W": 51
+                          },
+                          "students": 387
+                        },
+                        {
+                          "term": 1239,
+                          "grades": {
+                            "A": 102,
+                            "A-": 6,
+                            "B": 43,
+                            "B+": 40,
+                            "B-": 47,
+                            "C": 35,
+                            "C+": 9,
+                            "C-": 23,
+                            "D": 28,
+                            "F": 25,
+                            "W": 30
+                          },
+                          "students": 388
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 20180,
+                      "students": 109,
+                      "term": 1233,
+                      "grades": {
+                        "A": 24,
+                        "A-": 28,
+                        "B": 15,
+                        "B+": 24,
+                        "B-": 5,
+                        "C": 2,
+                        "C+": 1,
+                        "C-": 1,
+                        "F": 2,
+                        "W": 7
+                      },
+                      "professor_id": 3240,
+                      "professor_name": "James Moen",
+                      "professor_RMP_score": 4.1,
+                      "terms": [
+                        {
+                          "term": 1233,
+                          "grades": {
+                            "A": 24,
+                            "A-": 28,
+                            "B": 15,
+                            "B+": 24,
+                            "B-": 5,
+                            "C": 2,
+                            "C+": 1,
+                            "C-": 1,
+                            "F": 2,
+                            "W": 7
+                          },
+                          "students": 109
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 13311,
+                      "students": 67,
+                      "term": 1205,
+                      "grades": {
+                        "A": 19,
+                        "A-": 9,
+                        "B": 7,
+                        "B+": 2,
+                        "B-": 3,
+                        "C": 5,
+                        "C+": 1,
+                        "C-": 1,
+                        "D": 1,
+                        "F": 8,
+                        "N": 5,
+                        "S": 2,
+                        "W": 4
+                      },
+                      "professor_id": 3246,
+                      "professor_name": "James Polzin",
+                      "professor_RMP_score": null,
+                      "terms": [
+                        {
+                          "term": 1205,
+                          "grades": {
+                            "A": 19,
+                            "A-": 9,
+                            "B": 7,
+                            "B+": 2,
+                            "B-": 3,
+                            "C": 5,
+                            "C+": 1,
+                            "C-": 1,
+                            "D": 1,
+                            "F": 8,
+                            "N": 5,
+                            "S": 2,
+                            "W": 4
+                          },
+                          "students": 67
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 7172,
+                      "students": 39,
+                      "term": 1185,
+                      "grades": {
+                        "A": 22,
+                        "A-": 3,
+                        "B": 7,
+                        "B+": 2,
+                        "C": 1,
+                        "C+": 1,
+                        "C-": 1,
+                        "S": 1,
+                        "W": 1
+                      },
+                      "professor_id": 5624,
+                      "professor_name": "Michael Tetzlaff",
+                      "professor_RMP_score": 0,
+                      "terms": [
+                        {
+                          "term": 1185,
+                          "grades": {
+                            "A": 22,
+                            "A-": 3,
+                            "B": 7,
+                            "B+": 2,
+                            "C": 1,
+                            "C+": 1,
+                            "C-": 1,
+                            "S": 1,
+                            "W": 1
+                          },
+                          "students": 39
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 20927,
+                      "students": 87,
+                      "term": 1235,
+                      "grades": {
+                        "A": 66,
+                        "A-": 4,
+                        "B": 5,
+                        "B+": 3,
+                        "B-": 7,
+                        "F": 1,
+                        "W": 1
+                      },
+                      "professor_id": 5834,
+                      "professor_name": "Nabil Khan",
+                      "professor_RMP_score": 4.7,
+                      "terms": [
+                        {
+                          "term": 1235,
+                          "grades": {
+                            "A": 66,
+                            "A-": 4,
+                            "B": 5,
+                            "B+": 3,
+                            "B-": 7,
+                            "F": 1,
+                            "W": 1
+                          },
+                          "students": 87
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 10656,
+                      "students": 49,
+                      "term": 1195,
+                      "grades": {
+                        "A": 9,
+                        "A-": 4,
+                        "B": 11,
+                        "B+": 6,
+                        "B-": 3,
+                        "C": 3,
+                        "C+": 1,
+                        "C-": 8,
+                        "D": 1,
+                        "F": 1,
+                        "W": 2
+                      },
+                      "professor_id": 7699,
+                      "professor_name": "Timothy Wrenn",
+                      "professor_RMP_score": 2.2,
+                      "terms": [
+                        {
+                          "term": 1195,
+                          "grades": {
+                            "A": 9,
+                            "A-": 4,
+                            "B": 11,
+                            "B+": 6,
+                            "B-": 3,
+                            "C": 3,
+                            "C+": 1,
+                            "C-": 8,
+                            "D": 1,
+                            "F": 1,
+                            "W": 2
+                          },
+                          "students": 49
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 21314,
+                      "students": 41,
+                      "term": 1239,
+                      "grades": {
+                        "A": 10,
+                        "B": 6,
+                        "B+": 8,
+                        "B-": 3,
+                        "C": 2,
+                        "C+": 1,
+                        "C-": 2,
+                        "D": 3,
+                        "F": 4,
+                        "W": 2
+                      },
+                      "professor_id": 8693,
+                      "professor_name": "Elizabeth Jensen",
+                      "professor_RMP_score": 1.8,
+                      "terms": [
+                        {
+                          "term": 1239,
+                          "grades": {
+                            "A": 10,
+                            "B": 6,
+                            "B+": 8,
+                            "B-": 3,
+                            "C": 2,
+                            "C+": 1,
+                            "C-": 2,
+                            "D": 3,
+                            "F": 4,
+                            "W": 2
+                          },
+                          "students": 41
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 24539,
+                      "students": 87,
+                      "term": 1245,
+                      "grades": {
+                        "A": 37,
+                        "A-": 16,
+                        "B": 10,
+                        "B+": 9,
+                        "B-": 3,
+                        "C": 1,
+                        "C+": 3,
+                        "C-": 2,
+                        "D": 1,
+                        "D+": 2,
+                        "F": 2,
+                        "W": 1
+                      },
+                      "professor_id": 10015,
+                      "professor_name": "Camden Sikes",
+                      "professor_RMP_score": 5,
+                      "terms": [
+                        {
+                          "term": 1245,
+                          "grades": {
+                            "A": 37,
+                            "A-": 16,
+                            "B": 10,
+                            "B+": 9,
+                            "B-": 3,
+                            "C": 1,
+                            "C+": 3,
+                            "C-": 2,
+                            "D": 1,
+                            "D+": 2,
+                            "F": 2,
+                            "W": 1
+                          },
+                          "students": 87
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 27794,
+                      "students": 42,
+                      "term": 1255,
+                      "grades": {
+                        "A": 16,
+                        "A-": 2,
+                        "B": 6,
+                        "B+": 2,
+                        "B-": 3,
+                        "C": 3,
+                        "C+": 2,
+                        "C-": 4,
+                        "D+": 1,
+                        "F": 3
+                      },
+                      "professor_id": 11003,
+                      "professor_name": "Maryam Kameli",
+                      "professor_RMP_score": 0,
+                      "terms": [
+                        {
+                          "term": 1255,
+                          "grades": {
+                            "A": 16,
+                            "A-": 2,
+                            "B": 6,
+                            "B+": 2,
+                            "B-": 3,
+                            "C": 3,
+                            "C+": 2,
+                            "C-": 4,
+                            "D+": 1,
+                            "F": 3
+                          },
+                          "students": 42
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "code": "CSCI4041",
+                "data": {
+                  "id": 1607,
+                  "campus": "UMNTC",
+                  "dept_abbr": "CSCI",
+                  "course_num": "4041",
+                  "class_desc": "Algorithms and Data Structures",
+                  "total_students": 7442,
+                  "total_grades": {
+                    "A": 2257,
+                    "A-": 1404,
+                    "B": 831,
+                    "B+": 1092,
+                    "B-": 471,
+                    "C": 191,
+                    "C+": 307,
+                    "C-": 129,
+                    "D": 65,
+                    "D+": 26,
+                    "F": 119,
+                    "S": 211,
+                    "W": 301,
+                    "N": 38
+                  },
+                  "onestop": "https://umtc.catalog.prod.coursedog.com/courses/0036751",
+                  "onestop_desc": "Rigorous analysis of algorithms/implementation. Algorithm analysis, sorting algorithms, binary trees, heaps, priority queues, heapsort, balanced binary search trees, AVL trees, hash tables and hashing, graphs, graph traversal, single source shortest path, minimum cost spanning trees.\n\nprereq: [(CSCI 1913 or CSCI 1933) and CSCI 2011] or instr consent or grad standing",
+                  "cred_min": 4,
+                  "cred_max": 4,
+                  "srt_vals": "{\"DEEP_UND\": 5.1454545454545455, \"STIM_INT\": 4.780909090909091, \"TECH_EFF\": 4.8127272727272725, \"ACC_SUP\": 4.91090909090909, \"EFFORT\": 5.000909090909091, \"GRAD_STAND\": 5.078181818181818, \"RECC\": 4.92, \"RESP\": 1881.0}",
+                  "dept_name": "Computer Science",
+                  "right_id": null,
+                  "libEds": [],
+                  "distributions": [
+                    {
+                      "distribution_id": 15775,
+                      "students": 66,
+                      "term": 1215,
+                      "grades": {
+                        "A": 13,
+                        "A-": 7,
+                        "B": 8,
+                        "B+": 7,
+                        "B-": 9,
+                        "C": 2,
+                        "C+": 2,
+                        "C-": 1,
+                        "D": 3,
+                        "D+": 1,
+                        "N": 5,
+                        "S": 5,
+                        "W": 3
+                      },
+                      "professor_id": 462,
+                      "professor_name": "Andrew Exley",
+                      "professor_RMP_score": 4.3,
+                      "terms": [
+                        {
+                          "term": 1215,
+                          "grades": {
+                            "A": 13,
+                            "A-": 7,
+                            "B": 8,
+                            "B+": 7,
+                            "B-": 9,
+                            "C": 2,
+                            "C+": 2,
+                            "C-": 1,
+                            "D": 3,
+                            "D+": 1,
+                            "N": 5,
+                            "S": 5,
+                            "W": 3
+                          },
+                          "students": 66
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 4683,
+                      "students": 2043,
+                      "term": 1233,
+                      "grades": {
+                        "A": 370,
+                        "A-": 519,
+                        "B": 282,
+                        "B+": 382,
+                        "B-": 135,
+                        "C": 39,
+                        "C+": 97,
+                        "C-": 24,
+                        "D": 7,
+                        "D+": 7,
+                        "F": 27,
+                        "W": 103,
+                        "S": 44,
+                        "N": 7
+                      },
+                      "professor_id": 1186,
+                      "professor_name": "Carl Sturtivant",
+                      "professor_RMP_score": 3.7,
+                      "terms": [
+                        {
+                          "term": 1233,
+                          "grades": {
+                            "A": 11,
+                            "A-": 27,
+                            "B": 25,
+                            "B+": 15,
+                            "B-": 14,
+                            "C": 2,
+                            "C+": 12,
+                            "C-": 5,
+                            "D": 1,
+                            "D+": 1,
+                            "F": 4,
+                            "W": 19
+                          },
+                          "students": 136
+                        },
+                        {
+                          "term": 1199,
+                          "grades": {
+                            "A": 8,
+                            "A-": 31,
+                            "B": 27,
+                            "B+": 45,
+                            "B-": 5,
+                            "C": 1,
+                            "C+": 7,
+                            "C-": 1,
+                            "D": 1,
+                            "D+": 1,
+                            "F": 1,
+                            "S": 6,
+                            "W": 11
+                          },
+                          "students": 145
+                        },
+                        {
+                          "term": 1219,
+                          "grades": {
+                            "A": 28,
+                            "A-": 41,
+                            "B": 20,
+                            "B+": 35,
+                            "B-": 27,
+                            "C": 4,
+                            "C+": 24,
+                            "C-": 5,
+                            "D+": 2,
+                            "F": 4,
+                            "S": 1,
+                            "W": 10
+                          },
+                          "students": 201
+                        },
+                        {
+                          "term": 1229,
+                          "grades": {
+                            "A": 57,
+                            "A-": 70,
+                            "B": 20,
+                            "B+": 42,
+                            "B-": 7,
+                            "C": 6,
+                            "C+": 6,
+                            "D": 1,
+                            "D+": 1,
+                            "F": 3,
+                            "W": 7
+                          },
+                          "students": 220
+                        },
+                        {
+                          "term": 1259,
+                          "grades": {
+                            "A": 52,
+                            "A-": 62,
+                            "B": 41,
+                            "B+": 46,
+                            "B-": 13,
+                            "C": 7,
+                            "C+": 10,
+                            "C-": 4,
+                            "D+": 1,
+                            "F": 2,
+                            "W": 3
+                          },
+                          "students": 241
+                        },
+                        {
+                          "term": 1239,
+                          "grades": {
+                            "A": 77,
+                            "A-": 61,
+                            "B": 32,
+                            "B+": 47,
+                            "B-": 10,
+                            "C": 3,
+                            "C+": 6,
+                            "C-": 4,
+                            "D": 1,
+                            "F": 6,
+                            "W": 11
+                          },
+                          "students": 258
+                        },
+                        {
+                          "term": 1209,
+                          "grades": {
+                            "A": 75,
+                            "A-": 133,
+                            "B": 40,
+                            "B+": 69,
+                            "B-": 14,
+                            "C": 1,
+                            "C+": 3,
+                            "C-": 1,
+                            "D": 1,
+                            "N": 7,
+                            "S": 35,
+                            "W": 26
+                          },
+                          "students": 405
+                        },
+                        {
+                          "term": 1183,
+                          "grades": {
+                            "A": 62,
+                            "A-": 94,
+                            "B": 77,
+                            "B+": 83,
+                            "B-": 45,
+                            "C": 15,
+                            "C+": 29,
+                            "C-": 4,
+                            "D": 2,
+                            "D+": 1,
+                            "F": 7,
+                            "S": 2,
+                            "W": 16
+                          },
+                          "students": 437
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 25022,
+                      "students": 449,
+                      "term": 1253,
+                      "grades": {
+                        "A": 280,
+                        "A-": 57,
+                        "B": 35,
+                        "B+": 33,
+                        "B-": 8,
+                        "C": 6,
+                        "C+": 6,
+                        "C-": 5,
+                        "D": 2,
+                        "F": 3,
+                        "W": 14
+                      },
+                      "professor_id": 1822,
+                      "professor_name": "Daniel Orban",
+                      "professor_RMP_score": 4.2,
+                      "terms": [
+                        {
+                          "term": 1253,
+                          "grades": {
+                            "A": 102,
+                            "A-": 36,
+                            "B": 28,
+                            "B+": 17,
+                            "B-": 7,
+                            "C": 4,
+                            "C+": 6,
+                            "C-": 4,
+                            "D": 1,
+                            "F": 3,
+                            "W": 6
+                          },
+                          "students": 214
+                        },
+                        {
+                          "term": 1249,
+                          "grades": {
+                            "A": 178,
+                            "A-": 21,
+                            "B": 7,
+                            "B+": 16,
+                            "B-": 1,
+                            "C": 2,
+                            "C-": 1,
+                            "D": 1,
+                            "W": 8
+                          },
+                          "students": 235
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 9538,
+                      "students": 2395,
+                      "term": 1229,
+                      "grades": {
+                        "A": 719,
+                        "A-": 528,
+                        "B": 237,
+                        "B+": 399,
+                        "B-": 139,
+                        "C": 43,
+                        "C+": 68,
+                        "C-": 35,
+                        "D": 9,
+                        "F": 29,
+                        "W": 58,
+                        "S": 116,
+                        "D+": 3,
+                        "N": 12
+                      },
+                      "professor_id": 3240,
+                      "professor_name": "James Moen",
+                      "professor_RMP_score": 4.1,
+                      "terms": [
+                        {
+                          "term": 1229,
+                          "grades": {
+                            "A": 37,
+                            "A-": 32,
+                            "B": 25,
+                            "B+": 31,
+                            "B-": 19,
+                            "C": 16,
+                            "C+": 15,
+                            "C-": 12,
+                            "D": 2,
+                            "F": 3,
+                            "W": 6
+                          },
+                          "students": 198
+                        },
+                        {
+                          "term": 1219,
+                          "grades": {
+                            "A": 26,
+                            "A-": 29,
+                            "B": 26,
+                            "B+": 32,
+                            "B-": 22,
+                            "C": 13,
+                            "C+": 18,
+                            "C-": 9,
+                            "D": 4,
+                            "F": 7,
+                            "S": 1,
+                            "W": 12
+                          },
+                          "students": 199
+                        },
+                        {
+                          "term": 1249,
+                          "grades": {
+                            "A": 55,
+                            "A-": 86,
+                            "B": 26,
+                            "B+": 58,
+                            "B-": 20,
+                            "C": 2,
+                            "C+": 2,
+                            "C-": 6,
+                            "F": 1
+                          },
+                          "students": 256
+                        },
+                        {
+                          "term": 1193,
+                          "grades": {
+                            "A": 91,
+                            "A-": 90,
+                            "B": 35,
+                            "B+": 59,
+                            "B-": 17,
+                            "C": 3,
+                            "C+": 2,
+                            "D": 1,
+                            "D+": 1,
+                            "F": 5,
+                            "S": 1,
+                            "W": 3
+                          },
+                          "students": 308
+                        },
+                        {
+                          "term": 1243,
+                          "grades": {
+                            "A": 104,
+                            "A-": 87,
+                            "B": 39,
+                            "B+": 53,
+                            "B-": 15,
+                            "C": 3,
+                            "C+": 8,
+                            "C-": 2,
+                            "D": 1,
+                            "F": 1,
+                            "S": 1,
+                            "W": 6
+                          },
+                          "students": 320
+                        },
+                        {
+                          "term": 1203,
+                          "grades": {
+                            "A": 82,
+                            "A-": 62,
+                            "B": 32,
+                            "B+": 55,
+                            "B-": 9,
+                            "C": 1,
+                            "C+": 6,
+                            "C-": 1,
+                            "D+": 1,
+                            "F": 2,
+                            "N": 6,
+                            "S": 82,
+                            "W": 8
+                          },
+                          "students": 347
+                        },
+                        {
+                          "term": 1213,
+                          "grades": {
+                            "A": 136,
+                            "A-": 76,
+                            "B": 19,
+                            "B+": 52,
+                            "B-": 18,
+                            "C": 4,
+                            "C+": 8,
+                            "C-": 1,
+                            "N": 6,
+                            "S": 30,
+                            "W": 10
+                          },
+                          "students": 360
+                        },
+                        {
+                          "term": 1223,
+                          "grades": {
+                            "A": 188,
+                            "A-": 66,
+                            "B": 35,
+                            "B+": 59,
+                            "B-": 19,
+                            "C": 1,
+                            "C+": 9,
+                            "C-": 4,
+                            "D": 1,
+                            "D+": 1,
+                            "F": 10,
+                            "S": 1,
+                            "W": 13
+                          },
+                          "students": 407
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 2017,
+                      "students": 475,
+                      "term": 1213,
+                      "grades": {
+                        "A": 124,
+                        "A-": 59,
+                        "B": 40,
+                        "B+": 48,
+                        "B-": 30,
+                        "C": 21,
+                        "C+": 22,
+                        "C-": 13,
+                        "D": 12,
+                        "N": 13,
+                        "S": 31,
+                        "W": 47,
+                        "D+": 4,
+                        "F": 11
+                      },
+                      "professor_id": 3244,
+                      "professor_name": "James Parker",
+                      "professor_RMP_score": 3.1,
+                      "terms": [
+                        {
+                          "term": 1213,
+                          "grades": {
+                            "A": 17,
+                            "A-": 17,
+                            "B": 8,
+                            "B+": 13,
+                            "B-": 7,
+                            "C": 7,
+                            "C+": 4,
+                            "C-": 1,
+                            "D": 1,
+                            "N": 13,
+                            "S": 30,
+                            "W": 12
+                          },
+                          "students": 130
+                        },
+                        {
+                          "term": 1179,
+                          "grades": {
+                            "A": 107,
+                            "A-": 42,
+                            "B": 32,
+                            "B+": 35,
+                            "B-": 23,
+                            "C": 14,
+                            "C+": 18,
+                            "C-": 12,
+                            "D": 11,
+                            "D+": 4,
+                            "F": 11,
+                            "S": 1,
+                            "W": 35
+                          },
+                          "students": 345
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 11377,
+                      "students": 705,
+                      "term": 1233,
+                      "grades": {
+                        "A": 68,
+                        "A-": 78,
+                        "B": 126,
+                        "B+": 114,
+                        "B-": 86,
+                        "C": 41,
+                        "C+": 63,
+                        "C-": 33,
+                        "D": 18,
+                        "F": 24,
+                        "W": 45,
+                        "D+": 8,
+                        "S": 1
+                      },
+                      "professor_id": 4239,
+                      "professor_name": "Kathryn Jensen",
+                      "professor_RMP_score": 3.5,
+                      "terms": [
+                        {
+                          "term": 1233,
+                          "grades": {
+                            "A": 9,
+                            "A-": 12,
+                            "B": 18,
+                            "B+": 10,
+                            "B-": 7,
+                            "C": 6,
+                            "C+": 13,
+                            "C-": 7,
+                            "D": 5,
+                            "F": 2,
+                            "W": 7
+                          },
+                          "students": 96
+                        },
+                        {
+                          "term": 1243,
+                          "grades": {
+                            "A": 7,
+                            "A-": 8,
+                            "B": 26,
+                            "B+": 16,
+                            "B-": 24,
+                            "C": 22,
+                            "C+": 17,
+                            "C-": 13,
+                            "D": 9,
+                            "D+": 3,
+                            "F": 11,
+                            "S": 1,
+                            "W": 21
+                          },
+                          "students": 178
+                        },
+                        {
+                          "term": 1239,
+                          "grades": {
+                            "A": 34,
+                            "A-": 16,
+                            "B": 38,
+                            "B+": 33,
+                            "B-": 23,
+                            "C": 6,
+                            "C+": 20,
+                            "C-": 7,
+                            "D": 3,
+                            "D+": 3,
+                            "F": 7,
+                            "W": 3
+                          },
+                          "students": 193
+                        },
+                        {
+                          "term": 1199,
+                          "grades": {
+                            "A": 18,
+                            "A-": 42,
+                            "B": 44,
+                            "B+": 55,
+                            "B-": 32,
+                            "C": 7,
+                            "C+": 13,
+                            "C-": 6,
+                            "D": 1,
+                            "D+": 2,
+                            "F": 4,
+                            "W": 14
+                          },
+                          "students": 238
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 8516,
+                      "students": 936,
+                      "term": 1203,
+                      "grades": {
+                        "A": 636,
+                        "A-": 100,
+                        "B": 41,
+                        "B+": 66,
+                        "C+": 12,
+                        "N": 1,
+                        "S": 13,
+                        "W": 11,
+                        "B-": 25,
+                        "C": 17,
+                        "D": 5,
+                        "F": 3,
+                        "C-": 5,
+                        "D+": 1
+                      },
+                      "professor_id": 5912,
+                      "professor_name": "Nathan Taylor",
+                      "professor_RMP_score": 4.7,
+                      "terms": [
+                        {
+                          "term": 1203,
+                          "grades": {
+                            "A": 102,
+                            "A-": 14,
+                            "B": 4,
+                            "B+": 9,
+                            "C+": 1,
+                            "N": 1,
+                            "S": 9,
+                            "W": 1
+                          },
+                          "students": 141
+                        },
+                        {
+                          "term": 1193,
+                          "grades": {
+                            "A": 98,
+                            "A-": 21,
+                            "B": 10,
+                            "B+": 33,
+                            "B-": 5,
+                            "C": 5,
+                            "C+": 1,
+                            "D": 2,
+                            "F": 1,
+                            "S": 2,
+                            "W": 2
+                          },
+                          "students": 180
+                        },
+                        {
+                          "term": 1233,
+                          "grades": {
+                            "A": 137,
+                            "A-": 30,
+                            "B": 19,
+                            "B+": 14,
+                            "B-": 9,
+                            "C": 6,
+                            "C+": 8,
+                            "C-": 2,
+                            "D": 2,
+                            "F": 1,
+                            "W": 3
+                          },
+                          "students": 231
+                        },
+                        {
+                          "term": 1189,
+                          "grades": {
+                            "A": 299,
+                            "A-": 35,
+                            "B": 8,
+                            "B+": 10,
+                            "B-": 11,
+                            "C": 6,
+                            "C+": 2,
+                            "C-": 3,
+                            "D": 1,
+                            "D+": 1,
+                            "F": 1,
+                            "S": 2,
+                            "W": 5
+                          },
+                          "students": 384
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 27267,
+                      "students": 106,
+                      "term": 1253,
+                      "grades": {
+                        "A": 19,
+                        "A-": 15,
+                        "B": 15,
+                        "B+": 9,
+                        "B-": 11,
+                        "C": 7,
+                        "C+": 13,
+                        "C-": 3,
+                        "D": 5,
+                        "D+": 1,
+                        "F": 5,
+                        "W": 3
+                      },
+                      "professor_id": 6317,
+                      "professor_name": "Phillip Barry",
+                      "professor_RMP_score": 3.5,
+                      "terms": [
+                        {
+                          "term": 1253,
+                          "grades": {
+                            "A": 19,
+                            "A-": 15,
+                            "B": 15,
+                            "B+": 9,
+                            "B-": 11,
+                            "C": 7,
+                            "C+": 13,
+                            "C-": 3,
+                            "D": 5,
+                            "D+": 1,
+                            "F": 5,
+                            "W": 3
+                          },
+                          "students": 106
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 26195,
+                      "students": 97,
+                      "term": 1253,
+                      "grades": {
+                        "A": 12,
+                        "A-": 16,
+                        "B": 16,
+                        "B+": 13,
+                        "B-": 11,
+                        "C": 4,
+                        "C+": 7,
+                        "C-": 4,
+                        "F": 8,
+                        "W": 6
+                      },
+                      "professor_id": 10015,
+                      "professor_name": "Camden Sikes",
+                      "professor_RMP_score": 5,
+                      "terms": [
+                        {
+                          "term": 1253,
+                          "grades": {
+                            "A": 12,
+                            "A-": 16,
+                            "B": 16,
+                            "B+": 13,
+                            "B-": 11,
+                            "C": 4,
+                            "C+": 7,
+                            "C-": 4,
+                            "F": 8,
+                            "W": 6
+                          },
+                          "students": 97
+                        }
+                      ]
+                    },
+                    {
+                      "distribution_id": 27939,
+                      "students": 170,
+                      "term": 1259,
+                      "grades": {
+                        "A": 16,
+                        "A-": 25,
+                        "B": 31,
+                        "B+": 21,
+                        "B-": 17,
+                        "C": 11,
+                        "C+": 17,
+                        "C-": 6,
+                        "D": 4,
+                        "D+": 1,
+                        "F": 9,
+                        "S": 1,
+                        "W": 11
+                      },
+                      "professor_id": 11039,
+                      "professor_name": "Alexi Brooks",
+                      "professor_RMP_score": null,
+                      "terms": [
+                        {
+                          "term": 1259,
+                          "grades": {
+                            "A": 16,
+                            "A-": 25,
+                            "B": 31,
+                            "B+": 21,
+                            "B-": 17,
+                            "C": 11,
+                            "C+": 17,
+                            "C-": 6,
+                            "D": 4,
+                            "D+": 1,
+                            "F": 9,
+                            "S": 1,
+                            "W": 11
+                          },
+                          "students": 170
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "summary": "CSCI 1933 focuses on introducing fundamental algorithms and data structures, while CSCI 4041 delves into more advanced concepts and rigorous algorithm analysis. CSCI 1933 generally serves as a foundation course with a more diverse grade distribution and considerable number of students. In contrast, CSCI 4041 tends to cater to students with a stronger grasp on foundational computer science principles, reflected in its higher level of performance consistency. If you are building up your CS foundations, starting with CSCI 1933 is ideal before taking on the challenges of CSCI 4041."
+          }
+        ]
+      },
+      {
+        "text": "Can you tell me about CSCI 4041",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "Here is a comparison of CSCI 1933 and CSCI 4041:\n\n### CSCI 1933: Introduction to Algorithms and Data Structures\n- **Description**: This course focuses on advanced object-oriented programming to implement abstract data types such as stacks, queues, linked lists, hash tables, and binary trees using Java. It includes searching/sorting algorithms and basic algorithmic analysis.\n- **Credits**: 4\n- **Prerequisites**: CSci 1133 is a prerequisite, with Calculus I (Math 1271 or equivalent) as a corequisite.\n- **Grade Distribution Highlights**: \n  - A grade: 24.8%\n  - B grade: 27.6%\n  - C grade: 17.0%\n- **Recommendation**: This course is foundational for Computer Science students and ideal for those just entering the field, especially useful for gaining a deep understanding of data structures and algorithms.\n\n[More Course Info](https://umtc.catalog.prod.coursedog.com/courses/8103461)\n\n### CSCI 4041: Algorithms and Data Structures\n- **Description**: This course involves a rigorous analysis of algorithms and their implementation, covering topics such as sorting algorithms, binary trees, heaps, hash tables, and graph algorithms.\n- **Credits**: 4\n- **Prerequisites**: Either CSCI 1913 or CSCI 1933 and CSCI 2011 are required, or instructor consent.\n- **Grade Distribution Highlights**: \n  - A grade: 46.3%\n  - B grade: 25.9%\n  - C grade: 8.8%\n- **Recommendation**: This course builds on the foundations provided by CSCI 1933. It is more rigorous and suitable for students aiming to deepen their algorithmic knowledge.\n\n[More Course Info](https://umtc.catalog.prod.coursedog.com/courses/0036751)\n\n### Summary\nAs a freshman in Computer Science with no prior experience in coding, starting with CSCI 1933 will be advantageous to build a strong foundation in programming concepts and data structures. After mastering these basics, CSCI 4041 can be the next step to delve deeper into algorithmic analysis.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "Where are nice study spaces",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "Here are some great study spaces on campus that cater to different needs:\n\n**Quiet/Solo Study**\n- **Walter Library**: Silent floors with individual desks. [Google Maps](https://www.google.com/maps/search/Walter+Library+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/walter-library)\n- **Wilson Library**: Private carrels, very quiet atmosphere. [Google Maps](https://www.google.com/maps/search/Wilson+Library+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/wilson-library)\n- **Andersen Library**: Calm and less crowded. [Google Maps](https://www.google.com/maps/search/Andersen+Library+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/andersen-library)\n\n**Group Study**\n- **Walter Library**: Bookable group rooms, perfect for collaborative work. [Google Maps](https://www.google.com/maps/search/Walter+Library+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/walter-library) | [Reserve a Room](https://libcal.lib.umn.edu/spaces?lid=3604)\n- **Coffman Memorial Union**: Lounges and group rooms for teamwork. [Google Maps](https://www.google.com/maps/search/Coffman+Memorial+Union+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/coffman-memorial-union)\n- **STSS Building**: Open study areas. [Google Maps](https://www.google.com/maps/search/Science+Teaching+Student+Services+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/science-teaching-student-services)\n\n**24/7 or Late Night**\n- **Bruininks Hall**: Atrium open late for late-night study sessions. [Google Maps](https://www.google.com/maps/search/Bruininks+Hall+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/bruininks-hall)\n- **Coffman Memorial Union**: Some areas are open late for flexible study times. [Google Maps](https://www.google.com/maps/search/Coffman+Memorial+Union+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/coffman-memorial-union)\n- **Health Sciences Library**: Offers extended hours. [Google Maps](https://www.google.com/maps/search/Health+Sciences+Library+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/health-sciences-library)\n\n**Tech / Computer Access**\n- **Lind Hall**: Equipped with computer labs, ideal if you need tech resources. [Google Maps](https://www.google.com/maps/search/Lind+Hall+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/lind-hall)\n- **Keller Hall**: Provides CSE student resources for tech-oriented study. [Google Maps](https://www.google.com/maps/search/Keller+Hall+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/keller-hall)\n\n**St. Paul Campus**\n- **Magrath Library**: Cozy and uncrowded, a nice spot on the St. Paul campus. [Google Maps](https://www.google.com/maps/search/Magrath+Library+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/magrath-library) | [Reserve a Room](https://libcal.lib.umn.edu/spaces?lid=3607)\n\nFor more real-time information on available spaces, you can visit the [UMN Study Space Finder](https://studyspace.umn.edu).\n\nThese study spaces are great options to fit your academic needs as a Computer Science freshman.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "What are COmputer science research opportunities",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "Here's a research snapshot with the strongest matches I found.",
+        "isUser": false,
+        "content": [
+          {
+            "type": "research",
+            "summary": "Undergraduate research. Research as an undergraduate student is a fantastic opportunity to connect with existing projects and the faculty and researchers leading them (or launch your own!) as well as...",
+            "results": [
+              {
+                "title": "Undergraduate research | Department of Computer Science ...",
+                "url": "https://cse.umn.edu/cs/undergraduate-research",
+                "snippet": "Undergraduate research. Research as an undergraduate student is a fantastic opportunity to connect with existing projects and the faculty and researchers..."
+              },
+              {
+                "title": "Research Experiences for Undergraduates - University of Minnesota ...",
+                "url": "https://reu.cs.umn.edu/",
+                "snippet": "Research Experiences for Undergraduates. Research Experiences for Undergraduates. The University of Minnesota offers a 10-week summer REU program for..."
+              },
+              {
+                "title": "Computer Science Research",
+                "url": "https://scse.d.umn.edu/departments-and-programs/computer-science-department/research",
+                "snippet": "UMD Computer Science students frequently work side-by-side with faculty to conduct research in a wide variety of areas. Dr. Leal researches scalable GPU..."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 1775454938234,
+    "title": "Research opportunities in computer scien",
+    "messages": [
+      {
+        "text": "Research opportunities in computer science",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "Here's a research snapshot with the strongest matches I found.",
+        "isUser": false,
+        "content": [
+          {
+            "type": "research",
+            "summary": "Undergraduate research. Research as an undergraduate student is a fantastic opportunity to connect with existing projects and the faculty and researchers leading them (or launch your own!) as well as...",
+            "results": [
+              {
+                "title": "Undergraduate research | Department of Computer Science ...",
+                "url": "https://cse.umn.edu/cs/undergraduate-research",
+                "snippet": "Undergraduate research. Research as an undergraduate student is a fantastic opportunity to connect with existing projects and the faculty and researchers..."
+              },
+              {
+                "title": "Research Experiences for Undergraduates - University of Minnesota ...",
+                "url": "https://reu.cs.umn.edu/",
+                "snippet": "Research Experiences for Undergraduates. Research Experiences for Undergraduates. The University of Minnesota offers a 10-week summer REU program for..."
+              },
+              {
+                "title": "Apply | Research Experiences for Undergraduates",
+                "url": "https://reu.cs.umn.edu/apply",
+                "snippet": "Applicants should have basic understanding of programming at the start of the summer, but prior research experience is not necessary. \\* Current University of..."
+              },
+              {
+                "title": "Research - University of Minnesota Twin Cities",
+                "url": "https://twin-cities.umn.edu/research",
+                "snippet": "Research. The University of Minnesota Twin Cities is a top 10 U.S. public research university with world-class academics, award-winning faculty, and..."
+              },
+              {
+                "title": "Research | Swenson College of Science and Engineering",
+                "url": "https://scse.d.umn.edu/research",
+                "snippet": "Swenson College of Science and Engineering. 1. Swenson College of Science and Engineering. Research. Student Research Opportunities. As an undergraduate..."
+              },
+              {
+                "title": "UMN Research Experiences for Undergraduates (REU) opportunities",
+                "url": "https://cse.umn.edu/college/research/umn-research-experiences-undergraduates-reu-opportunities",
+                "snippet": "UMN Research Experiences for Undergraduates (REU) opportunities. | Cancer Researcher, Education and Training Experience (CREATE) Program | | Life Sciences..."
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]

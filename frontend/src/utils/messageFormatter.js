@@ -112,8 +112,17 @@ export function formatBotMessage(raw) {
         // Unordered list: "- ", "* ", "• "
         const ulMatch = line.match(/^[-*\u2022]\s+(.+)$/);
         if (ulMatch) {
+            const content = ulMatch[1];
+            // Bullet whose entire content is bold text → treat as section heading
+            const boldHeader = content.match(/^\*\*(.+?)\*\*:?\s*$/);
+            if (boldHeader) {
+                flushLists();
+                olCounter = 0;
+                parts.push(`<div class="msg-section">${escapeHtml(boldHeader[1])}</div>`);
+                continue;
+            }
             if (!inUl) { flushLists(); parts.push('<ul class="msg-ul">'); inUl = true; }
-            parts.push(`<li>${processInline(ulMatch[1])}</li>`);
+            parts.push(`<li>${processInline(content)}</li>`);
             continue;
         }
 

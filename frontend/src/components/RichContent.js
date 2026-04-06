@@ -9,61 +9,58 @@ function shorten(text, max = 220) {
 }
 
 function ResearchCard({ item }) {
-    const results = Array.isArray(item.results) ? item.results.slice(0, 4) : [];
-    const summary = shorten(item.summary, 280);
+    const results = Array.isArray(item.results) ? item.results.slice(0, 6) : [];
+    const summary = shorten(item.summary, 160);
 
     return (
         <div className="mt-4 rounded-2xl border border-[#4a1020] bg-gradient-to-br from-[#1e0a10] via-[#17080e] to-[#10050a] shadow-[0_18px_50px_rgba(122,0,25,0.25)]">
             {/* Header */}
-            <div className="border-b border-[#4a1020] bg-[radial-gradient(circle_at_top_left,_rgba(122,0,25,0.25),_transparent_42%)] px-5 py-5 rounded-t-2xl overflow-hidden">
-                <div className="flex items-start justify-between gap-4">
+            <div className="border-b border-[#4a1020] bg-[radial-gradient(circle_at_top_left,_rgba(122,0,25,0.25),_transparent_42%)] px-4 py-3 rounded-t-2xl overflow-hidden">
+                <div className="flex items-center justify-between gap-4">
                     <div>
-                        <p className="text-[11px] uppercase tracking-[0.28em] text-gold/80">
+                        <p className="text-[10px] uppercase tracking-[0.28em] text-gold/70">
                             Research Explorer
                         </p>
-                        <h3 className="mt-2 text-2xl font-semibold leading-tight text-white">
+                        <h3 className="mt-0.5 text-base font-semibold leading-tight text-white">
                             UMN Research Snapshot
                         </h3>
                     </div>
-                    <div className="rounded-full border border-[#4a1020] bg-[#2a0d15] px-3 py-1 text-xs text-gray-300">
+                    <div className="shrink-0 rounded-full border border-[#4a1020] bg-[#2a0d15] px-2.5 py-0.5 text-xs text-gray-400">
                         {results.length} result{results.length === 1 ? "" : "s"}
                     </div>
                 </div>
-
                 {summary && (
-                    <p className="mt-4 max-w-4xl text-sm leading-7 text-gray-300">
+                    <p className="mt-2 text-xs leading-5 text-gray-400">
                         {summary}
                     </p>
                 )}
             </div>
 
             {/* Results */}
-            <div className="grid gap-3 p-5">
+            <div className="grid gap-2 p-3">
                 {results.map((result, index) => (
                     <a
                         key={`${result.url || result.title}-${index}`}
                         href={result.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="group block rounded-xl border border-[#3a1018] bg-[#1a0810] p-4 transition duration-200 hover:border-gold/40 hover:bg-[#250e18]"
+                        className="group flex items-start justify-between gap-3 rounded-xl border border-[#3a1018] bg-[#1a0810] px-3 py-2.5 transition duration-200 hover:border-gold/40 hover:bg-[#250e18]"
                     >
-                        <div className="flex items-start justify-between gap-4">
-                            <div className="min-w-0">
-                                <h4 className="text-base font-semibold leading-snug text-gold transition group-hover:text-[#ffd966]">
-                                    {shorten(result.title, 88) || "Untitled result"}
-                                </h4>
-                                <p className="mt-2 text-sm leading-6 text-gray-300">
-                                    {shorten(result.snippet, 180)}
+                        <div className="min-w-0 flex-1">
+                            <h4 className="text-sm font-semibold leading-snug text-gold transition group-hover:text-[#ffd966] truncate">
+                                {shorten(result.title, 72) || "Untitled result"}
+                            </h4>
+                            <p className="mt-1 text-xs leading-5 text-gray-400 line-clamp-2">
+                                {shorten(result.snippet, 130)}
+                            </p>
+                            {result.url && (
+                                <p className="mt-1 truncate text-[10px] uppercase tracking-[0.12em] text-[#7a3040]">
+                                    {result.url.replace(/^https?:\/\//, "")}
                                 </p>
-                                {result.url && (
-                                    <p className="mt-2 truncate text-xs uppercase tracking-[0.15em] text-[#7a3040]">
-                                        {result.url.replace(/^https?:\/\//, "")}
-                                    </p>
-                                )}
-                            </div>
-                            <div className="hidden shrink-0 rounded-full border border-gold/30 bg-[#3a1020] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-gold md:block">
-                                Open
-                            </div>
+                            )}
+                        </div>
+                        <div className="shrink-0 mt-0.5 rounded-full border border-gold/30 bg-[#3a1020] px-2.5 py-0.5 text-[10px] uppercase tracking-[0.15em] text-gold">
+                            Open
                         </div>
                     </a>
                 ))}

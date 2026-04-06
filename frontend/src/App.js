@@ -4,6 +4,7 @@ import { getLoadingLabel } from "./utils/loadingLabel";
 import ChatPage from "./pages/ChatPage";
 import Sidebar from "./components/Sidebar";
 import DepartmentExplorer from "./pages/DepartmentExplorer";
+import ProfileSettings from "./pages/ProfileSettings";
 
 function App() {
   const [inputValue, setInputValue] = useState("");
@@ -14,6 +15,11 @@ function App() {
   const [isTyping, setIsTyping] = useState(false);
   const [loadingLabel, setLoadingLabel] = useState("Thinking");
   const [currentPage, setCurrentPage] = useState("chat");
+  const userId = useRef(localStorage.getItem("gopher_user_id") || (() => {
+    const id = `user_${Date.now()}`;
+    localStorage.setItem("gopher_user_id", id);
+    return id;
+  })());
   const [conversations, setConversations] = useState([]);
   const isLoadedConversation = useRef(false); // prevent duplication of pages
   const conversationId = useRef(Date.now()); // stable id for current conversation, prevent duplications?
@@ -109,6 +115,7 @@ function App() {
         body: JSON.stringify({
           message: userMessage,
           conversation_id: conversationId.current,
+          user_id: userId.current,
         }),
         signal: controller.signal,
       });
@@ -251,6 +258,12 @@ function App() {
           />
         )}
         {currentPage === "department" && <DepartmentExplorer />}
+        {currentPage === "profile" && (
+          <ProfileSettings
+            userId={userId.current}
+            onClose={() => setCurrentPage("chat")}
+          />
+        )}
       </div>
     </div>
   );

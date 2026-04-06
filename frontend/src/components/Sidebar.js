@@ -66,6 +66,24 @@ const Sidebar = ({ onNewChat, onNavigate, currentPage, conversations, onLoad, on
                 <History conversations={conversations} onLoad={onLoad} />
             </div>
 
+            {/* Profile Button — pinned to bottom */}
+            <div className="border-t border-gray-700 pt-3 mt-2">
+                <button
+                    onClick={() => onNavigate("profile")}
+                    className={`w-full py-2 px-4 text-left rounded-lg transition-colors flex items-center gap-2 ${
+                        currentPage === "profile"
+                            ? "bg-gray-700 text-white"
+                            : "text-gray-400 hover:bg-gray-700"
+                    }`}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                    </svg>
+                    Profile
+                </button>
+            </div>
+
         </div>
     );
 };

@@ -55,7 +55,10 @@ def run_research_query(request: ResearchRequest) -> ResearchResponse:
         from langchain_tavily import TavilySearch
 
         llm = OpenAILLM(model_name="gpt-4o").get_model()
-        search = TavilySearch(max_results=str(request.max_results), include_domains=["umn.edu"])
+        search = TavilySearch(
+            max_results=str(request.max_results),
+            include_domains=["umn.edu", "nsf.gov", "pathwaystoscience.org", "undergraduateresearch.umn.edu", "research.gov", "indeed.com", "handshake.com"],
+        )
 
         raw = search.run(request.query)
 
