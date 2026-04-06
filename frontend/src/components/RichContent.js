@@ -13,9 +13,9 @@ function ResearchCard({ item }) {
     const summary = shorten(item.summary, 280);
 
     return (
-        <div className="mt-4 overflow-hidden rounded-2xl border border-[#4a1020] bg-gradient-to-br from-[#1e0a10] via-[#17080e] to-[#10050a] shadow-[0_18px_50px_rgba(122,0,25,0.25)]">
+        <div className="mt-4 rounded-2xl border border-[#4a1020] bg-gradient-to-br from-[#1e0a10] via-[#17080e] to-[#10050a] shadow-[0_18px_50px_rgba(122,0,25,0.25)]">
             {/* Header */}
-            <div className="border-b border-[#4a1020] bg-[radial-gradient(circle_at_top_left,_rgba(122,0,25,0.25),_transparent_42%)] px-5 py-5">
+            <div className="border-b border-[#4a1020] bg-[radial-gradient(circle_at_top_left,_rgba(122,0,25,0.25),_transparent_42%)] px-5 py-5 rounded-t-2xl overflow-hidden">
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <p className="text-[11px] uppercase tracking-[0.28em] text-gold/80">

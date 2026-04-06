@@ -4,7 +4,7 @@ import { LoadingIndicator } from "./LoadingIndicator";
 
 const ChatWindow = ({ messages, isTyping, typingMessage, isLoading, loadingLabel, error, messagesEndRef }) => (
     <div className="flex-1 overflow-y-auto relative z-10">
-        <div className="max-w-3xl mx-auto px-4 pt-6 pb-2">
+        <div className="max-w-3xl mx-auto px-4 pt-6 pb-8">
             {messages.map((message, index) => (
                 <Message
                     key={index}

@@ -66,6 +66,7 @@ export function formatBotMessage(raw) {
     const parts = [];
     let inOl = false;
     let inUl = false;
+    let olCounter = 0; // tracks position across list breaks so numbering is continuous
 
     const flushLists = () => {
         if (inOl) { parts.push("</ol>"); inOl = false; }
@@ -86,6 +87,7 @@ export function formatBotMessage(raw) {
         const hMatch = line.match(/^(#{1,3})\s+(.+)$/);
         if (hMatch) {
             flushLists();
+            olCounter = 0;
             const level = hMatch[1].length;
             const cls = level === 1 ? "msg-h1" : level === 2 ? "msg-h2" : "msg-h3";
             parts.push(`<div class="${cls}">${processInline(hMatch[2])}</div>`);
@@ -95,7 +97,14 @@ export function formatBotMessage(raw) {
         // Ordered list: "1. " or "1) "
         const olMatch = line.match(/^\d+[\.\)]\s+(.+)$/);
         if (olMatch) {
-            if (!inOl) { flushLists(); parts.push('<ol class="msg-ol">'); inOl = true; }
+            if (!inOl) {
+                flushLists();
+                // start attribute continues numbering if we were already counting
+                const start = olCounter + 1;
+                parts.push(`<ol class="msg-ol" start="${start}">`);
+                inOl = true;
+            }
+            olCounter++;
             parts.push(`<li>${processInline(olMatch[1])}</li>`);
             continue;
         }
@@ -113,6 +122,7 @@ export function formatBotMessage(raw) {
         // Bold-only line (section heading): **Some Title** or **Some Title:**
         const boldOnly = line.match(/^\*\*(.+?)\*\*:?\s*$/);
         if (boldOnly) {
+            olCounter = 0;
             parts.push(`<div class="msg-section">${escapeHtml(boldOnly[1])}</div>`);
             continue;
         }
