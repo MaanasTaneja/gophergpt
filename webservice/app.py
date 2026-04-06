@@ -10,16 +10,22 @@ from dotenv import load_dotenv
 from langchain_tavily import TavilySearch
 import os
 import statistics
+import asyncio
 
 from pydantic import BaseModel
 from fastapi import APIRouter
 from webservice.routers.research import router as research_router, run_research_query, ResearchRequest
+from webservice.routers.rag import router as rag_router
+from webservice.rag.retriever import retrieve, build_prompt
+from webservice.rag.indexer import run_indexing
+from webservice.rag.vector_store import get_client, get_collection
+from openai import AsyncOpenAI
 import json
 import re
 
-
 from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
 
+openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_KEY"))
 
 # History Storage
 # """
@@ -38,18 +44,14 @@ class CourseLookupRequest(BaseModel):
 class ProfessorLookupRequest(BaseModel):
     name: str
 
-# class ChatRequest(BaseModel):
-#     message: str
-
 class DepartmentLookupRequest(BaseModel):
     dept: str
 
 class ChatRequest(BaseModel):
-
-    message: str 
-
+    message: str
     # ensures loading the correct history and not all
     conversation_id: int | None = None # makes it optional, provide stability to frontend, since no history may exist
+    recent_messages: list | None = None # in-memory messages from frontend for RAG context
 
 
 def _parse_srt_vals(raw):
@@ -200,6 +202,7 @@ def _build_department_featured(courses):
         "most_challenging": most_challenging,
     }
 
+
 class ChatAgent:
     def __init__(self, name="Assistant"):
         self.name = name
@@ -211,7 +214,6 @@ class ChatAgent:
         search_tool = TavilySearch(max_results=5, topic="general", include_domains=["umn.edu"])
 
         self.toolkit = ToolkitManager()
-
         self.toolkit.register_tools([search_tool], type="other")
 
         # Adding gopherGrade tools to agent
@@ -251,7 +253,7 @@ class ChatAgent:
     #     final_state = self.react_agent.invoke_agent({"messages": [{"role": "user", "content": message}]})
     #     generation = final_state["messages"][-1].content
     #     return generation
-    
+
     def invoke(self, message: str, history: list = []) -> str: # added new param "history", which accepts list of prior messages, default is empty (no history)
         """ 
         Replaced the previous method above, this should maintain agent memory/cache
@@ -272,36 +274,55 @@ class ChatAgent:
 
         # sends response to endpoint
         return generation
-    
+
 
 # History Classes
-
 class ConversationRequest(BaseModel):
     id: int
     title: str
     messages: list
 
 
-gopher_assistant  = None
+gopher_assistant = None
+
 
 @asynccontextmanager
-async def lifespan_function(app : FastAPI):
-    global gopher_assistant 
+async def lifespan_function(app: FastAPI):
+    global gopher_assistant
     gopher_assistant = ChatAgent()
+
+    # initialize chromadb connection on startup so routers can use it
+    try:
+        get_client()  # validates connection is healthy before serving requests
+        print("ChromaDB connected successfully.")
+
+        # auto-index if collection is empty — runs in background so app starts immediately
+        collection = get_collection()
+        if collection.count() == 0:
+            print("Collection is empty — starting background indexing...")
+            asyncio.create_task(run_indexing())
+
+    except Exception as e:
+        print(f"WARNING: ChromaDB connection failed: {e}")
+
     yield
+
 
 app = FastAPI(lifespan=lifespan_function)
 app.include_router(research_router)
-app.add_middleware(CORSMiddleware, 
+app.include_router(rag_router)
+app.add_middleware(CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def root():
     return {"message": "The greatest openai wrapper ever made."}
+
 
 def extract_course_codes(text):
     """Extract normalized UMN course codes (e.g. CSCI4041) from a message."""
@@ -335,18 +356,45 @@ def build_research_query(current_message, history):
     return current_message
 
 
+def summarize_research_text(text, limit=200):
+    if not text:
+        return ""
+
+    cleaned = re.sub(r"\s+", " ", str(text)).strip()
+    cleaned = re.sub(r"(#{1,6}\s*)+", "", cleaned)
+
+    if len(cleaned) <= limit:
+        return cleaned
+
+    shortened = cleaned[:limit].rsplit(" ", 1)[0].strip()
+    return f"{shortened}..."
+
+
 # responsible for loading/retrieving chat messages
 @app.post("/chat")
-def chat_endpoint(request: ChatRequest):
+async def chat_endpoint(request: ChatRequest):
     global gopher_assistant
     if gopher_assistant is None:
         return {"error": "Agent not initialized."}
 
     message = request.message.lower()
 
-    # Loads the conversation history from file "app/data"
+    """
+    Builds History from previous Prompts
+    Loads the conversation history from file "app/data"
+    """
+
+    # use in-memory messages from frontend if available, fall back to file
     history = []
-    if request.conversation_id is not None and os.path.exists(CONVERSATION_FILE):
+    if request.recent_messages:
+        # use live in-memory history from frontend — more up to date than file
+        history = [{
+            "role": "user" if msg["isUser"] else "assistant",
+            "content": msg["text"]}
+            for msg in request.recent_messages
+        ]
+    elif request.conversation_id is not None and os.path.exists(CONVERSATION_FILE):
+        # fall back to saved file if no in-memory messages provided
         with open(CONVERSATION_FILE, "r") as file:
             conversations = json.load(file)
         match = next((c for c in conversations if c["id"] == request.conversation_id), None)
@@ -357,33 +405,27 @@ def chat_endpoint(request: ChatRequest):
                 for msg in match["messages"]
             ]
 
+    # research routing — takes priority over RAG
     if re.search(r'rea?sea?rch', message) or is_research_followup(message, history):
         query = request.message if re.search(r'rea?sea?rch', message) else build_research_query(message, history)
         research_data = run_research_query(ResearchRequest(query=query, max_results=5))
         summary_text = summarize_research_text(research_data.summary, limit=320)
-
         return {
             "response": "Here's a research snapshot with the strongest matches I found.",
-            "content": [
-                {
-                    "type": "research",
-                    "summary": summary_text,
-                    "results": [
-                        {
-                            "title": summarize_research_text(result.title, limit=90),
-                            "url": result.url,
-                            "snippet": summarize_research_text(result.snippet, limit=190)
-                        }
-                        for result in research_data.results
-                    ][:4]
-                }
-            ]
+            "content": [{
+                "type": "research",
+                "summary": summary_text,
+                "results": [{
+                    "title": summarize_research_text(result.title, limit=90),
+                    "url": result.url,
+                    "snippet": summarize_research_text(result.snippet, limit=190)
+                } for result in research_data.results][:4]
+            }]
         }
 
-    # Detect course comparison requests
+    # course comparison routing — takes priority over RAG
     course_codes = extract_course_codes(request.message)
     is_compare_request = "compare" in message and len(course_codes) >= 1
-
     if is_compare_request or len(course_codes) >= 2:
         courses = []
         for code in course_codes[:2]:
@@ -396,7 +438,6 @@ def chat_endpoint(request: ChatRequest):
                     })
             except Exception:
                 pass
-
         if courses:
             guided_message = (
                 request.message
@@ -410,11 +451,29 @@ def chat_endpoint(request: ChatRequest):
                 "content": [{"type": "compare", "courses": courses, "summary": ai_summary}]
             }
 
+    """
+    Attempt RAG Retrieval — searches indexed UMN sources for a grounded answer.
+    Falls back to the agent with GopherGrades + Tavily tools if no relevant chunks found.
+    """
+
+    chunks, rewritten_question = await retrieve(question=request.message, history=history)
+    print(f"Rewritten question: {rewritten_question}")
+    print(f"Top chunk distance: {chunks[0]['distance'] if chunks else 'no chunks'}")
+
+    # if closest chunk is relevant enough (cosine distance < 0.5), use RAG grounded response
+    if chunks and chunks[0]["distance"] < 0.5:
+        # RAG — call GPT-4o directly, no tools, focused grounded answer
+        prompt = build_prompt(question=rewritten_question, chunks=chunks)
+        result = await openai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return {"response": result.choices[0].message.content, "content": []}
+
+    # fallback — use agent with GopherGrades + Tavily tools
     response = gopher_assistant.invoke(request.message, history=history)
-    return {
-        "response": response,
-        "content": []
-    }
+    return {"response": response, "content": []}
+
 
 # GopherGrades testing as well as helpers for the agent to better identify when tools are needed
 # This will also push for a better, more detailed response from the agent
@@ -424,7 +483,7 @@ def lookup_course(request: CourseLookupRequest):
 
     try:
         search_result = json.loads(gophergrades_search.invoke(request.query))
-        
+
         response = {
             "ok": True,
             "query": query,
@@ -437,15 +496,16 @@ def lookup_course(request: CourseLookupRequest):
         if re.match(r"^[A-Z]{2,}\d{4}$", normalized):
             class_result = json.loads(gophergrades_class.invoke(normalized))
             response["class"] = class_result
-        
+
         return response
-    
+
     except Exception as e:
         return {
             "ok": False,
             "query": query,
             "error": str(e)
         }
+
 
 @app.post("/umn/prof")
 def lookup_professor(request: ProfessorLookupRequest):
@@ -466,7 +526,7 @@ def lookup_professor(request: ProfessorLookupRequest):
             "name": name,
             "error": str(e)
         }
-    
+
 
 @app.post("/umn/dept")
 def lookup_department(request: DepartmentLookupRequest):
@@ -506,14 +566,14 @@ def lookup_department(request: DepartmentLookupRequest):
             "dept": dept,
             "error": str(e)
         }
-    
 
-# Implementing History Permanent Storage 
+
+# Implementing History Permanent Storage
 
 # receives a conversation object from frontend, and store it
 @app.post("/save")
 def save_endpoint(request: ConversationRequest):
-    
+
     # checks if json already exist, before saving.
     if os.path.exists(CONVERSATION_FILE):
 
@@ -577,17 +637,3 @@ def history_endpoint():
     else:
         # file doesn't exist, return empty list
         return {"ok": True, "conversations": []}
-
-
-def summarize_research_text(text, limit=200):
-    if not text:
-        return ""
-
-    cleaned = re.sub(r"\s+", " ", str(text)).strip()
-    cleaned = re.sub(r"(#{1,6}\s*)+", "", cleaned)
-
-    if len(cleaned) <= limit:
-        return cleaned
-
-    shortened = cleaned[:limit].rsplit(" ", 1)[0].strip()
-    return f"{shortened}..."
