@@ -13,13 +13,15 @@ import os
 from pydantic import BaseModel
 from fastapi import APIRouter
 from webservice.routers.research import router as research_router
-from webservice.routers.rag import router as rag_router
-from webservice.rag.vector_store import get_client
 import json
 import re
 
 from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
 
+# RAG Dependency
+from webservice.rag.retriever import retrieve, build_prompt
+from webservice.routers.rag import router as rag_router
+from webservice.rag.vector_store import get_client
 
 # History Storage
 # """
@@ -144,13 +146,13 @@ def root():
 
 # responsible for loading/retrieving chat messages
 @app.post("/chat") 
-def chat_endpoint(request: ChatRequest):
+async def chat_endpoint(request: ChatRequest):
     global gopher_assistant
     if gopher_assistant is None:
         return {"error": "Agent not initialized."}
     
-
     """
+    Builds History from previous Prompts
     Loads the conversation history from file "app/data"
     """
 
@@ -174,11 +176,26 @@ def chat_endpoint(request: ChatRequest):
                 "content": msg["text"]}
                 for msg in match["messages"]
             ]
+    
 
-        
-    # pass history back into agent
-    response = gopher_assistant.invoke(request.message, history=history)
+    """
+    Attempt RAG Retrieval first, returning the most relevant and accurate information.
+    If unable to find relevant information or DB doesn't exist, use backup option of Tavily.
+    """
+
+    chunks = await retrieve(question=request.message)
+    
+    # If closest chunk is relevant enough to arbitrary threshold use RAG
+    if chunks and chunks[0]["distance"] < 0.5:
+        # RAG
+        prompt = build_prompt(question=request.message, chunks=chunks)
+        response = gopher_assistant.invoke(prompt, history=history)
+    else:
+        # Backup
+        response = gopher_assistant.invoke(request.message, history=history)
+    
     return {"response": response}
+
 
 # GopherGrades testing as well as helpers for the agent to better identify when tools are needed
 # This will also push for a better, more detailed response from the agent
