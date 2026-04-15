@@ -136,7 +136,7 @@ async def lifespan_function(app: FastAPI):
 
         if collection.count() == 0:
             print("Collection is empty — running indexer...")
-            asyncio.create_task(run_indexing)
+            asyncio.create_task(run_indexing())
     
     except Exception as e:
         print(f"WARNING: ChromaDB connection failed: {e}")
