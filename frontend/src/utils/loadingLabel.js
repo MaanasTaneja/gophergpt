@@ -4,6 +4,9 @@ export function getLoadingLabel(userText) {
     // Research
     if (/\bresearch\b/.test(t)) return "Searching UMN research";
 
+    // Professor comparison (must come before generic compare and professor checks)
+    if (/\bcompar(e|ing)\b/.test(t) && /\bprofessor\b|\bprof\b/.test(t)) return "Comparing professors";
+
     // Course comparison
     if (/\bcompar(e|ing)\b/.test(t)) return "Comparing courses";
 

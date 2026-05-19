@@ -59,6 +59,7 @@ class ChatRequest(BaseModel):
 class ProfileRequest(BaseModel):
     user_id: str
     major: str = ""
+    level: str = ""
     year: str = ""
     personalization_notes: str = ""
 
@@ -130,6 +131,53 @@ def _compute_course_metrics(course):
     }
 
 
+KNOWN_REQUIRED_DEPT_COURSES = {
+    "CSCI": {"1133", "1913", "1933", "2011", "2021", "2033", "2041", "4041"},
+    "MATH": {"1271", "1272", "1371", "1372", "1571", "1572", "2243", "2263", "2373", "2374", "3283W"},
+    "STAT": {"3011", "3021", "3032", "5101"},
+    "BIOL": {"1951", "1961", "2003", "2004"},
+    "CHEM": {"1015", "1061", "1062", "2301", "2302"},
+    "PHYS": {"1301W", "1302W", "1401V", "1402V"},
+}
+
+
+def _course_level(course_num):
+    match = re.search(r"(\d{4})", str(course_num))
+    if not match:
+        return None
+    return int(match.group(1))
+
+
+def _is_popular_elective_candidate(course, dept_code):
+    course_num = str(course.get("course_num") or "").upper()
+    title = str(course.get("title") or "").lower()
+    description = str(course.get("description") or "").lower()
+    level = _course_level(course_num)
+    combined = f"{title} {description}"
+
+    if level is None or level < 3000:
+        return False
+
+    if course_num in KNOWN_REQUIRED_DEPT_COURSES.get(dept_code, set()):
+        return False
+
+    core_hints = (
+        "introduction to",
+        "intro to",
+        "foundations",
+        "fundamentals",
+        "elementary",
+        "principles",
+        "basic ",
+        "corequisite",
+        "required",
+    )
+    if any(hint in combined for hint in core_hints):
+        return False
+
+    return True
+
+
 def _normalize_department_course(course):
     return {
         "id": course.get("id"),
@@ -168,7 +216,7 @@ def _build_department_summary(courses):
     }
 
 
-def _build_department_featured(courses):
+def _build_department_featured(courses, dept_code):
     popular = sorted(
         courses,
         key=lambda course: course.get("total_students", 0),
@@ -190,17 +238,16 @@ def _build_department_featured(courses):
         reverse=True,
     )[:8]
 
-    challenging_pool = [
+    elective_pool = [
         course
         for course in courses
-        if course["metrics"]["challenge_rate"] is not None
-        and _sum_grade_counts(course.get("grades")) >= 100
+        if _is_popular_elective_candidate(course, dept_code)
     ]
-    most_challenging = sorted(
-        challenging_pool,
+    popular_electives = sorted(
+        elective_pool,
         key=lambda course: (
-            course["metrics"]["challenge_rate"],
             course.get("total_students", 0),
+            course["metrics"]["recommend"] or 0,
         ),
         reverse=True,
     )[:8]
@@ -208,7 +255,7 @@ def _build_department_featured(courses):
     return {
         "popular": popular,
         "best_rated": best_rated,
-        "most_challenging": most_challenging,
+        "popular_electives": popular_electives,
     }
 
 class ChatAgent:
@@ -218,8 +265,8 @@ class ChatAgent:
         load_dotenv()
         os.environ["TAVILY_API_KEY"] = os.getenv("TAVILY_API_KEY")
 
-        self.llm = OpenAILLM(model_name="gpt-4o").get_model()
-        search_tool = TavilySearch(max_results=5, topic="general", include_domains=["umn.edu"])
+        self.llm = OpenAILLM(model_name="gpt-4o", temperature=0.2).get_model()
+        search_tool = TavilySearch(max_results=5, topic="general", search_depth="advanced", include_domains=["umn.edu", "reddit.com"])
 
         self.toolkit = ToolkitManager()
 
@@ -267,6 +314,11 @@ class ChatAgent:
                                           "\n\n**St. Paul Campus**"
                                           "\n- **Magrath Library**: Cozy, uncrowded. [Google Maps](https://www.google.com/maps/search/Magrath+Library+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/magrath-library) | [Reserve a Room](https://libcal.lib.umn.edu/spaces?lid=3607)"
                                           "\n\nBrowse all available spaces in real time at [UMN Study Space Finder](https://studyspace.umn.edu)."
+                                          "\n\nCOURSE RECOMMENDATIONS:"
+                                          "\n- If the user mentions they are currently enrolled in or planning to take a course, treat ALL of that course's prerequisites as already completed. Do NOT recommend them."
+                                          "\n- If the user mentions courses they have already taken (e.g. in their profile notes), never recommend those courses."
+                                          "\n- When recommending a course that has prerequisites, only list prereqs the user has NOT clearly already satisfied."
+                                          "\n- Example: if a user is enrolled in CSCI 4511W (which requires CSCI 4041), never recommend CSCI 4041 — they must have it."
                                           "\n\nRESPONSE STYLE:"
                                           "\n- Be concise and direct. Lead with the most useful insight."
                                           "\n- For grade data: highlight A/B rates, average GPA context, and any standout patterns."
@@ -341,14 +393,88 @@ def root():
     return {"message": "The greatest openai wrapper ever made."}
 
 def extract_course_codes(text):
-    """Extract normalized UMN course codes (e.g. CSCI4041) from a message."""
-    pattern = r'\b([A-Z]{2,6})\s*(\d{4})\b'
+    """Extract normalized UMN course codes (e.g. CSCI4041, CSCI3081W) from a message."""
+    pattern = r'\b([A-Z]{2,6})\s*(\d{4}[A-Z]?)\b'
     seen = []
     for m in re.finditer(pattern, text.upper()):
         code = f"{m.group(1)}{m.group(2)}"
         if code not in seen:
             seen.append(code)
     return seen
+
+
+def extract_prof_names(message):
+    """Extract two professor name candidates from a compare request."""
+    m = re.search(
+        r'compare\s+(?:professors?\s+|profs?\s+)?(.+?)\s+(?:and|vs\.?|versus)\s+(?:professors?\s+|profs?\s+)?(.+?)(?:\s*[\?.]?$)',
+        message, re.IGNORECASE
+    )
+    if not m:
+        return []
+    name1 = m.group(1).strip().rstrip(".,?!")
+    name2 = m.group(2).strip().rstrip(".,?!")
+    # Skip if either looks like a course code
+    if re.match(r'^[A-Za-z]{2,6}\s*\d{4}', name1) or re.match(r'^[A-Za-z]{2,6}\s*\d{4}', name2):
+        return []
+    if len(name1) < 3 or len(name2) < 3:
+        return []
+    return [name1, name2]
+
+
+def _search_prof_code(name):
+    """Search for a professor by name, return (code, display_name) or None."""
+    import logging
+    log = logging.getLogger(__name__)
+    try:
+        raw = gophergrades_search.invoke(name)
+        result = json.loads(raw)
+        log.info("Prof search for %r: %s", name, json.dumps(result)[:600])
+
+        # Walk all possible shapes the API might return
+        candidates = []
+
+        def _extract_instructors(obj):
+            if isinstance(obj, dict):
+                for key in ("instructors", "professors", "instructor", "professor"):
+                    val = obj.get(key)
+                    if isinstance(val, list):
+                        candidates.extend(val)
+                for key in ("data", "results"):
+                    if isinstance(obj.get(key), (dict, list)):
+                        _extract_instructors(obj[key])
+            elif isinstance(obj, list):
+                for item in obj:
+                    if isinstance(item, dict):
+                        # item itself might be an instructor record
+                        if any(k in item for k in ("instructor_id", "prof_id", "slug", "full_name")):
+                            candidates.append(item)
+                        else:
+                            _extract_instructors(item)
+
+        _extract_instructors(result)
+        log.info("Prof candidates for %r: %s", name, json.dumps(candidates)[:400])
+
+        if candidates:
+            first = candidates[0]
+            code = (
+                first.get("instructor_id")
+                or first.get("prof_id")
+                or first.get("id")
+                or first.get("slug")
+                or first.get("code")
+            )
+            display = (
+                first.get("full_name")
+                or first.get("name")
+                or first.get("instructor_name")
+                or name
+            )
+            if code:
+                return str(code), display
+    except Exception as e:
+        import logging as _log
+        _log.getLogger(__name__).exception("Prof search failed for %r", name)
+    return None
 
 
 def is_research_followup(message, history):
@@ -460,6 +586,43 @@ def chat_endpoint(request: ChatRequest):
             ]
         }
 
+    # Detect professor comparison requests
+    if "compare" in message and re.search(r'\bprof(essor)?\b', message, re.IGNORECASE):
+        prof_names = extract_prof_names(request.message)
+        if len(prof_names) == 2:
+            import logging as _plog
+            _plog.getLogger(__name__).info("Prof compare names: %s", prof_names)
+            profs = []
+            for pname in prof_names:
+                found = _search_prof_code(pname)
+                _plog.getLogger(__name__).info("Found code for %r: %s", pname, found)
+                if found:
+                    code, display = found
+                    try:
+                        prof_result = json.loads(gophergrades_prof.invoke(code))
+                        _plog.getLogger(__name__).info("Prof result for %r (%s): %s", display, code, json.dumps(prof_result)[:600])
+                        # Accept data whether it's nested under "data" or at the top level
+                        data = prof_result.get("data") or prof_result
+                        profs.append({"name": display, "code": code, "data": data})
+                    except Exception:
+                        _plog.getLogger(__name__).exception("gophergrades_prof failed for code %r", code)
+            if len(profs) >= 1:
+                guided_message = (
+                    request.message
+                    + "\n\n[System: Grade distributions and SRT ratings for each professor will be shown visually. "
+                    "Write 2-3 sentences max with a high-level comparison or recommendation. "
+                    "Do NOT mention specific numbers — those are already in the charts. "
+                    "Do NOT say there was any issue retrieving data or that information is unavailable — just give your comparison.]"
+                )
+                try:
+                    ai_summary = gopher_assistant.invoke(guided_message, history=history)
+                except Exception:
+                    ai_summary = ""
+                return {
+                    "response": "",
+                    "content": [{"type": "prof_compare", "profs": profs, "summary": ai_summary}]
+                }
+
     # Detect course comparison requests
     course_codes = extract_course_codes(request.message)
     is_compare_request = "compare" in message and len(course_codes) >= 1
@@ -484,18 +647,40 @@ def chat_endpoint(request: ChatRequest):
                 "Write 2-3 sentences max giving a high-level insight or recommendation. "
                 "Do NOT mention any numbers, grades, or ratings — those are already in the charts.]"
             )
-            ai_summary = gopher_assistant.invoke(guided_message, history=history)
+            try:
+                ai_summary = gopher_assistant.invoke(guided_message, history=history)
+            except Exception:
+                ai_summary = ""
             return {
                 "response": "",
                 "content": [{"type": "compare", "courses": courses, "summary": ai_summary}]
             }
 
     full_message = f"{profile_context}\n\nUser message:\n{request.message}" if profile_context else request.message
-    response = gopher_assistant.invoke(full_message, history=history)
+    try:
+        response = gopher_assistant.invoke(full_message, history=history)
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception("Agent invocation failed")
+        return {
+            "response": "I ran into an issue processing your request. Please try again or rephrase your question.",
+            "content": []
+        }
     return {
         "response": response,
         "content": []
     }
+
+@app.get("/debug/prof")
+def debug_prof(name: str):
+    """Debug endpoint — returns raw search + prof data for a given name."""
+    search_raw = json.loads(gophergrades_search.invoke(name))
+    found = _search_prof_code(name)
+    prof_raw = None
+    if found:
+        code, _ = found
+        prof_raw = json.loads(gophergrades_prof.invoke(code))
+    return {"search": search_raw, "found": found, "prof": prof_raw}
 
 # Profile endpoints
 @app.get("/profile")
@@ -507,6 +692,7 @@ def get_profile_endpoint(user_id: str):
 def update_profile_endpoint(request: ProfileRequest):
     profile = save_profile(request.user_id, {
         "major": request.major,
+        "level": request.level,
         "year": request.year,
         "personalization_notes": request.personalization_notes,
     })
@@ -593,7 +779,7 @@ def lookup_department(request: DepartmentLookupRequest):
                 "name": data.get("dept_name"),
             },
             "summary": _build_department_summary(normalized_courses),
-            "featured": _build_department_featured(normalized_courses),
+            "featured": _build_department_featured(normalized_courses, data.get("dept_abbr")),
             "courses": normalized_courses,
         }
 

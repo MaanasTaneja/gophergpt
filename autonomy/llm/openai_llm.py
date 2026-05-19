@@ -3,7 +3,12 @@ from langchain_openai import ChatOpenAI
 from autonomy.llm.base_llm import BaseLLM
 
 class OpenAILLM(BaseLLM):
-    def __init__(self, model_name: str = "gpt-4o", api_key: str = None):  # api_key should not be passed and kept in env var.
+    def __init__(
+        self,
+        model_name: str = "gpt-4o",
+        api_key: str = None,
+        temperature: float = None,
+    ):  # api_key should not be passed and kept in env var.
         super().__init__(model_name)
         self.api_key = api_key
         if self.api_key is None:
@@ -12,7 +17,14 @@ class OpenAILLM(BaseLLM):
                 raise ValueError("API key must be provided either as an argument (not recommended) or through the OPENAI_KEY environment variable.")
             self.api_key = api_key
 
-        self.llm = ChatOpenAI(model=model_name, api_key=api_key)
+        llm_kwargs = {
+            "model": model_name,
+            "api_key": self.api_key,
+        }
+        if temperature is not None:
+            llm_kwargs["temperature"] = temperature
+
+        self.llm = ChatOpenAI(**llm_kwargs)
 
     def get_model(self):
         return self.llm
