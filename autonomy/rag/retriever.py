@@ -1,8 +1,8 @@
 from openai import AsyncOpenAI
 import os
 
-from webservice.rag.embedder import embed_text
-from webservice.rag.vector_store import query_collection
+from autonomy.rag.embedder import embed_text
+from autonomy.rag.vector_store import query_collection
 
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_KEY"))
 

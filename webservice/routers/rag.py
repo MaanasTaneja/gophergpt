@@ -2,7 +2,7 @@ import os
 from fastapi import APIRouter
 from openai import AsyncOpenAI
 from pydantic import BaseModel
-from webservice.rag.retriever import retrieve, build_prompt
+from autonomy.rag.retriever import retrieve, build_prompt
 
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_KEY"))
 

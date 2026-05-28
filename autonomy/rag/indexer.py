@@ -1,7 +1,7 @@
-from webservice.rag.chunker import chunk_text
-from webservice.rag.embedder import embed_batch
-from webservice.rag.vector_store import upsert_chunks
-from webservice.rag.sources.classinfo import scrape as scrape_classinfo
+from autonomy.rag.chunker import chunk_text
+from autonomy.rag.embedder import embed_batch
+from autonomy.rag.vector_store import upsert_chunks
+from autonomy.rag.sources.classinfo import scrape as scrape_classinfo
 import json
 from autonomy.tools.gophergrades_api import gophergrades_dept
 # TODO: import scrapers for catalog and onestop the same way

@@ -1,5 +1,5 @@
 import asyncio
-from webservice.rag.indexer import run_indexing
+from autonomy.rag.indexer import run_indexing
 
 
 # an async function from a regular script

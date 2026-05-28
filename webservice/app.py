@@ -24,10 +24,10 @@ from webservice.profile_store import init_store, get_profile, save_profile
 from webservice.personalization import build_personalized_prompt
 
 # RAG Dependency
-from webservice.rag.retriever import retrieve, build_prompt
-from webservice.rag.indexer import run_indexing
+from autonomy.rag.retriever import retrieve, build_prompt
+from autonomy.rag.indexer import run_indexing
 from webservice.routers.rag import router as rag_router
-from webservice.rag.vector_store import get_client, get_collection
+from autonomy.rag.vector_store import get_client, get_collection
 from openai import AsyncOpenAI
 import asyncio
 
