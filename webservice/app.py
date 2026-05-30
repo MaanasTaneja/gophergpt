@@ -1,42 +1,31 @@
-# Routers
-from webservice.routers.chat import router as chat_router
-from webservice.routers.courses import router as course_router
-from webservice.routers.rag import router as rag_router
-from webservice.routers.research import router as research_router
-import webservice.routers.chat as chat_module
+import os
+import asyncio
+from contextlib import asynccontextmanager
 
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
+from langchain_tavily import TavilySearch
+from dotenv import load_dotenv
+
+
+import webservice.routers.chat as chat_module
+from webservice.routers.chat import router as chat_router
+from webservice.routers.courses import router as course_router
+from webservice.routers.rag import router as rag_router
+from webservice.routers.research import router as research_router
+from webservice.routers.profile import router as profile_router
+from webservice.profile_store import init_store
+
 
 from autonomy.agent.react_agent import ReActAgent
 from autonomy.llm.openai_llm import OpenAILLM
 from autonomy.tools.base import ToolkitManager 
-
-from dotenv import load_dotenv
-from langchain_tavily import TavilySearch
-import os
-
-from pydantic import BaseModel
-
-
 from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
 from autonomy.tools.umn_rooms_tool import umn_room_booking
-from webservice.profile_store import init_store, get_profile, save_profile
-
-# RAG Dependency
+from autonomy.tools.rag_tools import rag_search
 from autonomy.rag.indexer import run_indexing
 from autonomy.rag.vector_store import get_client, get_collection
-import asyncio
-
-
-class ProfileRequest(BaseModel):
-    user_id: str
-    major: str = ""
-    year: str = ""
-    personalization_notes: str = ""
-
 
 class ChatAgent:
     def __init__(self, name="Assistant"):
@@ -58,6 +47,9 @@ class ChatAgent:
 
         # Adding UMN room booking tool
         self.toolkit.register_tool(umn_room_booking, type="other")
+
+        # Adding RAG search tool
+        self.toolkit.register_tool(rag_search, type="retriever")
 
         self.react_agent = ReActAgent(llm=self.llm, toolkit=self.toolkit,
                                       system_prompt=(
@@ -162,6 +154,7 @@ app.include_router(research_router)
 app.include_router(rag_router)
 app.include_router(chat_router)
 app.include_router(course_router)
+app.include_router(profile_router)
 app.add_middleware(CORSMiddleware, 
     allow_origins=["*"],
     allow_credentials=True,
@@ -173,20 +166,5 @@ app.add_middleware(CORSMiddleware,
 def root():
     return {"message": "The greatest openai wrapper ever made."}
 
-
-# Profile endpoints
-@app.get("/profile")
-def get_profile_endpoint(user_id: str):
-    profile = get_profile(user_id)
-    return {"ok": True, "profile": profile}
-
-@app.put("/profile")
-def update_profile_endpoint(request: ProfileRequest):
-    profile = save_profile(request.user_id, {
-        "major": request.major,
-        "year": request.year,
-        "personalization_notes": request.personalization_notes,
-    })
-    return {"ok": True, "profile": profile}
 
 
