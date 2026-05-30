@@ -9047,5 +9047,107 @@
         "isUser": false
       }
     ]
+  },
+  {
+    "id": 1780119921322,
+    "title": "What are the pre reqs for CSCI 4041?",
+    "messages": [
+      {
+        "text": "What are the pre reqs for CSCI 4041?",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "It seems there was an error while trying to fetch the prerequisite information for CSCI 4041. Please try again later, or you can check the University of Minnesota's official course catalog or contact the department for the most accurate details on prerequisites.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "What are the pre reqs for CSCI 4041?",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "It seems there was an error while trying to fetch the prerequisite information for CSCI 4041. Please try again later, or you can check the University of Minnesota's official course catalog for the most accurate details on prerequisites.",
+        "isUser": false,
+        "content": []
+      }
+    ]
+  },
+  {
+    "id": 1780120031644,
+    "title": "What are the pre reqs for CSCI 4041?",
+    "messages": [
+      {
+        "text": "What are the pre reqs for CSCI 4041?",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "The prerequisites for CSCI 4041 (Algorithms and Data Structures) are:\n\n- Either CSCI 1913 (Introduction to Algorithms and Data Structures) or CSCI 1933 (Introduction to Algorithms and Data Structures with Honors)\n- CSCI 2011 (Discrete Structures of Computer Science)\n\nAlternatively, Graduate Student Standing can also satisfy the prerequisite requirement.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "What about 2011?",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "The prerequisite for CSCI 2011 (Discrete Structures of Computer Science) is:\n\n- MATH 1271 (Calculus I), MATH 1371, or MATH 1571H\n\nThese math courses provide the necessary foundation in calculus to succeed in the discrete mathematics content of CSCI 2011.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "2041?",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "The prerequisites for CSCI 2041 (Advanced Programming Principles) are:\n\n- CSCI 1913 (Introduction to Algorithms and Data Structures) or CSCI 1933 (Introduction to Algorithms and Data Structures with Honors)\n- CSCI 2011 (Discrete Structures of Computer Science)\n\nThese courses set up the foundational programming and problem-solving skills necessary for CSCI 2041.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "What is CSCI 4511W?",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "CSCI 4511W is titled \"Introduction to Artificial Intelligence\" and is a writing-intensive course. It covers the following topics:\n\n- Agents and problem-solving using search algorithms\n- Knowledge representation and inference using formal logic\n- Knowledge graphs and planning\n- Introduction to machine learning\n\nAdditional details:\n- Co-requisite: CSCI 4041\n- Credits: 4\n- Grading Basis: Student Option\n- Writing Intensive: Yes\n- Typically Offered: Every Fall & Spring\n\nNote: This course cannot be taken for graduate Computer Science credit.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "Provide me a list of all graduate CSCI courses",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "Here's a selection of graduate CSCI courses available at the University of Minnesota:\n\n1. **CSCI 5481 - Computational Techniques for Genomics (3 Cr.)**\n   - Focuses on analyzing biological data from genome sequencing and other molecular biology areas. Topics include algorithms for sequence alignment and data mining for expression analysis.\n   - Prerequisites: CSCI 3003 or CSCI 3041 or CSCI 4041\n\n2. **CSCI 5980 - Special Topics in Computer Science for Graduates (1-3 Cr.)**\n   - Involves lectures and discussions on current topics in computer science. This course is repeatable for up to 9 credits.\n   - Prerequisite: Instructor consent\n\nThese courses introduce advanced and specialized topics suited for graduate students pursuing a deeper understanding of computer science disciplines.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "What are some graduate level courses for AI or Machine Learning",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "Here are some graduate-level courses at UMN focused on AI and Machine Learning:\n\n1. **CSCI 5521 - Machine Learning Fundamentals (3 Cr.)**\n   - Covers problem formulations, generalization concepts, statistical foundations, and machine learning ethics.\n   - Prerequisites: CSCI 2033 or MATH 4242 and STAT 3021 or equivalent.\n\n2. **CSCI 5525 - Machine Learning: Analysis and Methods (3 Cr.)**\n   - Focuses on models of learning, supervised and unsupervised algorithms, dimensionality reduction, and graphical models.\n   - Prerequisite: CSCI 5521 or equivalent.\n\n3. **CSCI 5527 - Deep Learning: Models, Computation, and Applications (3 Cr.)**\n   - Introduces deep learning models, computational principles, and applications like CNNs, RNNs, and reinforcement learning.\n   - Prerequisite: CSCI 5521.\n\n4. **CSCI 5511 - Artificial Intelligence I (3 Cr.)**\n   - Introduction to AI concepts such as problem-solving, search, and inference techniques.\n   - Prerequisite: Graduate student standing.\n\nThese courses provide a robust foundation in AI and Machine Learning, offering in-depth studies and hands-on experience in these cutting-edge areas.",
+        "isUser": false,
+        "content": []
+      },
+      {
+        "text": "How about under graduate",
+        "isUser": true,
+        "content": []
+      },
+      {
+        "text": "Here are some undergraduate courses at UMN focused on AI and Machine Learning:\n\n1. **CSCI 4511W - Introduction to Artificial Intelligence (4 Cr.)**\n   - Writing-intensive course covering agents, problem-solving through search, knowledge representation, machine learning, and logic inference.\n   - Typically offered every Fall and Spring.\n\n2. **CSCI 4707 - Practice of Database Systems (3-4 Cr.)**\n   - While focused on database systems, it includes elements such as data mining, which is fundamental to AI and machine learning applications.\n   - Requires prior completion of introductory courses in algorithms and data structures.\n\n3. **CSCI 4801 - Introduction to Graphical Models (3 Cr.)**\n   - Focuses on probabilistic graphical models, an important topic in machine learning for structured predictions.\n\nThese undergraduate courses provide a foundation in artificial intelligence, offering both theoretical and practical knowledge.",
+        "isUser": false,
+        "content": []
+      }
+    ]
   }
 ]

@@ -1,10 +1,9 @@
+import json
 from autonomy.rag.chunker import chunk_text
 from autonomy.rag.embedder import embed_batch
 from autonomy.rag.vector_store import upsert_chunks
-from autonomy.rag.sources.classinfo import scrape as scrape_classinfo
-import json
+from autonomy.rag.sources.classinfo import ClassInfoScraper
 from autonomy.tools.gophergrades_api import gophergrades_dept
-# TODO: import scrapers for catalog and onestop the same way
 
 
 def get_urls_from_gophergrades(dept: str) -> list[str]:
@@ -59,7 +58,8 @@ async def run_indexing() -> None:
     
     urls =  get_urls_from_gophergrades("CSCI") #TODO: UPDATE TO INCLUDE MORE DEPT CODES
 
-    documents = await scrape_classinfo(urls)
+    scraper = ClassInfoScraper()
+    documents = await scraper.scrape(urls)
 
     await index_source(documents=documents)
 
