@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-import webservice.routers.chat as chat_module
+import webservice.dependencies as dependencies
 from webservice.routers.chat import router as chat_router
 from webservice.routers.courses import router as course_router
 from webservice.routers.research import router as research_router
@@ -16,8 +16,6 @@ from autonomy.rag.indexer import run_indexing
 from autonomy.rag.vector_store import get_client, get_collection
 
 
-gopher_assistant = None
-
 @asynccontextmanager
 async def lifespan_function(app: FastAPI):
     """
@@ -26,10 +24,9 @@ async def lifespan_function(app: FastAPI):
     Args:
         app: the FastAPI application instance
     """
-    global gopher_assistant
+    
     init_store()
-    gopher_assistant = ChatAgent()
-    chat_module.gopher_assistant = gopher_assistant
+    dependencies.gopher_assistant = ChatAgent()
 
     try:
         get_client()
@@ -45,6 +42,19 @@ async def lifespan_function(app: FastAPI):
         print(f"WARNING: ChromaDB connection failed: {e}")
 
     yield
+
+
+app = FastAPI(lifespan=lifespan_function)
+app.add_middleware(CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.include_router(research_router)
+app.include_router(chat_router)
+app.include_router(course_router)
+app.include_router(profile_router)
 
 
 @app.get("/")

@@ -1,13 +1,17 @@
-from pydantic import BaseModel
-from fastapi import APIRouter
-from webservice.routers.research import run_research_query, ResearchRequest
-from webservice.profile_store import get_profile
-from webservice.personalization import build_personalized_prompt
-from autonomy.tools.gophergrades_api import gophergrades_class
-
 import os
 import re
 import json
+
+from pydantic import BaseModel
+from fastapi import APIRouter, Depends
+from webservice.routers.research import run_research_query, ResearchRequest
+from webservice.profile_store import get_profile
+from webservice.personalization import build_personalized_prompt
+from webservice.dependencies import get_agent
+from webservice.agent import ChatAgent
+from autonomy.tools.gophergrades_api import gophergrades_class
+
+
 
 # This defines where we are storing the conversation history into.
 # Will be using as a memory cache, to continue dialogue with agent.
@@ -15,7 +19,6 @@ DATA_DIR = "/app/data" # where the file will be stored
 os.makedirs(DATA_DIR, exist_ok=True) # makes directory if doesn't exist, nothing if does exist
 CONVERSATION_FILE = os.path.join(DATA_DIR, "conversations.json") # full path of where JSON file is stored
 
-gopher_assistant = None
 
 router = APIRouter()
 
@@ -148,7 +151,7 @@ def summarize_research_text(text, limit=200):
 
 # responsible for loading/retrieving chat messages
 @router.post("/chat")
-def chat_endpoint(request: ChatRequest):
+def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
     """
     Handles incoming chat requests, routing to research, course comparison, or general agent response.
 
@@ -158,10 +161,6 @@ def chat_endpoint(request: ChatRequest):
     Returns:
         a dict with response string and content list for the frontend to render
     """
-
-    global gopher_assistant
-    if gopher_assistant is None:
-        return {"error": "Agent not initialized."}
 
     message = request.message.lower()
 
@@ -244,14 +243,14 @@ def chat_endpoint(request: ChatRequest):
                 "Write 2-3 sentences max giving a high-level insight or recommendation. "
                 "Do NOT mention any numbers, grades, or ratings — those are already in the charts.]"
             )
-            ai_summary = gopher_assistant.invoke(guided_message, history=history)
+            ai_summary = agent.invoke(guided_message, history=history)
             return {
                 "response": "",
                 "content": [{"type": "compare", "courses": courses, "summary": ai_summary}]
             }
 
     full_message = f"{profile_context}\n\nUser message:\n{request.message}" if profile_context else request.message
-    response = gopher_assistant.invoke(full_message, history=history)
+    response = agent.invoke(full_message, history=history)
     return {
         "response": response,
         "content": []
