@@ -33,7 +33,15 @@ class ConversationRequest(BaseModel):
     messages: list
 
 def extract_course_codes(text):
-    """Extract normalized UMN course codes (e.g. CSCI4041) from a message."""
+    """
+    Extract normalized UMN course codes (e.g. CSCI4041) from a message.
+
+    Args:
+        text: string entered by user
+
+    Returns:
+        a list of course codes found within text (e.g. ["CSCI4041","STAT3021"])
+    """
     pattern = r'\b([A-Z]{2,6})\s*(\d{4})\b'
     seen = []
     for m in re.finditer(pattern, text.upper()):
@@ -43,7 +51,16 @@ def extract_course_codes(text):
     return seen
 
 def is_research_followup(message, history):
-    """Returns True if this looks like a follow-up to a prior research query."""
+    """
+    Returns True if this looks like a follow-up to a prior research query.
+
+    Args:
+        message: user entered message
+        history: the conversation history between user and agent
+    
+    Returns:
+        True if the message is a research follow-up, False otherwise  
+    """
     if not re.match(r'^(what|how)\s+about|^and\b|^what if', message.strip(), re.IGNORECASE):
         return False
     recent = history[-6:] if len(history) > 6 else history
@@ -51,7 +68,16 @@ def is_research_followup(message, history):
 
 
 def build_research_query(current_message, history):
-    """Construct a full research query from a follow-up message using prior context."""
+    """
+    Construct a full research query from a follow-up message using prior context.
+    
+    Args:
+        current_message: the current message in conversation
+        history: the conversation history between user and agent
+    
+    Returns:
+        a constructed research query string, or the original message if no context found
+    """
     for msg in reversed(history):
         if msg["role"] == "user" and re.search(r'rea?sea?rch', msg["content"].lower()):
             # Extract the new subject from the follow-up (e.g. "what about for biology" → "biology")
@@ -64,7 +90,16 @@ def build_research_query(current_message, history):
 
 
 def _enrich_research_query(raw_query: str, profile: dict) -> str:
-    """Make a research query more specific using profile context and UMN-specific terms."""
+    """
+    Make a research query more specific using profile context and UMN-specific terms.
+    
+    Args:
+        raw_query: the unmodified query provided from user
+        profile: filters provided from user profile
+
+    Returns:
+        a more specific query string enriched with profile context and UMN terms
+    """
     query = raw_query.strip()
 
     # Add major from profile if not already in the query
@@ -88,6 +123,17 @@ def _enrich_research_query(raw_query: str, profile: dict) -> str:
     return query
 
 def summarize_research_text(text, limit=200):
+    """
+    Truncates and cleans text to a specified character limit.
+
+    Args:
+        text: string provided to be cleaned
+        limit: character limit, defaults to 200
+
+    Returns:
+        the cleaned and truncated string.
+    """
+
     if not text:
         return ""
 
@@ -103,6 +149,16 @@ def summarize_research_text(text, limit=200):
 # responsible for loading/retrieving chat messages
 @router.post("/chat")
 def chat_endpoint(request: ChatRequest):
+    """
+    Handles incoming chat requests, routing to research, course comparison, or general agent response.
+
+    Args:
+        request: ChatRequest containing the user message, conversation_id, and user_id
+
+    Returns:
+        a dict with response string and content list for the frontend to render
+    """
+
     global gopher_assistant
     if gopher_assistant is None:
         return {"error": "Agent not initialized."}
@@ -206,7 +262,16 @@ def chat_endpoint(request: ChatRequest):
 # receives a conversation object from frontend, and store it
 @router.post("/save")
 def save_endpoint(request: ConversationRequest):
-    
+    """
+    Saves or updates a conversation in the JSON store.
+
+    Args:
+        request: ConversationRequest containing id, title, and messages
+
+    Returns:
+        a dict with ok status
+    """
+
     # checks if json already exist, before saving.
     if os.path.exists(CONVERSATION_FILE):
 
@@ -248,6 +313,13 @@ def save_endpoint(request: ConversationRequest):
 # clears all saved conversations
 @router.delete("/history/clear")
 def clear_history_endpoint():
+    """
+    Deletes all saved conversations from the JSON store.
+
+    Returns:
+        a dict with ok status
+    """
+
     if os.path.exists(CONVERSATION_FILE):
         os.remove(CONVERSATION_FILE)
     return {"ok": True}
@@ -256,6 +328,13 @@ def clear_history_endpoint():
 # returns all saved conversations to the frontend
 @router.get("/history")
 def history_endpoint():
+    """
+    Returns all saved conversations from the JSON store in reverse chronological order.
+
+    Returns:
+        a dict with ok status and list of conversations
+    """
+
     # checks if file exist
     if os.path.exists(CONVERSATION_FILE):
 
@@ -270,5 +349,3 @@ def history_endpoint():
     else:
         # file doesn't exist, return empty list
         return {"ok": True, "conversations": []}
-
-

@@ -9,15 +9,27 @@ import re
 router = APIRouter()
 
 class CourseLookupRequest(BaseModel):
+    """Request model for course lookup endpoint."""
     query: str
 
 class ProfessorLookupRequest(BaseModel):
+    """Request model for professor lookup endpoint."""
     name: str
 
 class DepartmentLookupRequest(BaseModel):
+    """Request model for department lookup endpoint."""
     dept: str
 
 def _parse_srt_vals(raw):
+    """
+    Parses raw SRT values into a dict.
+
+    Args:
+        raw: raw SRT value from GopherGrades, can be None, a dict, or a JSON string
+
+    Returns:
+        a dict of SRT values, or None if unparseable
+    """
     if raw is None or raw == "null":
         return None
 
@@ -31,6 +43,15 @@ def _parse_srt_vals(raw):
 
 
 def _sum_grade_counts(grades):
+    """
+    Sums all numeric grade counts from a grades dict.
+
+    Args:
+        grades: dict of grade letters to counts (e.g. {"A": 10, "B": 5})
+
+    Returns:
+        total number of graded outcomes as an integer
+    """
     if not grades:
         return 0
 
@@ -38,6 +59,15 @@ def _sum_grade_counts(grades):
 
 
 def _compute_course_metrics(course):
+    """
+    Computes derived metrics for a course from its grade and SRT data.
+
+    Args:
+        course: raw course dict from GopherGrades API
+
+    Returns:
+        a dict of computed metrics including high_grade_rate, challenge_rate, and SRT values
+    """
     grades = course.get("total_grades") or {}
     total_outcomes = _sum_grade_counts(grades)
     srt_vals = _parse_srt_vals(course.get("srt_vals"))
@@ -85,6 +115,15 @@ def _compute_course_metrics(course):
 
 
 def _normalize_department_course(course):
+    """
+    Normalizes a raw GopherGrades course dict into a clean frontend-ready format.
+
+    Args:
+        course: raw course dict from GopherGrades API
+
+    Returns:
+        a normalized course dict with consistent field names and structure
+    """
     return {
         "id": course.get("id"),
         "course_num": course.get("course_num", ""),
@@ -102,6 +141,15 @@ def _normalize_department_course(course):
 
 
 def _build_department_summary(courses):
+    """
+    Builds aggregate summary statistics for a list of courses.
+
+    Args:
+        courses: list of normalized course dicts
+
+    Returns:
+        a dict containing course count, total students, median course size, and avg recommend score
+    """
     student_counts = [course.get("total_students", 0) for course in courses]
     recommend_values = [
         course["metrics"]["recommend"]
@@ -123,6 +171,15 @@ def _build_department_summary(courses):
 
 
 def _build_department_featured(courses):
+    """
+    Builds featured course lists for a department including popular, best rated, and most challenging.
+
+    Args:
+        courses: list of normalized course dicts
+
+    Returns:
+        a dict with popular, best_rated, and most_challenging course lists
+    """
     popular = sorted(
         courses,
         key=lambda course: course.get("total_students", 0),
@@ -168,11 +225,20 @@ def _build_department_featured(courses):
 
 @router.post("/umn/course")
 def lookup_course(request: CourseLookupRequest):
+    """
+    Looks up a UMN course by query string, returning search results and full class data if a course code is detected.
+
+    Args:
+        request: CourseLookupRequest containing the query string
+
+    Returns:
+        a dict with ok status, search results, and class data if found
+    """
     query = request.query.strip()
 
     try:
         search_result = json.loads(gophergrades_search.invoke(request.query))
-        
+
         response = {
             "ok": True,
             "query": query,
@@ -185,9 +251,9 @@ def lookup_course(request: CourseLookupRequest):
         if re.match(r"^[A-Z]{2,}\d{4}$", normalized):
             class_result = json.loads(gophergrades_class.invoke(normalized))
             response["class"] = class_result
-        
+
         return response
-    
+
     except Exception as e:
         return {
             "ok": False,
@@ -195,8 +261,18 @@ def lookup_course(request: CourseLookupRequest):
             "error": str(e)
         }
 
+
 @router.post("/umn/prof")
 def lookup_professor(request: ProfessorLookupRequest):
+    """
+    Looks up a UMN professor by name using GopherGrades search.
+
+    Args:
+        request: ProfessorLookupRequest containing the professor name
+
+    Returns:
+        a dict with ok status and search results
+    """
     name = request.name.strip()
 
     try:
@@ -214,10 +290,19 @@ def lookup_professor(request: ProfessorLookupRequest):
             "name": name,
             "error": str(e)
         }
-    
+
 
 @router.post("/umn/dept")
 def lookup_department(request: DepartmentLookupRequest):
+    """
+    Looks up a UMN department by code, returning summary, featured courses, and full course list.
+
+    Args:
+        request: DepartmentLookupRequest containing the department code
+
+    Returns:
+        a dict with ok status, department info, summary, featured courses, and full course list
+    """
     dept = request.dept.strip().upper()
 
     try:
@@ -254,4 +339,3 @@ def lookup_department(request: DepartmentLookupRequest):
             "dept": dept,
             "error": str(e)
         }
-    

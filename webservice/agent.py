@@ -12,7 +12,16 @@ from autonomy.tools.umn_rooms_tool import umn_room_booking
 from autonomy.tools.rag_tools import rag_search
 
 class ChatAgent:
+    """
+    Wrapper around ReAct agent that handles tool registration and messages invocation
+    """
     def __init__(self, name="Assistant"):
+        """
+        Initializes the LLM, registers all tools, and builds ReAct agent
+
+        Args:
+            name: display name for the agent, defaults to "Assistant"
+        """
         self.name = name
 
         load_dotenv()
@@ -83,10 +92,16 @@ class ChatAgent:
                                       ))
 
     
-    def invoke(self, message: str, history: list = []) -> str: # added new param "history", which accepts list of prior messages, default is empty (no history)
+    def invoke(self, message: str, history: list = []) -> str: 
         """ 
-        Replaced the previous method above, this should maintain agent memory/cache
-        Allowing for back-and-forth communication, instead of monologue
+        Sends a message to the agent along with conversation history
+
+        Args:
+            message: the user's messages to send to the agent
+            history: list of prior conversation messages, defaults to empty
+
+        Returns:
+            the agent's response as a string
         """
 
         # Cap history to last 10 messages to avoid context overflow

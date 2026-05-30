@@ -19,16 +19,20 @@ from autonomy.rag.vector_store import get_client, get_collection
 gopher_assistant = None
 
 @asynccontextmanager
-async def lifespan_function(app : FastAPI):
+async def lifespan_function(app: FastAPI):
+    """
+    Handles app startup and shutdown — initializes the agent, wires dependencies, and connects to ChromaDB.
+
+    Args:
+        app: the FastAPI application instance
+    """
     global gopher_assistant
     init_store()
     gopher_assistant = ChatAgent()
-
     chat_module.gopher_assistant = gopher_assistant
 
-    # initialize chromadb connection on startup so routers can use it
     try:
-        get_client()  # validates connection is healthy before serving requests
+        get_client()
         print("ChromaDB connected successfully.")
 
         collection = get_collection()
@@ -36,24 +40,19 @@ async def lifespan_function(app : FastAPI):
         if collection.count() == 0:
             print("Collection is empty — running indexer...")
             asyncio.create_task(run_indexing())
-    
+
     except Exception as e:
         print(f"WARNING: ChromaDB connection failed: {e}")
 
     yield
 
-app = FastAPI(lifespan=lifespan_function)
-app.include_router(research_router)
-app.include_router(chat_router)
-app.include_router(course_router)
-app.include_router(profile_router)
-app.add_middleware(CORSMiddleware, 
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 @app.get("/")
 def root():
+    """
+    Health check endpoint.
+
+    Returns:
+        a dict with a welcome message confirming the service is running
+    """
     return {"message": "The greatest openai wrapper ever made."}
