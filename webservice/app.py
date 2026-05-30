@@ -7,7 +7,6 @@ from fastapi.middleware.cors import CORSMiddleware
 import webservice.routers.chat as chat_module
 from webservice.routers.chat import router as chat_router
 from webservice.routers.courses import router as course_router
-from webservice.routers.rag import router as rag_router
 from webservice.routers.research import router as research_router
 from webservice.routers.profile import router as profile_router
 from webservice.profile_store import init_store
@@ -45,7 +44,6 @@ async def lifespan_function(app : FastAPI):
 
 app = FastAPI(lifespan=lifespan_function)
 app.include_router(research_router)
-app.include_router(rag_router)
 app.include_router(chat_router)
 app.include_router(course_router)
 app.include_router(profile_router)
@@ -59,6 +57,3 @@ app.add_middleware(CORSMiddleware,
 @app.get("/")
 def root():
     return {"message": "The greatest openai wrapper ever made."}
-
-
-

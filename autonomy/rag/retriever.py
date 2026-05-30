@@ -12,10 +12,12 @@ async def rewrite_query(question: str, history: list[dict]) -> str:
     Rewrites the user's question using conversation history to make it
     self-contained before embedding.
 
-    Called by retrieve() before embedding the question so that follow-up
-    questions like "what about CSCI 3081?" get rewritten into
-    "what are the prerequisites for CSCI 3081?" for better RAG retrieval.
-    If there is no history, the original question is returned unchanged.
+    Args:
+        question: the user's question to re-write with history
+        history: the entire conversation history between user and agent
+
+    Returns:
+        the rewritten question as a self-contained string
     """
     response = await client.chat.completions.create(
         model="gpt-4o",
@@ -37,9 +39,42 @@ async def rewrite_query(question: str, history: list[dict]) -> str:
 
 async def retrieve(question: str, history: list[dict] = [], top_k: int = 5) -> tuple[list[dict], str]:
     """
-    Returns both the relevant chunks AND the rewritten question.
-    The rewritten question is used in build_prompt() so the grounded
-    prompt reflects the full context, not the vague follow-up.
+    Retrieves relevant document chunks from ChromaDB for a given question.
+
+    If conversation history is provided, the question is rewritten first
+    to be self-contained, improving retrieval accuracy
+
+    Args:
+        question: the user's question to retrieve context for
+        history: prior conversation messages from query rewriting
+        top_k: number of chunks to retrieve from ChromaDB
+
+    Example:
+        (
+        # chunks — list of dicts
+        [
+            {
+                "text": "CSCI 3081W covers software design patterns...",
+                "source_url": "https://umtc.catalog.prod.coursedog.com/courses/123",
+                "source_name": "UMN Class Info",
+                "distance": 0.1234
+            },
+            {
+                "text": "Prerequisites for CSCI 3081W include CSCI 1933...",
+                "source_url": "https://umtc.catalog.prod.coursedog.com/courses/123",
+                "source_name": "UMN Class Info",
+                "distance": 0.2345
+            }
+        ],
+
+        # rewritten_question — string
+        "What are the prerequisites and description for CSCI 3081W?"
+        )
+
+    Returns:
+        a tuple of (chunks, rewritten_question) where chunks is a list
+        of relevant document dicts and rewritten_question is the 
+        self-contained version of the original question
     """
     if history:
         question = await rewrite_query(question, history)
@@ -48,32 +83,3 @@ async def retrieve(question: str, history: list[dict] = [], top_k: int = 5) -> t
     chunks = query_collection(query_embedding=embedded, top_k=top_k)
     
     return chunks, question 
-
-
-def build_prompt(question: str, chunks: list[dict]) -> str:
-    """
-    Combines retrieved chunks and the user's question into a single prompt
-    string ready to be sent to GPT-4o.
-
-    Called by the RAG router after retrieve() returns relevant chunks.
-    The prompt instructs GPT-4o to answer using only the provided sources,
-    so responses are grounded in real UMN documents rather than guesswork.
-
-    Each chunk dict will have:
-        - text
-        - source_url
-        - source_name
-        - distance
-    """
-    sources = ""
-    for i, chunk in enumerate(chunks):
-        sources += f"[{i+1}] {chunk['text']} (from: {chunk['source_url']})\n"
-        
-    return f"""You are a helpful UMN assistant. Answer ONLY what was asked — do not include extra information beyond what the question asks for.
-    Use only the sources below to answer.
-    If the answer is not in the sources, say so.
-
-    SOURCES:
-    {sources}
-
-    QUESTION: {question}"""
