@@ -52,5 +52,5 @@ class BaseStateAgent():
             except Exception as e:
                 raise ValueError("Graph Compile Error! Cannot invoke agent.")
 
-        graph_output = self.compiled_graph.invoke(messages)
+        graph_output = self.compiled_graph.invoke(messages, {"recursion_limit": 15})
         return graph_output  # returns full final state of the graph.

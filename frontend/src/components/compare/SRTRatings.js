@@ -21,14 +21,14 @@ const ratingColor = (value) => {
     return `rgb(${r},${g},${b})`;
 };
 
-const SRTRatings = ({ srtVals }) => {
+const SRTRatings = ({ srtVals, title = "Course Ratings" }) => {
     if (!srtVals) return null;
 
     const ratings = typeof srtVals === "string" ? JSON.parse(srtVals) : srtVals;
 
     return (
         <div>
-            <h3 className="text-white text-lg font-bold mb-4">Course Ratings</h3>
+            <h3 className="text-white text-lg font-bold mb-4">{title}</h3>
 
             <div className="space-y-3">
                 {Object.entries(SRT_LABELS).map(([key, label]) => {

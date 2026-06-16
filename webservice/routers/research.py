@@ -4,6 +4,7 @@ from typing import List, Optional
 from dotenv import load_dotenv
 import os
 import logging
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 if not logger.handlers:
@@ -30,6 +31,51 @@ class ResearchResponse(BaseModel):
     results: List[ResearchResult]
     source: str
     summary: Optional[str] = None
+
+
+UMN_RESEARCH_HOST_KEYWORDS = (
+    "umn.edu",
+)
+
+
+RESEARCH_PATH_HINTS = (
+    "research",
+    "urop",
+    "reu",
+    "lab",
+    "faculty",
+    "undergraduate-research",
+    "opportunities",
+)
+
+
+EXCLUDED_URL_HINTS = (
+    "indeed.com",
+    "handshake.com",
+    "jobs",
+    "job",
+    "internship",
+    "internships",
+    "course-search",
+    "publiccoursesearchdetails",
+)
+
+
+def _is_umn_url(url: str) -> bool:
+    host = (urlparse(url).netloc or "").lower()
+    return any(keyword in host for keyword in UMN_RESEARCH_HOST_KEYWORDS)
+
+
+def _looks_like_umn_research_result(title: str, url: str, snippet: str) -> bool:
+    combined = f"{title} {url} {snippet}".lower()
+
+    if not _is_umn_url(url):
+        return False
+
+    if any(hint in combined for hint in EXCLUDED_URL_HINTS):
+        return False
+
+    return any(hint in combined for hint in RESEARCH_PATH_HINTS)
 
 
 def run_research_query(request: ResearchRequest) -> ResearchResponse:
@@ -65,11 +111,14 @@ def run_research_query(request: ResearchRequest) -> ResearchResponse:
     try:
         from autonomy.llm.openai_llm import OpenAILLM
         from langchain_tavily import TavilySearch
+        from autonomy.llm.factory import get_llm
 
-        llm = OpenAILLM(model_name="gpt-4o").get_model()
+        llm = get_llm().get_model()
         search = TavilySearch(
             max_results=str(request.max_results),
-            include_domains=["umn.edu", "nsf.gov", "pathwaystoscience.org", "undergraduateresearch.umn.edu", "research.gov", "indeed.com", "handshake.com"],
+            topic="general",
+            search_depth="advanced",
+            include_domains=["umn.edu", "ugresearch.umn.edu", "cse.umn.edu", "med.umn.edu", "twin-cities.umn.edu", "d.umn.edu"],
         )
 
         raw = search.run(request.query)
@@ -140,13 +189,17 @@ def run_research_query(request: ResearchRequest) -> ResearchResponse:
                 url = ""
                 snippet = clean_text(str(item))
 
-            results.append(
-                ResearchResult(
-                    title=title or "Untitled",
-                    url=url or "",
-                    snippet=snippet[:500],
+            if _looks_like_umn_research_result(title, url, snippet):
+                results.append(
+                    ResearchResult(
+                        title=title or "Untitled",
+                        url=url or "",
+                        snippet=snippet[:500],
+                    )
                 )
-            )
+
+        if not results:
+            logger.info("No filtered UMN research results found; returning empty result set")
 
         logger.info("Tavily search returned %d results", len(results))
 

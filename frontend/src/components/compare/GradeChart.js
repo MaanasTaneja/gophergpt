@@ -22,7 +22,7 @@ const CustomTooltip = ({ active, payload, label }) => {
     );
 };
 
-const GradeChart = ({ grades }) => {
+const GradeChart = ({ grades, title = "Grade Distribution" }) => {
     if (!grades) return null;
 
     const chartData = GRADE_ORDER
@@ -31,7 +31,7 @@ const GradeChart = ({ grades }) => {
 
     return (
         <div>
-            <h3 className="text-white text-lg font-bold mb-4">Grade Distribution</h3>
+            <h3 className="text-white text-lg font-bold mb-4">{title}</h3>
 
             <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={chartData} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>

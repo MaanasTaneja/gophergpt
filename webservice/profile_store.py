@@ -35,6 +35,7 @@ def get_profile(user_id: str) -> dict:
     return profiles.get(user_id, {
         "user_id": user_id,
         "major": "",
+        "level": "",
         "year": "",
         "personalization_notes": "",
     })
@@ -47,6 +48,7 @@ def save_profile(user_id: str, profile_data: dict) -> dict:
     profiles[user_id] = {
         "user_id": user_id,
         "major": profile_data.get("major", ""),
+        "level": profile_data.get("level", ""),
         "year": profile_data.get("year", ""),
         "personalization_notes": profile_data.get("personalization_notes", ""),
     }

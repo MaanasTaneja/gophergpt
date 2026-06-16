@@ -69,6 +69,104 @@ function ResearchCard({ item }) {
     );
 }
 
+function ProfCompareCard({ item }) {
+    const profs = Array.isArray(item.profs) ? item.profs : [];
+    const summary = item.summary || "";
+
+    return (
+        <div className="mt-4 overflow-hidden rounded-2xl border border-[#4a1020] bg-gradient-to-br from-[#1e0a10] via-[#17080e] to-[#10050a] shadow-[0_18px_50px_rgba(122,0,25,0.25)]">
+            <div className="border-b border-[#4a1020] bg-[radial-gradient(circle_at_top_left,_rgba(122,0,25,0.25),_transparent_42%)] px-5 py-5">
+                <p className="text-[11px] uppercase tracking-[0.28em] text-gold/80">Professor Compare</p>
+                <h3 className="mt-2 text-2xl font-semibold leading-tight text-white">
+                    {profs.map(p => p.name).join(" vs ")}
+                </h3>
+                {summary && (
+                    <p className="mt-4 max-w-4xl text-sm leading-7 text-gray-300">{summary}</p>
+                )}
+            </div>
+
+            <div className={`grid gap-6 p-5 ${profs.length >= 2 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}>
+                {profs.map((prof) => {
+                    const data = prof.data || {};
+                    const distributions = Array.isArray(data.distributions) ? data.distributions : [];
+                    const rmpScore = data.RMP_score ?? null;
+                    const rmpLink = data.RMP_link ?? null;
+
+                    // Aggregate grades across all of this prof's distributions
+                    const aggregatedGrades = {};
+                    distributions.forEach(dist => {
+                        Object.entries(dist.grades || {}).forEach(([grade, count]) => {
+                            aggregatedGrades[grade] = (aggregatedGrades[grade] || 0) + count;
+                        });
+                    });
+
+                    // Pick SRT from the distribution with the most survey responses
+                    let bestSRT = null;
+                    let maxResp = 0;
+                    distributions.forEach(dist => {
+                        if (!dist.srt_vals) return;
+                        try {
+                            const srt = typeof dist.srt_vals === "string" ? JSON.parse(dist.srt_vals) : dist.srt_vals;
+                            if ((srt.RESP || 0) > maxResp) { maxResp = srt.RESP; bestSRT = srt; }
+                        } catch {}
+                    });
+
+                    // Unique courses by course_num
+                    const seen = new Set();
+                    const courses = distributions.filter(d => {
+                        if (seen.has(d.course_num)) return false;
+                        seen.add(d.course_num); return true;
+                    });
+
+                    return (
+                        <div key={prof.code} className="rounded-xl border border-[#3a1018] bg-[#1a0810] p-4">
+                            <h4 className="text-lg font-bold text-gold mb-1">{prof.name}</h4>
+
+                            {rmpScore !== null && (
+                                <p className="text-sm text-gray-400 mb-4">
+                                    RateMyProfessors:{" "}
+                                    {rmpLink
+                                        ? <a href={rmpLink} target="_blank" rel="noreferrer" className="font-semibold text-white underline hover:text-gold">{Number(rmpScore).toFixed(1)} / 5</a>
+                                        : <span className="font-semibold text-white">{Number(rmpScore).toFixed(1)} / 5</span>
+                                    }
+                                </p>
+                            )}
+
+                            {courses.length > 0 && (
+                                <div className="mb-4">
+                                    <p className="text-xs uppercase tracking-wide text-[#a06070] mb-1.5">Courses Taught</p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {courses.slice(0, 8).map(d => (
+                                            <span key={d.course_num} title={d.class_desc} className="rounded-full bg-[#2a0d15] border border-[#4a1020] px-2.5 py-0.5 text-xs text-gold cursor-default">
+                                                {d.course_num}
+                                            </span>
+                                        ))}
+                                        {courses.length > 8 && (
+                                            <span className="rounded-full bg-[#2a0d15] border border-[#4a1020] px-2.5 py-0.5 text-xs text-gray-500">
+                                                +{courses.length - 8} more
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {Object.keys(aggregatedGrades).length > 0 && (
+                                <GradeChart grades={aggregatedGrades} title="Grade Distribution (All Courses)" />
+                            )}
+
+                            {bestSRT && (
+                                <div className="mt-6">
+                                    <SRTRatings srtVals={bestSRT} title="Teaching Ratings" />
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
 function CourseCompareCard({ item }) {
     const courses = Array.isArray(item.courses) ? item.courses : [];
     const summary = item.summary || "";
@@ -114,6 +212,7 @@ export default function RichContent({ content = [] }) {
             {content.map((item, index) => {
                 if (item.type === "research") return <ResearchCard key={index} item={item} />;
                 if (item.type === "compare") return <CourseCompareCard key={index} item={item} />;
+                if (item.type === "prof_compare") return <ProfCompareCard key={index} item={item} />;
                 return null;
             })}
         </div>

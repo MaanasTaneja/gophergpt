@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
 
-const YEAR_OPTIONS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate", "PhD", "Other"];
+const LEVEL_OPTIONS = ["Undergraduate", "Graduate", "PhD"];
 
-const emptyProfile = { major: "", year: "", personalization_notes: "" };
+const YEAR_OPTIONS_BY_LEVEL = {
+  Undergraduate: ["Freshman", "Sophomore", "Junior", "Senior"],
+  Graduate: ["Year 1", "Year 2", "Year 3", "Year 4+"],
+  PhD: ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5+"],
+};
+
+const emptyProfile = { major: "", level: "", year: "", personalization_notes: "" };
 
 export default function ProfileSettings({ userId, onClose }) {
   const [profile, setProfile] = useState(emptyProfile);
@@ -17,6 +23,7 @@ export default function ProfileSettings({ userId, onClose }) {
         if (data.ok && data.profile) {
           setProfile({
             major: data.profile.major || "",
+            level: data.profile.level || "",
             year: data.profile.year || "",
             personalization_notes: data.profile.personalization_notes || "",
           });
@@ -87,25 +94,51 @@ export default function ProfileSettings({ userId, onClose }) {
             />
           </div>
 
-          {/* Year */}
+          {/* Academic Level */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1.5">Year</label>
+            <label className="block text-sm text-gray-400 mb-1.5">Academic Level</label>
             <div className="flex flex-wrap gap-2">
-              {YEAR_OPTIONS.map((y) => (
+              {LEVEL_OPTIONS.map((l) => (
                 <button
-                  key={y}
-                  onClick={() => update("year", profile.year === y ? "" : y)}
+                  key={l}
+                  onClick={() => {
+                    const newLevel = profile.level === l ? "" : l;
+                    update("level", newLevel);
+                    update("year", "");
+                  }}
                   className={`px-4 py-2 rounded-full text-sm border transition ${
-                    profile.year === y
+                    profile.level === l
                       ? "bg-gold text-[#1a0810] border-gold font-semibold"
                       : "border-gray-700 text-gray-400 hover:border-gold/50 hover:text-white"
                   }`}
                 >
-                  {y}
+                  {l}
                 </button>
               ))}
             </div>
           </div>
+
+          {/* Year */}
+          {profile.level && YEAR_OPTIONS_BY_LEVEL[profile.level] && (
+            <div>
+              <label className="block text-sm text-gray-400 mb-1.5">Year</label>
+              <div className="flex flex-wrap gap-2">
+                {YEAR_OPTIONS_BY_LEVEL[profile.level].map((y) => (
+                  <button
+                    key={y}
+                    onClick={() => update("year", profile.year === y ? "" : y)}
+                    className={`px-4 py-2 rounded-full text-sm border transition ${
+                      profile.year === y
+                        ? "bg-gold text-[#1a0810] border-gold font-semibold"
+                        : "border-gray-700 text-gray-400 hover:border-gold/50 hover:text-white"
+                    }`}
+                  >
+                    {y}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Notes */}
           <div>
