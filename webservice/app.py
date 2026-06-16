@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from autonomy.agent.react_agent import ReActAgent
 from autonomy.llm.openai_llm import OpenAILLM
+from autonomy.llm.factory import get_llm
 from autonomy.tools.base import ToolkitManager 
 
 from dotenv import load_dotenv
@@ -265,7 +266,7 @@ class ChatAgent:
         load_dotenv()
         os.environ["TAVILY_API_KEY"] = os.getenv("TAVILY_API_KEY")
 
-        self.llm = OpenAILLM(model_name="gpt-4o", temperature=0.2).get_model()
+        self.llm = get_llm().get_model()
         search_tool = TavilySearch(max_results=5, topic="general", search_depth="advanced", include_domains=["umn.edu", "reddit.com"])
 
         self.toolkit = ToolkitManager()
@@ -697,7 +698,6 @@ def update_profile_endpoint(request: ProfileRequest):
         "personalization_notes": request.personalization_notes,
     })
     return {"ok": True, "profile": profile}
-
 
 # GopherGrades testing as well as helpers for the agent to better identify when tools are needed
 # This will also push for a better, more detailed response from the agent

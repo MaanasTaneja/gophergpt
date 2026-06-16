@@ -99,8 +99,9 @@ def run_research_query(request: ResearchRequest) -> ResearchResponse:
     try:
         from autonomy.llm.openai_llm import OpenAILLM
         from langchain_tavily import TavilySearch
+        from autonomy.llm.factory import get_llm
 
-        llm = OpenAILLM(model_name="gpt-4o").get_model()
+        llm = get_llm().get_model()
         search = TavilySearch(
             max_results=str(request.max_results),
             topic="general",
