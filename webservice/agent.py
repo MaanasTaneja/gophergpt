@@ -4,45 +4,31 @@ from langchain_tavily import TavilySearch
 from dotenv import load_dotenv
 
 from autonomy.agent.react_agent import ReActAgent
-from autonomy.llm.openai_llm import OpenAILLM
-from autonomy.tools.base import ToolkitManager 
+from autonomy.llm.factory import get_llm
+from autonomy.tools.base import ToolkitManager
 
 from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
 from autonomy.tools.umn_rooms_tool import umn_room_booking
-from autonomy.tools.rag_tools import rag_search
+
 
 class ChatAgent:
-    """
-    Wrapper around ReAct agent that handles tool registration and messages invocation
-    """
     def __init__(self, name="Assistant"):
-        """
-        Initializes the LLM, registers all tools, and builds ReAct agent
-
-        Args:
-            name: display name for the agent, defaults to "Assistant"
-        """
         self.name = name
 
         load_dotenv()
         os.environ["TAVILY_API_KEY"] = os.getenv("TAVILY_API_KEY")
 
-        self.llm = OpenAILLM(model_name="gpt-4o").get_model()
-        search_tool = TavilySearch(max_results=5, topic="general", include_domains=["umn.edu"])
+        self.llm = get_llm().get_model()
+        search_tool = TavilySearch(max_results=5, topic="general", search_depth="advanced", include_domains=["umn.edu", "reddit.com"])
 
         self.toolkit = ToolkitManager()
 
         self.toolkit.register_tools([search_tool], type="other")
 
-        # Adding gopherGrade tools to agent
         gopherGradeTools = [gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept]
         self.toolkit.register_tools(gopherGradeTools, type="retriever")
 
-        # Adding UMN room booking tool
         self.toolkit.register_tool(umn_room_booking, type="other")
-
-        # Adding RAG search tool
-        self.toolkit.register_tool(rag_search, type="retriever")
 
         self.react_agent = ReActAgent(llm=self.llm, toolkit=self.toolkit,
                                       system_prompt=(
@@ -79,6 +65,11 @@ class ChatAgent:
                                           "\n\n**St. Paul Campus**"
                                           "\n- **Magrath Library**: Cozy, uncrowded. [Google Maps](https://www.google.com/maps/search/Magrath+Library+University+of+Minnesota) | [Campus Map](https://campusmaps.umn.edu/magrath-library) | [Reserve a Room](https://libcal.lib.umn.edu/spaces?lid=3607)"
                                           "\n\nBrowse all available spaces in real time at [UMN Study Space Finder](https://studyspace.umn.edu)."
+                                          "\n\nCOURSE RECOMMENDATIONS:"
+                                          "\n- If the user mentions they are currently enrolled in or planning to take a course, treat ALL of that course's prerequisites as already completed. Do NOT recommend them."
+                                          "\n- If the user mentions courses they have already taken (e.g. in their profile notes), never recommend those courses."
+                                          "\n- When recommending a course that has prerequisites, only list prereqs the user has NOT clearly already satisfied."
+                                          "\n- Example: if a user is enrolled in CSCI 4511W (which requires CSCI 4041), never recommend CSCI 4041 — they must have it."
                                           "\n\nRESPONSE STYLE:"
                                           "\n- Be concise and direct. Lead with the most useful insight."
                                           "\n- For grade data: highlight A/B rates, average GPA context, and any standout patterns."
@@ -91,30 +82,9 @@ class ChatAgent:
                                           "the Department Explorer tab in the sidebar for full department breakdowns."
                                       ))
 
-    
-    def invoke(self, message: str, history: list = []) -> str: 
-        """ 
-        Sends a message to the agent along with conversation history
-
-        Args:
-            message: the user's messages to send to the agent
-            history: list of prior conversation messages, defaults to empty
-
-        Returns:
-            the agent's response as a string
-        """
-
-        # Cap history to last 10 messages to avoid context overflow
+    def invoke(self, message: str, history: list = []) -> str:
         capped_history = history[-10:] if len(history) > 10 else history
-
-        # prepends all prior messages to pass into agent
         messages = capped_history + [{"role": "user", "content": message}]
-
-        # runs agent with full history instead of current
         final_state = self.react_agent.invoke_agent({"messages": messages})
-
-        # grabs agent final response from output, last thought, most refined answer.
         generation = final_state["messages"][-1].content
-
-        # sends response to endpoint
         return generation
