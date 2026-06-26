@@ -230,7 +230,7 @@ function App() {
   // End of History
 
   return (
-    <div className="flex h-screen overflow-hidden bg-dark-gray text-white">
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "#1a1718", color: "#fff" }}>
       <Sidebar
         onNewChat={handleNewChat}
         onNavigate={setCurrentPage}
@@ -254,6 +254,7 @@ function App() {
             setInputValue={setInputValue}
             onSend={sendMessage}
             onSendDirect={sendDirect}
+            onNavigate={setCurrentPage}
           />
         )}
         {currentPage === "department" && <DepartmentExplorer />}
