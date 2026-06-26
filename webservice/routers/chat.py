@@ -30,9 +30,19 @@ SCHEDULING_KEYWORDS = {
     "what sections", "lib ed", "lib-ed", "open sections", "taking"
 }
 
+GRADE_KEYWORDS = {
+    "grade", "grades", "gpa", "distribution", "how hard", "difficult",
+    "easy", "grading", "pass rate", "a rate", "grade breakdown",
+    "how tough", "grade in", "grades in", "historically",
+}
+
 def _is_scheduling_request(message: str) -> bool:
     lower = message.lower()
     return any(kw in lower for kw in SCHEDULING_KEYWORDS)
+
+def _is_grade_query(message: str) -> bool:
+    lower = message.lower()
+    return any(kw in lower for kw in GRADE_KEYWORDS)
 
 def _extract_term(message: str) -> str:
     lower = message.lower()
@@ -93,6 +103,52 @@ class ConversationRequest(BaseModel):
     id: int
     title: str
     messages: list
+
+def _generate_follow_ups(message: str, course_codes: list, response_type: str = "general") -> list:
+    """Generate contextual follow-up chip suggestions based on request content."""
+    primary = course_codes[0] if course_codes else None
+    lower = message.lower()
+
+    if response_type == "schedule" and primary:
+        return [
+            f"Who teaches {primary} with the best ratings?",
+            f"What are the prerequisites for {primary}?",
+            "Find a conflict-free schedule",
+        ]
+
+    if response_type == "grades" and primary:
+        return [
+            f"Who teaches {primary} with the best grades?",
+            f"What sections of {primary} are open this fall?",
+            f"Compare {primary} to a similar course",
+        ]
+
+    if primary:
+        if any(kw in lower for kw in ("who teaches", "professor", "instructor", "prof")):
+            return [
+                f"What are the grade distributions in {primary}?",
+                f"What sections of {primary} are open this fall?",
+                f"What are the prerequisites for {primary}?",
+            ]
+        return [
+            f"What sections of {primary} are open this fall?",
+            f"Who teaches {primary} with the best grades?",
+            f"What are the prerequisites for {primary}?",
+        ]
+
+    if any(kw in lower for kw in ("professor", "prof", "instructor")):
+        return [
+            "What courses does this professor teach?",
+            "How do grades compare across instructors?",
+            "When does this professor teach next semester?",
+        ]
+
+    return [
+        "What courses should I take next semester?",
+        "Who are the highest-rated professors in CS?",
+        "How do I find courses that fit my schedule?",
+    ]
+
 
 def extract_course_codes(text):
     """
@@ -262,6 +318,15 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
 
         summary_text = summarize_research_text(research_data.summary, limit=200)
 
+        # Build topic-specific follow-ups for research responses
+        topic_words = re.sub(r'(research|opportunities?|programs?|university of minnesota|umn)', '', raw_query, flags=re.IGNORECASE).strip()
+        topic = topic_words[:40] if topic_words else "this field"
+        research_follow_ups = [
+            f"What are the application requirements?",
+            f"Which labs accept undergraduates in {topic}?",
+            f"How do I contact faculty researchers?",
+        ]
+
         return {
             "response": "Here's a research snapshot with the strongest matches I found.",
             "content": [
@@ -277,7 +342,8 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
                         for result in unique_results
                     ][:6]
                 }
-            ]
+            ],
+            "follow_ups": research_follow_ups,
         }
 
     # Detect course comparison requests
@@ -304,24 +370,58 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
                 "Do NOT mention any numbers, grades, or ratings — those are already in the charts.]"
             )
             ai_summary = agent.invoke(guided_message, history=history)
+            codes = course_codes[:2]
+            compare_follow_ups = [
+                f"Who teaches {codes[0]} with the highest grades?" if codes else "Who gives the best grades?",
+                f"What are the prerequisites for {codes[0]}?" if codes else "What are the prerequisites?",
+                f"Which course is better for my major?",
+            ]
             return {
                 "response": "",
-                "content": [{"type": "compare", "courses": courses, "summary": ai_summary}]
+                "content": [{"type": "compare", "courses": courses, "summary": ai_summary}],
+                "follow_ups": compare_follow_ups,
             }
 
-    full_message = f"{profile_context}\n\nUser message:\n{request.message}" if profile_context else request.message
-    response = agent.invoke(full_message, history=history)
+    # Grade distribution: fetch from GopherGrades and return a visual card
+    # Only trigger when there's a clear grade-related keyword AND a course code,
+    # and only when it's not already handled as a compare request.
+    if _is_grade_query(request.message) and course_codes and not is_compare_request:
+        grade_courses = []
+        for code in course_codes[:2]:
+            try:
+                class_result = json.loads(gophergrades_class.invoke(code))
+                if class_result.get("data"):
+                    grade_courses.append({"code": code, "data": class_result["data"]})
+            except Exception:
+                pass
+        if grade_courses:
+            code_list = ", ".join(c["code"] for c in grade_courses)
+            return {
+                "response": f"Here are the historical grade distributions for {code_list}.",
+                "content": [{"type": "grades", "courses": grade_courses}],
+                "follow_ups": _generate_follow_ups(request.message, course_codes, "grades"),
+            }
 
-    content = []
+    # Scheduling: resolve section data BEFORE calling the agent so we can return early
+    # (avoids the agent writing out sections as prose text alongside the card)
     if _is_scheduling_request(request.message) and len(course_codes) >= 1:
         term = _extract_term(request.message)
         schedule_data = _fetch_schedule_data(course_codes, term)
         if schedule_data:
-            content.append({"type": "schedule", "courses": schedule_data})
+            codes_str = ", ".join(c["code"] for c in schedule_data)
+            return {
+                "response": f"Here are the live sections for {codes_str} — {term.title()}.",
+                "content": [{"type": "schedule", "courses": schedule_data}],
+                "follow_ups": _generate_follow_ups(request.message, course_codes, "schedule"),
+            }
+
+    full_message = f"{profile_context}\n\nUser message:\n{request.message}" if profile_context else request.message
+    raw_response = agent.invoke(full_message, history=history)
 
     return {
-        "response": response,
-        "content": content
+        "response": raw_response.strip(),
+        "content": [],
+        "follow_ups": _generate_follow_ups(request.message, course_codes),
     }
 
 # Implementing History Permanent Storage 

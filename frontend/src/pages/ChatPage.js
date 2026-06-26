@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { BookOpen, ArrowLeftRight, User, FlaskConical, TrendingUp, BarChart2, Calendar, Clock, LayoutGrid } from "lucide-react";
+import { BookOpen, ArrowLeftRight, User, FlaskConical, GraduationCap, MessageSquare, Calendar, Clock, LayoutGrid } from "lucide-react";
 import ChatWindow from "../components/ChatWindow";
 import ChatInput from "../components/ChatInput";
 
@@ -10,14 +10,15 @@ const STARTERS = [
   { label: "Research opportunities in computer science", sub: "UMN research programs", Icon: FlaskConical },
 ];
 
-const STATS = [
-  { Icon: TrendingUp, label: "Cumulative GPA", value: "3.74", sub: "Top 18% in CSCI", progress: null },
-  { Icon: BarChart2, label: "Credits", value: "78", valueSuffix: "/ 120", sub: null, progress: 65 },
-  { Icon: Calendar, label: "This Semester", value: "15 cr", sub: "4 active courses", progress: null },
-  { Icon: Clock, label: "Next Class", value: "CSCI 4041", valueSm: true, sub: "Tue · 10:10 AM · Keller", progress: null },
-];
+function getCurrentTerm() {
+  const month = new Date().getMonth() + 1;
+  const year = new Date().getFullYear();
+  if (month <= 5) return { label: "Spring", year };
+  if (month <= 8) return { label: "Summer", year };
+  return { label: "Fall", year };
+}
 
-const StatCard = ({ Icon, label, value, valueSuffix, valueSm, sub, progress }) => (
+const StatCard = ({ Icon, label, value, valueSuffix, valueSm, sub, progress, dim }) => (
   <div style={{
     background: "#252122", border: "1px solid rgba(255,255,255,.07)",
     borderRadius: 14, padding: "15px 17px",
@@ -26,9 +27,15 @@ const StatCard = ({ Icon, label, value, valueSuffix, valueSm, sub, progress }) =
       <Icon size={13} style={{ color: "#FFCC33" }} />
       <span style={{ fontSize: 11.5, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".04em", color: "#9a9294" }}>{label}</span>
     </div>
-    <div style={{ fontSize: valueSm ? 19 : 25, fontWeight: 700, color: "#fff", letterSpacing: "-.02em", lineHeight: 1.1, marginBottom: sub || progress != null ? 6 : 0 }}>
+    <div style={{
+      fontSize: valueSm ? 17 : 22, fontWeight: 700,
+      color: dim ? "#6c6466" : "#fff",
+      letterSpacing: "-.02em", lineHeight: 1.15,
+      marginBottom: sub || progress != null ? 6 : 0,
+      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+    }}>
       {value}
-      {valueSuffix && <span style={{ fontSize: 15, fontWeight: 400, color: "#8f878a", marginLeft: 4 }}>{valueSuffix}</span>}
+      {valueSuffix && <span style={{ fontSize: 14, fontWeight: 400, color: "#8f878a", marginLeft: 4 }}>{valueSuffix}</span>}
     </div>
     {progress != null && (
       <div style={{ height: 4, borderRadius: 999, background: "rgba(255,255,255,.09)", marginBottom: 6 }}>
@@ -71,7 +78,42 @@ const StarterCard = ({ label, sub, Icon, onFill }) => {
   );
 };
 
-const HomeView = ({ onFill, onNavigate }) => (
+const HomeView = ({ onFill, onNavigate, profile, conversationCount }) => {
+  const term = getCurrentTerm();
+  const major = profile?.major;
+  const year = profile?.year;
+  const level = profile?.level;
+
+  const greetingSub = major && year
+    ? `You're a ${year} in ${major} — ask about classes, grades, or what to take next.`
+    : "Your AI guide to courses, professors, and research at the U of M. Ask about classes, grades, or what to take next.";
+
+  const stats = [
+    {
+      Icon: GraduationCap, label: "Major",
+      value: major || "Not set", valueSm: true,
+      sub: major ? "Field of study" : "Set in profile →",
+      dim: !major,
+    },
+    {
+      Icon: User, label: "Year",
+      value: year || "Not set", valueSm: true,
+      sub: level || (year ? "Level" : "Set in profile →"),
+      dim: !year,
+    },
+    {
+      Icon: MessageSquare, label: "Conversations",
+      value: String(conversationCount),
+      sub: conversationCount === 1 ? "Chat saved" : "Chats saved",
+    },
+    {
+      Icon: Calendar, label: "Current Term",
+      value: term.label, valueSuffix: String(term.year),
+      sub: "Active semester",
+    },
+  ];
+
+  return (
   <div>
     {/* Greeting banner */}
     <div style={{
@@ -95,20 +137,20 @@ const HomeView = ({ onFill, onNavigate }) => (
         padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 600,
       }}>
         <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#5ad17f", boxShadow: "0 0 0 3px rgba(90,209,127,.18)" }} />
-        Summer 2026
+        {term.label} {term.year}
       </div>
 
       <h1 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-.02em", margin: "0 0 8px", lineHeight: 1.2 }}>
         Welcome back to <span style={{ color: "#FFCC33" }}>GopherGPT</span>
       </h1>
       <p style={{ fontSize: 14, color: "#c9bfc1", margin: 0, maxWidth: 560, lineHeight: 1.5 }}>
-        Your AI guide to courses, professors, and research at the U of M. Ask about classes, grades, or what to take next.
+        {greetingSub}
       </p>
     </div>
 
     {/* Stats row */}
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 24 }}>
-      {STATS.map((s) => <StatCard key={s.label} {...s} />)}
+      {stats.map((s) => <StatCard key={s.label} {...s} />)}
     </div>
 
     {/* Jump back in */}
@@ -132,7 +174,8 @@ const HomeView = ({ onFill, onNavigate }) => (
       <DeptBanner onNavigate={onNavigate} />
     </div>
   </div>
-);
+  );
+};
 
 const DeptBanner = ({ onNavigate }) => {
   const [hovered, setHovered] = React.useState(false);
@@ -181,6 +224,8 @@ const ChatPage = ({
   onSend,
   onSendDirect,
   onNavigate,
+  profile,
+  conversationCount,
 }) => {
   const isEmpty = messages.length === 0 && !isLoading && !isTyping;
   const textareaRef = useRef(null);
@@ -191,16 +236,16 @@ const ChatPage = ({
   };
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
 
       {/* Scrollable content area */}
       <div
         ref={chatContainerRef}
-        style={{ flex: 1, overflowY: "auto", padding: isEmpty ? "34px 40px 24px" : "28px 40px 24px" }}
+        style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: isEmpty ? "34px 40px 24px" : "28px 40px 24px" }}
       >
         <div style={{ maxWidth: isEmpty ? 1040 : 768, margin: "0 auto" }}>
           {isEmpty ? (
-            <HomeView onFill={fillInput} onNavigate={onNavigate} />
+            <HomeView onFill={fillInput} onNavigate={onNavigate} profile={profile} conversationCount={conversationCount} />
           ) : (
             <ChatWindow
               messages={messages}
@@ -210,6 +255,7 @@ const ChatPage = ({
               loadingLabel={loadingLabel}
               error={error}
               messagesEndRef={messagesEndRef}
+              onSendDirect={onSendDirect}
             />
           )}
         </div>

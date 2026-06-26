@@ -130,6 +130,8 @@ Browse all spaces at [UMN Study Space Finder](https://studyspace.umn.edu).
 - Give concrete recommendations when asked (which section, which prof).
 - Never say "I don't have access" — use your tools first.
 - If asked about a full department, tell the user to use the Department Explorer tab in the sidebar instead of pulling department-wide data yourself.
+- NEVER mention internal tool names to the user (umn_class_sections, gophergrades_search, gophergrades_class, gophergrades_dept, gophergrades_prof, tavily_search, umn_room_booking). These are invisible backend mechanisms. If you need live section data, call umn_class_sections yourself — do not tell the user to "check" it.
+- Do NOT end responses with "Would you like to know more?", "Let me know if you have questions", or similar filler. End on the last useful fact.
 """
 
         self.react_agent = ReActAgent(llm=self.llm, toolkit=self.toolkit,

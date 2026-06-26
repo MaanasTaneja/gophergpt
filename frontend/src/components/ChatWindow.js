@@ -2,7 +2,7 @@ import React from "react";
 import { Message } from "./Message";
 import { LoadingIndicator } from "./LoadingIndicator";
 
-const ChatWindow = ({ messages, isTyping, typingMessage, isLoading, loadingLabel, error, messagesEndRef }) => (
+const ChatWindow = ({ messages, isTyping, typingMessage, isLoading, loadingLabel, error, messagesEndRef, onSendDirect }) => (
   <div>
     {messages.map((message, index) => (
       <Message
@@ -10,6 +10,8 @@ const ChatWindow = ({ messages, isTyping, typingMessage, isLoading, loadingLabel
         message={message.text}
         isUser={message.isUser}
         content={message.content}
+        followUps={message.followUps}
+        onSendDirect={onSendDirect}
       />
     ))}
     {isTyping && typingMessage && (
