@@ -2,11 +2,55 @@ from fastapi import APIRouter
 from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_dept
 from pydantic import BaseModel
 
+from autonomy.tools.umn_courses_tool import umn_class_sections
+
 import json
 import statistics
 import re
 
 router = APIRouter()
+
+KNOWN_REQUIRED_DEPT_COURSES = {
+    "CSCI": {"1133", "1913", "1933", "2011", "2021", "2033", "2041", "4041"},
+    "MATH": {"1271", "1272", "1371", "1372", "1571", "1572", "2243", "2263", "2373", "2374", "3283W"},
+    "STAT": {"3011", "3021", "3032", "5101"},
+    "BIOL": {"1951", "1961", "2003", "2004"},
+    "CHEM": {"1015", "1061", "1062", "2301", "2302"},
+    "PHYS": {"1301W", "1302W", "1401V", "1402V"},
+}
+
+def _course_level(course_num):
+    match = re.match(r"(\d{4})", str(course_num))
+    if not match:
+        return None
+    return int(match.group(1))
+
+def _is_popular_elective_candidate(course, dept_code):
+    course_num = str(course.get("course_num") or "").upper()
+    title = str(course.get("title") or "").lower()
+    description = str(course.get("description") or "").lower()
+    level = _course_level(course_num)
+    combined = f"{title} {description}"
+
+    if level is None or level < 3000:
+        return False
+    if course_num in KNOWN_REQUIRED_DEPT_COURSES.get(dept_code, set()):
+        return False
+
+    core_hints = (
+        "introduction to", "intro to", "foundations", "fundamentals",
+        "elementary", "principles", "basic ", "corequisite", "required",
+    )
+    if any(hint in combined for hint in core_hints):
+        return False
+
+    return True
+
+class SectionsLookupRequest(BaseModel):
+    """Request model for course section lookup."""
+    subject: str
+    catalog_number: str
+    term: str
 
 class CourseLookupRequest(BaseModel):
     """Request model for course lookup endpoint."""
@@ -170,16 +214,7 @@ def _build_department_summary(courses):
     }
 
 
-def _build_department_featured(courses):
-    """
-    Builds featured course lists for a department including popular, best rated, and most challenging.
-
-    Args:
-        courses: list of normalized course dicts
-
-    Returns:
-        a dict with popular, best_rated, and most_challenging course lists
-    """
+def _build_department_featured(courses, dept_code=""):
     popular = sorted(
         courses,
         key=lambda course: course.get("total_students", 0),
@@ -201,17 +236,15 @@ def _build_department_featured(courses):
         reverse=True,
     )[:8]
 
-    challenging_pool = [
-        course
-        for course in courses
-        if course["metrics"]["challenge_rate"] is not None
-        and _sum_grade_counts(course.get("grades")) >= 100
+    elective_pool = [
+        course for course in courses
+        if _is_popular_elective_candidate(course, dept_code)
     ]
-    most_challenging = sorted(
-        challenging_pool,
+    popular_electives = sorted(
+        elective_pool,
         key=lambda course: (
-            course["metrics"]["challenge_rate"],
             course.get("total_students", 0),
+            course["metrics"]["recommend"] or 0,
         ),
         reverse=True,
     )[:8]
@@ -219,9 +252,8 @@ def _build_department_featured(courses):
     return {
         "popular": popular,
         "best_rated": best_rated,
-        "most_challenging": most_challenging,
+        "popular_electives": popular_electives,
     }
-
 
 @router.post("/umn/course")
 def lookup_course(request: CourseLookupRequest):
@@ -329,7 +361,7 @@ def lookup_department(request: DepartmentLookupRequest):
                 "name": data.get("dept_name"),
             },
             "summary": _build_department_summary(normalized_courses),
-            "featured": _build_department_featured(normalized_courses),
+            "featured": _build_department_featured(normalized_courses, dept),
             "courses": normalized_courses,
         }
 
@@ -339,3 +371,16 @@ def lookup_department(request: DepartmentLookupRequest):
             "dept": dept,
             "error": str(e)
         }
+
+
+@router.post("/umn/sections")
+def lookup_sections(request: SectionsLookupRequest):
+    try:
+        result = json.loads(umn_class_sections.invoke({
+            "subject": request.subject,
+            "catalog_number": request.catalog_number,
+            "term": request.term
+        }))
+        return {"ok": True, "sections": result}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}

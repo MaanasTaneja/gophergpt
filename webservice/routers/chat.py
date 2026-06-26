@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import datetime
 
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends
@@ -10,6 +11,7 @@ from webservice.personalization import build_personalized_prompt
 from webservice.dependencies import get_agent
 from webservice.agent import ChatAgent
 from autonomy.tools.gophergrades_api import gophergrades_class
+from autonomy.tools.umn_courses_tool import umn_class_sections
 
 
 
@@ -21,6 +23,63 @@ CONVERSATION_FILE = os.path.join(DATA_DIR, "conversations.json") # full path of 
 
 
 router = APIRouter()
+
+SCHEDULING_KEYWORDS = {
+    "schedule", "section", "sections", "conflict", "fits", "fit",
+    "sign up", "register", "enroll", "when does", "what time",
+    "what sections", "lib ed", "lib-ed", "open sections", "taking"
+}
+
+def _is_scheduling_request(message: str) -> bool:
+    lower = message.lower()
+    return any(kw in lower for kw in SCHEDULING_KEYWORDS)
+
+def _extract_term(message: str) -> str:
+    lower = message.lower()
+    m = re.search(r'(fall|spring|summer)\s+(20\d{2})', lower)
+    if m:
+        return f"{m.group(1)} {m.group(2)}"
+    today = datetime.date.today()
+    month = today.month
+    year = today.year
+    if "this fall" in lower or "fall semester" in lower:
+        return f"fall {year}"
+    if "next fall" in lower:
+        return f"fall {year + 1}"
+    if "this spring" in lower or "spring semester" in lower:
+        return f"spring {year}"
+    if "next spring" in lower:
+        return f"spring {year + 1}"
+    if month <= 5:
+        return f"spring {year}"
+    if month <= 8:
+        return f"fall {year}"
+    return f"spring {year + 1}"
+
+def _fetch_schedule_data(course_codes: list, term: str) -> list:
+    courses = []
+    for code in course_codes[:4]:
+        m = re.match(r'^([A-Z]+)(\d+)', code)
+        if not m:
+            continue
+        subject = m.group(1)
+        catalog_number = m.group(2)
+        try:
+            sections_json = umn_class_sections.invoke({
+                "subject": subject,
+                "catalog_number": catalog_number,
+                "term": term
+            })
+            sections = json.loads(sections_json)
+            if isinstance(sections, list) and len(sections) > 0:
+                courses.append({
+                    "code": code,
+                    "term": term,
+                    "sections": sections
+                })
+        except Exception:
+            pass
+    return courses
 
 class ChatRequest(BaseModel):
 
@@ -184,6 +243,8 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
             ]
     
 
+    course_codes = extract_course_codes(request.message)
+
     if re.search(r'rea?sea?rch', message) or is_research_followup(message, history):
         raw_query = request.message if re.search(r'rea?sea?rch', message) else build_research_query(message, history)
         query = _enrich_research_query(raw_query, get_profile(request.user_id) if request.user_id else {})
@@ -220,10 +281,9 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
         }
 
     # Detect course comparison requests
-    course_codes = extract_course_codes(request.message)
     is_compare_request = "compare" in message and len(course_codes) >= 1
 
-    if is_compare_request or len(course_codes) >= 2:
+    if is_compare_request:
         courses = []
         for code in course_codes[:2]:
             try:
@@ -251,9 +311,17 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
 
     full_message = f"{profile_context}\n\nUser message:\n{request.message}" if profile_context else request.message
     response = agent.invoke(full_message, history=history)
+
+    content = []
+    if _is_scheduling_request(request.message) and len(course_codes) >= 1:
+        term = _extract_term(request.message)
+        schedule_data = _fetch_schedule_data(course_codes, term)
+        if schedule_data:
+            content.append({"type": "schedule", "courses": schedule_data})
+
     return {
         "response": response,
-        "content": []
+        "content": content
     }
 
 # Implementing History Permanent Storage 
