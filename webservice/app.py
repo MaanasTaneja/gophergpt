@@ -22,12 +22,21 @@ import statistics
 
 from pydantic import BaseModel
 from fastapi import APIRouter
-from webservice.routers.research import router as research_router, run_research_query, ResearchRequest
+from webservice.routers.research import (
+    router as research_router,
+    run_research_query,
+    ResearchRequest,
+)
 import json
 import re
 
 
-from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
+from autonomy.tools.gophergrades_api import (
+    gophergrades_search,
+    gophergrades_class,
+    gophergrades_prof,
+    gophergrades_dept,
+)
 from webservice.profile_store import init_store, get_profile, save_profile
 from webservice.personalization import build_personalized_prompt
 
@@ -37,30 +46,39 @@ from webservice.personalization import build_personalized_prompt
 # This defines where we are storing the conversation history into.
 # Will be using as a memory cache, to continue dialogue with agent.
 # """
-DATA_DIR = "/app/data" # where the file will be stored
-os.makedirs(DATA_DIR, exist_ok=True) # makes directory if doesn't exist, nothing if does exist
-CONVERSATION_FILE = os.path.join(DATA_DIR, "conversations.json") # full path of where JSON file is stored
+DATA_DIR = os.getenv("DATA_DIR", "/app/data")  # where the file will be stored
+os.makedirs(
+    DATA_DIR, exist_ok=True
+)  # makes directory if doesn't exist, nothing if does exist
+CONVERSATION_FILE = os.path.join(
+    DATA_DIR, "conversations.json"
+)  # full path of where JSON file is stored
 
 
 # GopherGrades Testing Endpoint
 class CourseLookupRequest(BaseModel):
     query: str
 
+
 class ProfessorLookupRequest(BaseModel):
     name: str
+
 
 # class ChatRequest(BaseModel):
 #     message: str
 
+
 class DepartmentLookupRequest(BaseModel):
     dept: str
 
-class ChatRequest(BaseModel):
 
+class ChatRequest(BaseModel):
     message: str
 
     # ensures loading the correct history and not all
-    conversation_id: int | None = None # makes it optional, provide stability to frontend, since no history may exist
+    conversation_id: int | None = (
+        None  # makes it optional, provide stability to frontend, since no history may exist
+    )
     user_id: str | None = None  # optional — used to load profile context
 
 
@@ -121,7 +139,9 @@ def _compute_course_metrics(course):
         # large classes are barely affected.
         _PRIOR_RATE = 0.07
         _PRIOR_WEIGHT = 100
-        challenge_rate = (challenging_count + _PRIOR_WEIGHT * _PRIOR_RATE) / (total_outcomes + _PRIOR_WEIGHT)
+        challenge_rate = (challenging_count + _PRIOR_WEIGHT * _PRIOR_RATE) / (
+            total_outcomes + _PRIOR_WEIGHT
+        )
         withdraw_rate = grades.get("W", 0) / total_outcomes
 
     return {
@@ -141,7 +161,19 @@ def _compute_course_metrics(course):
 
 KNOWN_REQUIRED_DEPT_COURSES = {
     "CSCI": {"1133", "1913", "1933", "2011", "2021", "2033", "2041", "4041"},
-    "MATH": {"1271", "1272", "1371", "1372", "1571", "1572", "2243", "2263", "2373", "2374", "3283W"},
+    "MATH": {
+        "1271",
+        "1272",
+        "1371",
+        "1372",
+        "1571",
+        "1572",
+        "2243",
+        "2263",
+        "2373",
+        "2374",
+        "3283W",
+    },
     "STAT": {"3011", "3021", "3032", "5101"},
     "BIOL": {"1951", "1961", "2003", "2004"},
     "CHEM": {"1015", "1061", "1062", "2301", "2302"},
@@ -214,7 +246,9 @@ def _build_department_summary(courses):
     return {
         "course_count": len(courses),
         "total_students": sum(student_counts),
-        "median_course_size": int(statistics.median(student_counts)) if student_counts else 0,
+        "median_course_size": int(statistics.median(student_counts))
+        if student_counts
+        else 0,
         "courses_with_srt": len(recommend_values),
         "avg_recommend": (
             round(sum(recommend_values) / len(recommend_values), 3)
@@ -266,7 +300,9 @@ def _build_department_featured(courses, dept_code):
         "popular_electives": popular_electives,
     }
 
+
 # History Classes
+
 
 class ConversationRequest(BaseModel):
     id: int
@@ -274,7 +310,8 @@ class ConversationRequest(BaseModel):
     messages: list
 
 
-gopher_assistant  = None
+gopher_assistant = None
+
 
 @asynccontextmanager
 async def lifespan_function(app: FastAPI):
@@ -284,7 +321,7 @@ async def lifespan_function(app: FastAPI):
     Args:
         app: the FastAPI application instance
     """
-    
+
     init_store()
     dependencies.gopher_assistant = ChatAgent()
 
@@ -305,7 +342,8 @@ async def lifespan_function(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan_function)
-app.add_middleware(CORSMiddleware,
+app.add_middleware(
+    CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
@@ -327,9 +365,10 @@ def root():
     """
     return {"message": "The greatest openai wrapper ever made."}
 
+
 def extract_course_codes(text):
     """Extract normalized UMN course codes (e.g. CSCI4041, CSCI3081W) from a message."""
-    pattern = r'\b([A-Z]{2,6})\s*(\d{4}[A-Z]?)\b'
+    pattern = r"\b([A-Z]{2,6})\s*(\d{4}[A-Z]?)\b"
     seen = []
     for m in re.finditer(pattern, text.upper()):
         code = f"{m.group(1)}{m.group(2)}"
@@ -341,15 +380,18 @@ def extract_course_codes(text):
 def extract_prof_names(message):
     """Extract two professor name candidates from a compare request."""
     m = re.search(
-        r'compare\s+(?:professors?\s+|profs?\s+)?(.+?)\s+(?:and|vs\.?|versus)\s+(?:professors?\s+|profs?\s+)?(.+?)(?:\s*[\?.]?$)',
-        message, re.IGNORECASE
+        r"compare\s+(?:professors?\s+|profs?\s+)?(.+?)\s+(?:and|vs\.?|versus)\s+(?:professors?\s+|profs?\s+)?(.+?)(?:\s*[\?.]?$)",
+        message,
+        re.IGNORECASE,
     )
     if not m:
         return []
     name1 = m.group(1).strip().rstrip(".,?!")
     name2 = m.group(2).strip().rstrip(".,?!")
     # Skip if either looks like a course code
-    if re.match(r'^[A-Za-z]{2,6}\s*\d{4}', name1) or re.match(r'^[A-Za-z]{2,6}\s*\d{4}', name2):
+    if re.match(r"^[A-Za-z]{2,6}\s*\d{4}", name1) or re.match(
+        r"^[A-Za-z]{2,6}\s*\d{4}", name2
+    ):
         return []
     if len(name1) < 3 or len(name2) < 3:
         return []
@@ -359,6 +401,7 @@ def extract_prof_names(message):
 def _search_prof_code(name):
     """Search for a professor by name, return (code, display_name) or None."""
     import logging
+
     log = logging.getLogger(__name__)
     try:
         raw = gophergrades_search.invoke(name)
@@ -381,7 +424,10 @@ def _search_prof_code(name):
                 for item in obj:
                     if isinstance(item, dict):
                         # item itself might be an instructor record
-                        if any(k in item for k in ("instructor_id", "prof_id", "slug", "full_name")):
+                        if any(
+                            k in item
+                            for k in ("instructor_id", "prof_id", "slug", "full_name")
+                        ):
                             candidates.append(item)
                         else:
                             _extract_instructors(item)
@@ -408,27 +454,34 @@ def _search_prof_code(name):
                 return str(code), display
     except Exception as e:
         import logging as _log
+
         _log.getLogger(__name__).exception("Prof search failed for %r", name)
     return None
 
 
 def is_research_followup(message, history):
     """Returns True if this looks like a follow-up to a prior research query."""
-    if not re.match(r'^(what|how)\s+about|^and\b|^what if', message.strip(), re.IGNORECASE):
+    if not re.match(
+        r"^(what|how)\s+about|^and\b|^what if", message.strip(), re.IGNORECASE
+    ):
         return False
     recent = history[-6:] if len(history) > 6 else history
-    return any(re.search(r'rea?sea?rch', msg["content"].lower()) for msg in recent)
+    return any(re.search(r"rea?sea?rch", msg["content"].lower()) for msg in recent)
 
 
 def build_research_query(current_message, history):
     """Construct a full research query from a follow-up message using prior context."""
     for msg in reversed(history):
-        if msg["role"] == "user" and re.search(r'rea?sea?rch', msg["content"].lower()):
+        if msg["role"] == "user" and re.search(r"rea?sea?rch", msg["content"].lower()):
             # Extract the new subject from the follow-up (e.g. "what about for biology" → "biology")
-            m = re.search(r'(?:for|about|in)\s+([\w\s]+?)(?:\?|$)', current_message, re.IGNORECASE)
+            m = re.search(
+                r"(?:for|about|in)\s+([\w\s]+?)(?:\?|$)", current_message, re.IGNORECASE
+            )
             if m:
                 subject = m.group(1).strip()
-                return f"research opportunities for {subject} at University of Minnesota"
+                return (
+                    f"research opportunities for {subject} at University of Minnesota"
+                )
             break
     return current_message
 
@@ -444,15 +497,23 @@ def _enrich_research_query(raw_query: str, profile: dict) -> str:
 
     # Add specificity terms if the query is generic
     generic_terms = ["research", "research opportunities", "research opportunity"]
-    if query.lower() in generic_terms or re.match(r'^research\s*(opportunities?|programs?)?\s*$', query.lower()):
+    if query.lower() in generic_terms or re.match(
+        r"^research\s*(opportunities?|programs?)?\s*$", query.lower()
+    ):
         query = f"undergraduate research opportunities programs apply University of Minnesota"
         if major:
             query += f" {major}"
-    elif re.search(r'research', query, re.IGNORECASE):
+    elif re.search(r"research", query, re.IGNORECASE):
         # Already has research in it — ensure UMN context and add specificity
-        if "university of minnesota" not in query.lower() and "umn" not in query.lower():
+        if (
+            "university of minnesota" not in query.lower()
+            and "umn" not in query.lower()
+        ):
             query += " University of Minnesota"
-        if not any(t in query.lower() for t in ["apply", "program", "lab", "undergraduate", "faculty"]):
+        if not any(
+            t in query.lower()
+            for t in ["apply", "program", "lab", "undergraduate", "faculty"]
+        ):
             query += " undergraduate program apply"
 
     return query
@@ -478,24 +539,34 @@ def chat_endpoint(request: ChatRequest):
     if request.conversation_id is not None and os.path.exists(CONVERSATION_FILE):
         with open(CONVERSATION_FILE, "r") as file:
             conversations = json.load(file)
-        match = next((c for c in conversations if c["id"] == request.conversation_id), None)
+        match = next(
+            (c for c in conversations if c["id"] == request.conversation_id), None
+        )
         if match:
-            history = [{
-                "role": "user" if msg["isUser"] else "assistant",
-                "content": msg["text"]}
+            history = [
+                {
+                    "role": "user" if msg["isUser"] else "assistant",
+                    "content": msg["text"],
+                }
                 for msg in match["messages"]
             ]
 
-    if re.search(r'rea?sea?rch', message) or is_research_followup(message, history):
-        raw_query = request.message if re.search(r'rea?sea?rch', message) else build_research_query(message, history)
-        query = _enrich_research_query(raw_query, get_profile(request.user_id) if request.user_id else {})
+    if re.search(r"rea?sea?rch", message) or is_research_followup(message, history):
+        raw_query = (
+            request.message
+            if re.search(r"rea?sea?rch", message)
+            else build_research_query(message, history)
+        )
+        query = _enrich_research_query(
+            raw_query, get_profile(request.user_id) if request.user_id else {}
+        )
         research_data = run_research_query(ResearchRequest(query=query, max_results=10))
 
         # Deduplicate by domain, but allow up to 2 results per domain for rich sources
         domain_counts: dict = {}
         unique_results = []
         for r in research_data.results:
-            domain = re.sub(r'^https?://([^/]+).*', r'\1', r.url)
+            domain = re.sub(r"^https?://([^/]+).*", r"\1", r.url)
             count = domain_counts.get(domain, 0)
             if count < 2:
                 domain_counts[domain] = count + 1
@@ -513,19 +584,22 @@ def chat_endpoint(request: ChatRequest):
                         {
                             "title": summarize_research_text(result.title, limit=90),
                             "url": result.url,
-                            "snippet": summarize_research_text(result.snippet, limit=160)
+                            "snippet": summarize_research_text(
+                                result.snippet, limit=160
+                            ),
                         }
                         for result in unique_results
-                    ][:6]
+                    ][:6],
                 }
-            ]
+            ],
         }
 
     # Detect professor comparison requests
-    if "compare" in message and re.search(r'\bprof(essor)?\b', message, re.IGNORECASE):
+    if "compare" in message and re.search(r"\bprof(essor)?\b", message, re.IGNORECASE):
         prof_names = extract_prof_names(request.message)
         if len(prof_names) == 2:
             import logging as _plog
+
             _plog.getLogger(__name__).info("Prof compare names: %s", prof_names)
             profs = []
             for pname in prof_names:
@@ -535,12 +609,19 @@ def chat_endpoint(request: ChatRequest):
                     code, display = found
                     try:
                         prof_result = json.loads(gophergrades_prof.invoke(code))
-                        _plog.getLogger(__name__).info("Prof result for %r (%s): %s", display, code, json.dumps(prof_result)[:600])
+                        _plog.getLogger(__name__).info(
+                            "Prof result for %r (%s): %s",
+                            display,
+                            code,
+                            json.dumps(prof_result)[:600],
+                        )
                         # Accept data whether it's nested under "data" or at the top level
                         data = prof_result.get("data") or prof_result
                         profs.append({"name": display, "code": code, "data": data})
                     except Exception:
-                        _plog.getLogger(__name__).exception("gophergrades_prof failed for code %r", code)
+                        _plog.getLogger(__name__).exception(
+                            "gophergrades_prof failed for code %r", code
+                        )
             if len(profs) >= 1:
                 guided_message = (
                     request.message
@@ -550,12 +631,16 @@ def chat_endpoint(request: ChatRequest):
                     "Do NOT say there was any issue retrieving data or that information is unavailable — just give your comparison.]"
                 )
                 try:
-                    ai_summary = gopher_assistant.invoke(guided_message, history=history)
+                    ai_summary = gopher_assistant.invoke(
+                        guided_message, history=history
+                    )
                 except Exception:
                     ai_summary = ""
                 return {
                     "response": "",
-                    "content": [{"type": "prof_compare", "profs": profs, "summary": ai_summary}]
+                    "content": [
+                        {"type": "prof_compare", "profs": profs, "summary": ai_summary}
+                    ],
                 }
 
     # Detect course comparison requests
@@ -568,10 +653,7 @@ def chat_endpoint(request: ChatRequest):
             try:
                 class_result = json.loads(gophergrades_class.invoke(code))
                 if class_result.get("data"):
-                    courses.append({
-                        "code": code,
-                        "data": class_result["data"]
-                    })
+                    courses.append({"code": code, "data": class_result["data"]})
             except Exception:
                 pass
 
@@ -588,23 +670,28 @@ def chat_endpoint(request: ChatRequest):
                 ai_summary = ""
             return {
                 "response": "",
-                "content": [{"type": "compare", "courses": courses, "summary": ai_summary}]
+                "content": [
+                    {"type": "compare", "courses": courses, "summary": ai_summary}
+                ],
             }
 
-    full_message = f"{profile_context}\n\nUser message:\n{request.message}" if profile_context else request.message
+    full_message = (
+        f"{profile_context}\n\nUser message:\n{request.message}"
+        if profile_context
+        else request.message
+    )
     try:
         response = gopher_assistant.invoke(full_message, history=history)
     except Exception:
         import logging
+
         logging.getLogger(__name__).exception("Agent invocation failed")
         return {
             "response": "I ran into an issue processing your request. Please try again or rephrase your question.",
-            "content": []
+            "content": [],
         }
-    return {
-        "response": response,
-        "content": []
-    }
+    return {"response": response, "content": []}
+
 
 @app.get("/debug/prof")
 def debug_prof(name: str):
@@ -617,21 +704,27 @@ def debug_prof(name: str):
         prof_raw = json.loads(gophergrades_prof.invoke(code))
     return {"search": search_raw, "found": found, "prof": prof_raw}
 
+
 # Profile endpoints
 @app.get("/profile")
 def get_profile_endpoint(user_id: str):
     profile = get_profile(user_id)
     return {"ok": True, "profile": profile}
 
+
 @app.put("/profile")
 def update_profile_endpoint(request: ProfileRequest):
-    profile = save_profile(request.user_id, {
-        "major": request.major,
-        "level": request.level,
-        "year": request.year,
-        "personalization_notes": request.personalization_notes,
-    })
+    profile = save_profile(
+        request.user_id,
+        {
+            "major": request.major,
+            "level": request.level,
+            "year": request.year,
+            "personalization_notes": request.personalization_notes,
+        },
+    )
     return {"ok": True, "profile": profile}
+
 
 # GopherGrades testing as well as helpers for the agent to better identify when tools are needed
 # This will also push for a better, more detailed response from the agent
@@ -641,28 +734,20 @@ def lookup_course(request: CourseLookupRequest):
 
     try:
         search_result = json.loads(gophergrades_search.invoke(request.query))
-        
-        response = {
-            "ok": True,
-            "query": query,
-            "search": search_result,
-            "class": None
-        }
+
+        response = {"ok": True, "query": query, "search": search_result, "class": None}
 
         normalized = query.replace(" ", "").upper()
 
         if re.match(r"^[A-Z]{2,}\d{4}$", normalized):
             class_result = json.loads(gophergrades_class.invoke(normalized))
             response["class"] = class_result
-        
+
         return response
-    
+
     except Exception as e:
-        return {
-            "ok": False,
-            "query": query,
-            "error": str(e)
-        }
+        return {"ok": False, "query": query, "error": str(e)}
+
 
 @app.post("/umn/prof")
 def lookup_professor(request: ProfessorLookupRequest):
@@ -671,19 +756,11 @@ def lookup_professor(request: ProfessorLookupRequest):
     try:
         search_result = json.loads(gophergrades_search.invoke(name))
 
-        return {
-            "ok": True,
-            "name": name,
-            "search": search_result
-        }
+        return {"ok": True, "name": name, "search": search_result}
 
     except Exception as e:
-        return {
-            "ok": False,
-            "name": name,
-            "error": str(e)
-        }
-    
+        return {"ok": False, "name": name, "error": str(e)}
+
 
 @app.post("/umn/dept")
 def lookup_department(request: DepartmentLookupRequest):
@@ -693,11 +770,7 @@ def lookup_department(request: DepartmentLookupRequest):
         raw_result = json.loads(gophergrades_dept.invoke(dept))
 
         if not raw_result.get("success") or not raw_result.get("data"):
-            return {
-                "ok": False,
-                "dept": dept,
-                "error": "Department not found."
-            }
+            return {"ok": False, "dept": dept, "error": "Department not found."}
 
         data = raw_result["data"]
         normalized_courses = [
@@ -713,37 +786,36 @@ def lookup_department(request: DepartmentLookupRequest):
                 "name": data.get("dept_name"),
             },
             "summary": _build_department_summary(normalized_courses),
-            "featured": _build_department_featured(normalized_courses, data.get("dept_abbr")),
+            "featured": _build_department_featured(
+                normalized_courses, data.get("dept_abbr")
+            ),
             "courses": normalized_courses,
         }
 
     except Exception as e:
-        return {
-            "ok": False,
-            "dept": dept,
-            "error": str(e)
-        }
-    
+        return {"ok": False, "dept": dept, "error": str(e)}
 
-# Implementing History Permanent Storage 
+
+# Implementing History Permanent Storage
+
 
 # receives a conversation object from frontend, and store it
 @app.post("/save")
 def save_endpoint(request: ConversationRequest):
-    
+
     # checks if json already exist, before saving.
     if os.path.exists(CONVERSATION_FILE):
-
         # exist, so read file
         with open(CONVERSATION_FILE, "r") as file:
             conversations = json.load(file)
     else:
-
         # doesn't exist, so make list to store temporarily
         conversations = []
 
     # find index of the existing conversation in list, if exist.
-    match_index = next((i for i, c in enumerate(conversations) if c["id"] == request.id), None)
+    match_index = next(
+        (i for i, c in enumerate(conversations) if c["id"] == request.id), None
+    )
 
     # if conversation exist, overwrite it with updated version.
     if match_index is not None:
@@ -751,15 +823,13 @@ def save_endpoint(request: ConversationRequest):
         conversations[match_index] = {
             "id": request.id,
             "title": request.title,
-            "messages": request.messages
+            "messages": request.messages,
         }
     else:
         # adds conversations components
-        conversations.append({
-            "id": request.id,
-            "title": request.title,
-            "messages": request.messages
-        })
+        conversations.append(
+            {"id": request.id, "title": request.title, "messages": request.messages}
+        )
 
     # open file to write, creates if doesn't exist
     with open(CONVERSATION_FILE, "w") as file:
@@ -782,10 +852,8 @@ def clear_history_endpoint():
 def history_endpoint():
     # checks if file exist
     if os.path.exists(CONVERSATION_FILE):
-
         # opens and read file
         with open(CONVERSATION_FILE, "r") as file:
-
             # load file into parsed format
             conversations = json.load(file)
 
