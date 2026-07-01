@@ -1,8 +1,8 @@
 from fastapi import APIRouter
-from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_dept
+from autonomy.tools.gophergrades_api import fetch_search, fetch_class, fetch_dept
 from pydantic import BaseModel
 
-from autonomy.tools.umn_courses_tool import umn_class_sections
+from autonomy.tools.umn_courses_tool import fetch_sections
 
 import json
 import statistics
@@ -269,7 +269,7 @@ def lookup_course(request: CourseLookupRequest):
     query = request.query.strip()
 
     try:
-        search_result = json.loads(gophergrades_search.invoke(request.query))
+        search_result = fetch_search(request.query)
 
         response = {
             "ok": True,
@@ -281,7 +281,7 @@ def lookup_course(request: CourseLookupRequest):
         normalized = query.replace(" ", "").upper()
 
         if re.match(r"^[A-Z]{2,}\d{4}$", normalized):
-            class_result = json.loads(gophergrades_class.invoke(normalized))
+            class_result = fetch_class(normalized)
             response["class"] = class_result
 
         return response
@@ -308,7 +308,7 @@ def lookup_professor(request: ProfessorLookupRequest):
     name = request.name.strip()
 
     try:
-        search_result = json.loads(gophergrades_search.invoke(name))
+        search_result = fetch_search(name)
 
         return {
             "ok": True,
@@ -338,7 +338,7 @@ def lookup_department(request: DepartmentLookupRequest):
     dept = request.dept.strip().upper()
 
     try:
-        raw_result = json.loads(gophergrades_dept.invoke(dept))
+        raw_result = fetch_dept(dept)
 
         if not raw_result.get("success") or not raw_result.get("data"):
             return {
@@ -376,11 +376,7 @@ def lookup_department(request: DepartmentLookupRequest):
 @router.post("/umn/sections")
 def lookup_sections(request: SectionsLookupRequest):
     try:
-        result = json.loads(umn_class_sections.invoke({
-            "subject": request.subject,
-            "catalog_number": request.catalog_number,
-            "term": request.term
-        }))
+        result = fetch_sections(request.subject, request.catalog_number, request.term)
         return {"ok": True, "sections": result}
     except Exception as e:
         return {"ok": False, "error": str(e)}

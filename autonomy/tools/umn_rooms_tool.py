@@ -158,42 +158,31 @@ def umn_room_booking(building_name: str) -> str:
     """
     key = building_name.strip().lower()
     directions = _directions_links(building_name)
+    dir_line = f"Directions: Google Maps {directions['google_maps']} | Campus Map {directions['campus_map']}"
 
     # --- Library buildings: scrape LibCal (public, no auth needed) ---
     lid = _LIBRARY_LOCATION_IDS.get(key)
     if lid:
         rooms = _fetch_libcal_spaces(lid)
         booking_url = f"{_LIBCAL_BASE}/spaces?lid={lid}"
-        return json.dumps({
-            "success": True,
-            "building": building_name,
-            "system": "UMN Libraries LibCal",
-            "rooms": rooms,
-            "booking_portal": booking_url,
-            "directions": directions,
-            "study_space_finder": _STUDY_SPACE_FINDER,
-            "note": (
-                "Book a room via the booking_portal or individual room links. "
-                "Browse all study spaces across campus at the study_space_finder link. "
-                "Login with your UMN x500 to confirm a booking."
-            ),
-        }, ensure_ascii=False)
+        lines = [
+            f"{building_name} — bookable study rooms (UMN Libraries LibCal).",
+            dir_line,
+            f"Reserve a room: {booking_url} (log in with your UMN x500).",
+        ]
+        if rooms:
+            names = ", ".join(r["name"] for r in rooms[:6])
+            extra = f" (+{len(rooms) - 6} more)" if len(rooms) > 6 else ""
+            lines.append(f"Rooms include: {names}{extra}.")
+        lines.append(f"Browse all campus study spaces: {_STUDY_SPACE_FINDER}")
+        return "\n".join(lines)
 
     # --- Non-library buildings: 25Live ---
     browse_url = f"https://25live.collegenet.com/pro/umn#!/home/location/list?&search={quote(building_name)}"
-    return json.dumps({
-        "success": True,
-        "building": building_name,
-        "system": "25Live",
-        "rooms": [],
-        "booking_portal": _RESERVATIONS,
-        "browse_link": browse_url,
-        "directions": directions,
-        "study_space_finder": _STUDY_SPACE_FINDER,
-        "note": (
-            f"Rooms in {building_name} are managed through 25Live. "
-            f"Browse available spaces at: {browse_url} — or submit a request at {_RESERVATIONS}. "
-            "Log in with your UMN x500 account. "
-            f"You can also explore all UMN study spaces at {_STUDY_SPACE_FINDER}."
-        ),
-    }, ensure_ascii=False)
+    return "\n".join([
+        f"{building_name} — rooms are managed through 25Live.",
+        dir_line,
+        f"Browse spaces: {browse_url}",
+        f"Submit a request: {_RESERVATIONS} (log in with your UMN x500).",
+        f"Browse all campus study spaces: {_STUDY_SPACE_FINDER}",
+    ])

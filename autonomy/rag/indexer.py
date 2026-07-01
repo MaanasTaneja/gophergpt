@@ -3,7 +3,7 @@ from autonomy.rag.chunker import chunk_text
 from autonomy.rag.embedder import embed_batch
 from autonomy.rag.vector_store import upsert_chunks
 from autonomy.rag.sources.classinfo import ClassInfoScraper
-from autonomy.tools.gophergrades_api import gophergrades_dept
+from autonomy.tools.gophergrades_api import fetch_dept
 
 
 def get_urls_from_gophergrades(dept: str) -> list[str]:
@@ -15,8 +15,7 @@ def get_urls_from_gophergrades(dept: str) -> list[str]:
     course in the department, which is what classinfo.py will scrape.
     """
 
-    raw = gophergrades_dept.invoke(dept)
-    data = json.loads(raw)
+    data = fetch_dept(dept)
     return [course["onestop"] for course in data["data"]["distributions"] if course["onestop"] is not None]
 
 

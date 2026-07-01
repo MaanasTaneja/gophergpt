@@ -9,6 +9,7 @@ class ProfileRequest(BaseModel):
     """Request model for profile update endpoint."""
     user_id: str
     major: str = ""
+    level: str = ""
     year: str = ""
     personalization_notes: str = ""
 
@@ -39,6 +40,7 @@ def update_profile_endpoint(request: ProfileRequest):
     """
     profile = save_profile(request.user_id, {
         "major": request.major,
+        "level": request.level,
         "year": request.year,
         "personalization_notes": request.personalization_notes,
     })

@@ -108,14 +108,15 @@ function App() {
 
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 90000); // 90s timeout
+      const timeout = setTimeout(() => controller.abort(), 180000); // 180s timeout (local model + multi-tool queries can be slow)
 
       const response = await fetch(`${process.env.REACT_APP_API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: userMessage,
-          conversation_id: conversationId.current
+          conversation_id: conversationId.current,
+          user_id: userId.current
         }),
         signal: controller.signal,
       });
