@@ -11,11 +11,9 @@ from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_cl
 from autonomy.tools.umn_rooms_tool import umn_room_booking
 from autonomy.tools.umn_courses_tool import umn_class_sections
 
-# RAG
-from autonomy.tools.rag_tools import rag_search
+from autonomy.tools.rag_tools import course_search
 
 import datetime
-
 
 class ChatAgent:
     def __init__(self, name="Assistant"):
@@ -31,8 +29,7 @@ class ChatAgent:
 
         self.toolkit.register_tools([search_tool], type="other")
 
-        # RAG
-        self.toolkit.register_tool([rag_search], type="other")
+        self.toolkit.register_tool(course_search, type="retriever")
 
         gopherGradeTools = [gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept]
         self.toolkit.register_tools(gopherGradeTools, type="retriever")
@@ -80,9 +77,15 @@ umn_room_booking
   Input: ONE building name.
   Always include the directions.google_maps and directions.campus_map links in your reply.
 
+course_search
+  Use for: course descriptions, prerequisites, credits, and offered terms from the UMN course catalog.
+  Use when asked: "what are the prereqs for X", "what is X about", "when is X offered".
+  Do NOT use for: grade distributions, professor ratings, or live section availability — use gophergrades or umn_class_sections for those.
+
 tavily_search
   Use for: general UMN questions (campus life, events, resources) not covered by other tools.
 
+  
 == SCHEDULING QUESTIONS ==
 
 When a user asks about fitting courses into a schedule, finding non-conflicting sections, or what lib-ed fits between class times:

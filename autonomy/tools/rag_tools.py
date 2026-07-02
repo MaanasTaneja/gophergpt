@@ -26,7 +26,7 @@ async def _retrieve_chunks(query: str):
 
     return chunks
 
-
+# deprecated, may be used later...
 @tool
 async def rag_search(query: str) -> str:
     """
