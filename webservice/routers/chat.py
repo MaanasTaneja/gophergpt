@@ -210,7 +210,7 @@ def summarize_research_text(text, limit=200):
 
 # responsible for loading/retrieving chat messages
 @router.post("/chat")
-def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
+async def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
     """
     Handles incoming chat requests, routing to research, course comparison, or general agent response.
 
@@ -303,14 +303,14 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
                 "Write 2-3 sentences max giving a high-level insight or recommendation. "
                 "Do NOT mention any numbers, grades, or ratings — those are already in the charts.]"
             )
-            ai_summary = agent.invoke(guided_message, history=history)
+            ai_summary = await agent.invoke(guided_message, history=history)
             return {
                 "response": "",
                 "content": [{"type": "compare", "courses": courses, "summary": ai_summary}]
             }
 
     full_message = f"{profile_context}\n\nUser message:\n{request.message}" if profile_context else request.message
-    response = agent.invoke(full_message, history=history)
+    response = await agent.invoke(full_message, history=history)
 
     content = []
     if _is_scheduling_request(request.message) and len(course_codes) >= 1:

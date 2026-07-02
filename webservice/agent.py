@@ -144,9 +144,9 @@ Browse all spaces at [UMN Study Space Finder](https://studyspace.umn.edu).
         self.react_agent = ReActAgent(llm=self.llm, toolkit=self.toolkit,
                                       system_prompt=system_prompt)
 
-    def invoke(self, message: str, history: list = []) -> str:
+    async def invoke(self, message: str, history: list = []) -> str:
         capped_history = history[-10:] if len(history) > 10 else history
         messages = capped_history + [{"role": "user", "content": message}]
-        final_state = self.react_agent.invoke_agent({"messages": messages})
+        final_state = await self.react_agent.invoke_agent({"messages": messages})
         generation = final_state["messages"][-1].content
         return generation

@@ -68,6 +68,10 @@ async def course_search(query: str) -> str:
     try:
         chunks = await _retrieve_chunks(query)
 
+        # debug for vector distance
+        # for chunk in chunks:
+        #     print(chunk["distance"])
+
         if all(chunk["distance"] > 0.7 for chunk in chunks):
             return tavily.invoke(query)
         
