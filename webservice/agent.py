@@ -11,6 +11,9 @@ from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_cl
 from autonomy.tools.umn_rooms_tool import umn_room_booking
 from autonomy.tools.umn_courses_tool import umn_class_sections
 
+# RAG
+from autonomy.tools.rag_tools import rag_search
+
 import datetime
 
 
@@ -27,6 +30,9 @@ class ChatAgent:
         self.toolkit = ToolkitManager()
 
         self.toolkit.register_tools([search_tool], type="other")
+
+        # RAG
+        self.toolkit.register_tool([rag_search], type="other")
 
         gopherGradeTools = [gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept]
         self.toolkit.register_tools(gopherGradeTools, type="retriever")
