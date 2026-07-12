@@ -97,7 +97,9 @@ def _search_prof_code(name):
             if code:
                 return str(code), display
     except Exception:
-        pass
+        import logging
+
+        logging.getLogger(__name__).exception("Prof search failed for %r", name)
     return None
 
 

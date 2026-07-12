@@ -14,12 +14,15 @@ from autonomy.tools.gophergrades_api import gophergrades_class
 from autonomy.tools.umn_courses_tool import umn_class_sections
 
 
-
 # This defines where we are storing the conversation history into.
 # Will be using as a memory cache, to continue dialogue with agent.
-DATA_DIR = "/app/data" # where the file will be stored
-os.makedirs(DATA_DIR, exist_ok=True) # makes directory if doesn't exist, nothing if does exist
-CONVERSATION_FILE = os.path.join(DATA_DIR, "conversations.json") # full path of where JSON file is stored
+DATA_DIR = os.getenv("DATA_DIR", "/app/data")  # where the file will be stored
+os.makedirs(
+    DATA_DIR, exist_ok=True
+)  # makes directory if doesn't exist, nothing if does exist
+CONVERSATION_FILE = os.path.join(
+    DATA_DIR, "conversations.json"
+)  # full path of where JSON file is stored
 
 
 router = APIRouter()
@@ -81,18 +84,22 @@ def _fetch_schedule_data(course_codes: list, term: str) -> list:
             pass
     return courses
 
-class ChatRequest(BaseModel):
 
+class ChatRequest(BaseModel):
     message: str
 
     # ensures loading the correct history and not all
-    conversation_id: int | None = None # makes it optional, provide stability to frontend, since no history may exist
+    conversation_id: int | None = (
+        None  # makes it optional, provide stability to frontend, since no history may exist
+    )
     user_id: str | None = None  # optional — used to load profile context
+
 
 class ConversationRequest(BaseModel):
     id: int
     title: str
     messages: list
+
 
 def extract_course_codes(text):
     """
@@ -104,13 +111,14 @@ def extract_course_codes(text):
     Returns:
         a list of course codes found within text (e.g. ["CSCI4041","STAT3021"])
     """
-    pattern = r'\b([A-Z]{2,6})\s*(\d{4})\b'
+    pattern = r"\b([A-Z]{2,6})\s*(\d{4})\b"
     seen = []
     for m in re.finditer(pattern, text.upper()):
         code = f"{m.group(1)}{m.group(2)}"
         if code not in seen:
             seen.append(code)
     return seen
+
 
 def is_research_followup(message, history):
     """
@@ -119,34 +127,40 @@ def is_research_followup(message, history):
     Args:
         message: user entered message
         history: the conversation history between user and agent
-    
+
     Returns:
-        True if the message is a research follow-up, False otherwise  
+        True if the message is a research follow-up, False otherwise
     """
-    if not re.match(r'^(what|how)\s+about|^and\b|^what if', message.strip(), re.IGNORECASE):
+    if not re.match(
+        r"^(what|how)\s+about|^and\b|^what if", message.strip(), re.IGNORECASE
+    ):
         return False
     recent = history[-6:] if len(history) > 6 else history
-    return any(re.search(r'rea?sea?rch', msg["content"].lower()) for msg in recent)
+    return any(re.search(r"rea?sea?rch", msg["content"].lower()) for msg in recent)
 
 
 def build_research_query(current_message, history):
     """
     Construct a full research query from a follow-up message using prior context.
-    
+
     Args:
         current_message: the current message in conversation
         history: the conversation history between user and agent
-    
+
     Returns:
         a constructed research query string, or the original message if no context found
     """
     for msg in reversed(history):
-        if msg["role"] == "user" and re.search(r'rea?sea?rch', msg["content"].lower()):
+        if msg["role"] == "user" and re.search(r"rea?sea?rch", msg["content"].lower()):
             # Extract the new subject from the follow-up (e.g. "what about for biology" → "biology")
-            m = re.search(r'(?:for|about|in)\s+([\w\s]+?)(?:\?|$)', current_message, re.IGNORECASE)
+            m = re.search(
+                r"(?:for|about|in)\s+([\w\s]+?)(?:\?|$)", current_message, re.IGNORECASE
+            )
             if m:
                 subject = m.group(1).strip()
-                return f"research opportunities for {subject} at University of Minnesota"
+                return (
+                    f"research opportunities for {subject} at University of Minnesota"
+                )
             break
     return current_message
 
@@ -154,7 +168,7 @@ def build_research_query(current_message, history):
 def _enrich_research_query(raw_query: str, profile: dict) -> str:
     """
     Make a research query more specific using profile context and UMN-specific terms.
-    
+
     Args:
         raw_query: the unmodified query provided from user
         profile: filters provided from user profile
@@ -171,18 +185,27 @@ def _enrich_research_query(raw_query: str, profile: dict) -> str:
 
     # Add specificity terms if the query is generic
     generic_terms = ["research", "research opportunities", "research opportunity"]
-    if query.lower() in generic_terms or re.match(r'^research\s*(opportunities?|programs?)?\s*$', query.lower()):
+    if query.lower() in generic_terms or re.match(
+        r"^research\s*(opportunities?|programs?)?\s*$", query.lower()
+    ):
         query = f"undergraduate research opportunities programs apply University of Minnesota"
         if major:
             query += f" {major}"
-    elif re.search(r'research', query, re.IGNORECASE):
+    elif re.search(r"research", query, re.IGNORECASE):
         # Already has research in it — ensure UMN context and add specificity
-        if "university of minnesota" not in query.lower() and "umn" not in query.lower():
+        if (
+            "university of minnesota" not in query.lower()
+            and "umn" not in query.lower()
+        ):
             query += " University of Minnesota"
-        if not any(t in query.lower() for t in ["apply", "program", "lab", "undergraduate", "faculty"]):
+        if not any(
+            t in query.lower()
+            for t in ["apply", "program", "lab", "undergraduate", "faculty"]
+        ):
             query += " undergraduate program apply"
 
     return query
+
 
 def summarize_research_text(text, limit=200):
     """
@@ -207,6 +230,7 @@ def summarize_research_text(text, limit=200):
 
     shortened = cleaned[:limit].rsplit(" ", 1)[0].strip()
     return f"{shortened}..."
+
 
 # responsible for loading/retrieving chat messages
 @router.post("/chat")
@@ -234,27 +258,36 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
     if request.conversation_id is not None and os.path.exists(CONVERSATION_FILE):
         with open(CONVERSATION_FILE, "r") as file:
             conversations = json.load(file)
-        match = next((c for c in conversations if c["id"] == request.conversation_id), None)
+        match = next(
+            (c for c in conversations if c["id"] == request.conversation_id), None
+        )
         if match:
-            history = [{
-                "role": "user" if msg["isUser"] else "assistant",
-                "content": msg["text"]}
+            history = [
+                {
+                    "role": "user" if msg["isUser"] else "assistant",
+                    "content": msg["text"],
+                }
                 for msg in match["messages"]
             ]
-    
 
     course_codes = extract_course_codes(request.message)
 
-    if re.search(r'rea?sea?rch', message) or is_research_followup(message, history):
-        raw_query = request.message if re.search(r'rea?sea?rch', message) else build_research_query(message, history)
-        query = _enrich_research_query(raw_query, get_profile(request.user_id) if request.user_id else {})
+    if re.search(r"rea?sea?rch", message) or is_research_followup(message, history):
+        raw_query = (
+            request.message
+            if re.search(r"rea?sea?rch", message)
+            else build_research_query(message, history)
+        )
+        query = _enrich_research_query(
+            raw_query, get_profile(request.user_id) if request.user_id else {}
+        )
         research_data = run_research_query(ResearchRequest(query=query, max_results=10))
 
         # Deduplicate by domain, but allow up to 2 results per domain for rich sources
         domain_counts: dict = {}
         unique_results = []
         for r in research_data.results:
-            domain = re.sub(r'^https?://([^/]+).*', r'\1', r.url)
+            domain = re.sub(r"^https?://([^/]+).*", r"\1", r.url)
             count = domain_counts.get(domain, 0)
             if count < 2:
                 domain_counts[domain] = count + 1
@@ -272,12 +305,14 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
                         {
                             "title": summarize_research_text(result.title, limit=90),
                             "url": result.url,
-                            "snippet": summarize_research_text(result.snippet, limit=160)
+                            "snippet": summarize_research_text(
+                                result.snippet, limit=160
+                            ),
                         }
                         for result in unique_results
-                    ][:6]
+                    ][:6],
                 }
-            ]
+            ],
         }
 
     # Detect course comparison requests
@@ -289,10 +324,7 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
             try:
                 class_result = json.loads(gophergrades_class.invoke(code))
                 if class_result.get("data"):
-                    courses.append({
-                        "code": code,
-                        "data": class_result["data"]
-                    })
+                    courses.append({"code": code, "data": class_result["data"]})
             except Exception:
                 pass
 
@@ -306,10 +338,16 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
             ai_summary = agent.invoke(guided_message, history=history)
             return {
                 "response": "",
-                "content": [{"type": "compare", "courses": courses, "summary": ai_summary}]
+                "content": [
+                    {"type": "compare", "courses": courses, "summary": ai_summary}
+                ],
             }
 
-    full_message = f"{profile_context}\n\nUser message:\n{request.message}" if profile_context else request.message
+    full_message = (
+        f"{profile_context}\n\nUser message:\n{request.message}"
+        if profile_context
+        else request.message
+    )
     response = agent.invoke(full_message, history=history)
 
     content = []
@@ -319,12 +357,11 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
         if schedule_data:
             content.append({"type": "schedule", "courses": schedule_data})
 
-    return {
-        "response": response,
-        "content": content
-    }
+    return {"response": response, "content": content}
 
-# Implementing History Permanent Storage 
+
+# Implementing History Permanent Storage
+
 
 # receives a conversation object from frontend, and store it
 @router.post("/save")
@@ -341,17 +378,17 @@ def save_endpoint(request: ConversationRequest):
 
     # checks if json already exist, before saving.
     if os.path.exists(CONVERSATION_FILE):
-
         # exist, so read file
         with open(CONVERSATION_FILE, "r") as file:
             conversations = json.load(file)
     else:
-
         # doesn't exist, so make list to store temporarily
         conversations = []
 
     # find index of the existing conversation in list, if exist.
-    match_index = next((i for i, c in enumerate(conversations) if c["id"] == request.id), None)
+    match_index = next(
+        (i for i, c in enumerate(conversations) if c["id"] == request.id), None
+    )
 
     # if conversation exist, overwrite it with updated version.
     if match_index is not None:
@@ -359,15 +396,13 @@ def save_endpoint(request: ConversationRequest):
         conversations[match_index] = {
             "id": request.id,
             "title": request.title,
-            "messages": request.messages
+            "messages": request.messages,
         }
     else:
         # adds conversations components
-        conversations.append({
-            "id": request.id,
-            "title": request.title,
-            "messages": request.messages
-        })
+        conversations.append(
+            {"id": request.id, "title": request.title, "messages": request.messages}
+        )
 
     # open file to write, creates if doesn't exist
     with open(CONVERSATION_FILE, "w") as file:
@@ -404,10 +439,8 @@ def history_endpoint():
 
     # checks if file exist
     if os.path.exists(CONVERSATION_FILE):
-
         # opens and read file
         with open(CONVERSATION_FILE, "r") as file:
-
             # load file into parsed format
             conversations = json.load(file)
 
