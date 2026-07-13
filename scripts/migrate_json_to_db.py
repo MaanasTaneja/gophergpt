@@ -7,6 +7,10 @@ from sqlalchemy.orm import Session
 from webservice.models import Profile, Conversation, Message
 
 def main():
+    """
+    Migrates existing JSON data from profiles.json and conversations.json into the SQLite database. 
+    Runs once as a one-time migration script.
+    """
     engine = create_engine("sqlite:////app/data/gophergpt.db")
     session = Session(engine)
 
