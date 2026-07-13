@@ -5,6 +5,7 @@ node_modules/
 *.bak
 webservice/data/conversations.json
 webservice/data/profiles.json
+webservice/data/gophergpt.db
 
 # AWS credentials/config backups
 .aws/
