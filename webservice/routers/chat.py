@@ -10,8 +10,8 @@ from webservice.profile_store import get_profile
 from webservice.personalization import build_personalized_prompt
 from webservice.dependencies import get_agent
 from webservice.agent import ChatAgent
-from autonomy.tools.gophergrades_api import gophergrades_class
-from autonomy.tools.umn_courses_tool import umn_class_sections
+from autonomy.tools.gophergrades_api import fetch_class, fetch_search, fetch_prof
+from autonomy.tools.umn_courses_tool import fetch_sections
 
 
 # This defines where we are storing the conversation history into.
@@ -33,9 +33,19 @@ SCHEDULING_KEYWORDS = {
     "what sections", "lib ed", "lib-ed", "open sections", "taking"
 }
 
+GRADE_KEYWORDS = {
+    "grade", "grades", "gpa", "distribution", "how hard", "difficult",
+    "easy", "grading", "pass rate", "a rate", "grade breakdown",
+    "how tough", "grade in", "grades in", "historically",
+}
+
 def _is_scheduling_request(message: str) -> bool:
     lower = message.lower()
     return any(kw in lower for kw in SCHEDULING_KEYWORDS)
+
+def _is_grade_query(message: str) -> bool:
+    lower = message.lower()
+    return any(kw in lower for kw in GRADE_KEYWORDS)
 
 def _extract_term(message: str) -> str:
     lower = message.lower()
@@ -62,18 +72,13 @@ def _extract_term(message: str) -> str:
 def _fetch_schedule_data(course_codes: list, term: str) -> list:
     courses = []
     for code in course_codes[:4]:
-        m = re.match(r'^([A-Z]+)(\d+)', code)
+        m = re.match(r'^([A-Z]+)(\d+[A-Z]?)', code)
         if not m:
             continue
         subject = m.group(1)
         catalog_number = m.group(2)
         try:
-            sections_json = umn_class_sections.invoke({
-                "subject": subject,
-                "catalog_number": catalog_number,
-                "term": term
-            })
-            sections = json.loads(sections_json)
+            sections = fetch_sections(subject, catalog_number, term)
             if isinstance(sections, list) and len(sections) > 0:
                 courses.append({
                     "code": code,
@@ -101,6 +106,162 @@ class ConversationRequest(BaseModel):
     messages: list
 
 
+def _generate_follow_ups(message: str, course_codes: list, response_type: str = "general") -> list:
+    """Generate contextual follow-up chip suggestions based on request content."""
+    primary = course_codes[0] if course_codes else None
+    lower = message.lower()
+
+    if response_type == "schedule" and primary:
+        return [
+            f"Who teaches {primary} with the best ratings?",
+            f"What are the prerequisites for {primary}?",
+            "Find a conflict-free schedule",
+        ]
+
+    if response_type == "grades" and primary:
+        return [
+            f"Who teaches {primary} with the best grades?",
+            f"What sections of {primary} are open this fall?",
+            f"Compare {primary} to a similar course",
+        ]
+
+    if primary:
+        if any(kw in lower for kw in ("who teaches", "professor", "instructor", "prof")):
+            return [
+                f"What are the grade distributions in {primary}?",
+                f"What sections of {primary} are open this fall?",
+                f"What are the prerequisites for {primary}?",
+            ]
+        return [
+            f"What sections of {primary} are open this fall?",
+            f"Who teaches {primary} with the best grades?",
+            f"What are the prerequisites for {primary}?",
+        ]
+
+    if any(kw in lower for kw in ("professor", "prof", "instructor")):
+        return [
+            "What courses does this professor teach?",
+            "How do grades compare across instructors?",
+            "When does this professor teach next semester?",
+        ]
+
+    return [
+        "What courses should I take next semester?",
+        "Who are the highest-rated professors in CS?",
+        "How do I find courses that fit my schedule?",
+    ]
+
+
+# --- Professor lookup / comparison -------------------------------------------
+
+# "professor(s)", "prof(s)", "prof.", "instructor(s)", "dr", "dr." — the intent trigger
+_PROF_TRIGGER = re.compile(r'\b(?:professors?|profs?|instructors?|dr)\b\.?\s+', re.IGNORECASE)
+# A redundant trigger word leading an individual name segment (stripped per-segment)
+_PROF_LEAD = re.compile(r'^\s*(?:professors?|profs?|instructors?|dr)\b\.?\s+', re.IGNORECASE)
+
+# Words that may sit next to a name but are not part of it
+_PROF_STOP = {
+    "ratings", "rating", "grades", "grade", "reviews", "review", "profile",
+    "info", "information", "and", "vs", "versus", "teach", "teaches", "teaching",
+    "please", "the", "a", "an", "for", "in", "with", "at", "umn", "score", "scores",
+    "his", "her", "their", "office", "hours", "class", "classes", "course", "courses",
+}
+
+
+def _extract_prof_names(text):
+    """
+    Pull one or more professor names out of a message.
+
+    Handles all common phrasings once a trigger word ("professor"/"prof"/etc.)
+    appears anywhere: single lookups ("tell me about professor Chad Myers"),
+    and comparisons where the trigger is written once OR twice
+    ("compare professor Myers and Dovolis", "professors Myers vs Dovolis",
+    "professor Chad Myers vs professor Dan Dovolis"). Lowercase input and
+    trailing words like "ratings"/"grades" are tolerated. Returns Title-cased
+    names in order. Bogus segments are harmless — _fetch_prof_data drops any
+    name that doesn't resolve to a real professor.
+    """
+    m = _PROF_TRIGGER.search(text)
+    if not m:
+        return []
+
+    # Everything from the first trigger onward is the candidate name region.
+    region = text[m.start():]
+    # Split into per-professor segments on connectors: and / vs / versus / , / & / /
+    segments = re.split(r"\b(?:and|vs|versus)\b|[,&/]", region, flags=re.IGNORECASE)
+
+    names = []
+    for seg in segments:
+        seg = _PROF_LEAD.sub("", seg)               # drop a leading "professor"/"prof"
+        seg = re.split(r"[\?\.;:]|'s", seg)[0]       # cut trailing punctuation / possessive
+        tokens = re.findall(r"[A-Za-z'\-]+", seg)
+        while tokens and tokens[0].lower() in _PROF_STOP:
+            tokens.pop(0)
+        while tokens and tokens[-1].lower() in _PROF_STOP:
+            tokens.pop()
+        name = " ".join(tokens[:3]).strip()
+        if name and name.lower() not in _PROF_STOP:
+            title = name.title()
+            if title not in names:
+                names.append(title)
+    return names
+
+
+def _fetch_prof_data(name):
+    """
+    Deterministically resolve a professor name to full GopherGrades data.
+
+    Runs the same search -> prof chain the agent would, so the professor card
+    fires 100% of the time regardless of the model. Returns
+    {"name", "code", "data"} or None if the professor can't be found.
+    """
+    try:
+        result = fetch_search(name)
+        profs = (result.get("data") or {}).get("professors") or []
+
+        # Fallback: a wrong/missing first name ("Dan Dovolis") finds nothing —
+        # retry on the surname alone ("Dovolis") before giving up.
+        if not profs:
+            parts = name.split()
+            if len(parts) > 1:
+                retry = fetch_search(parts[-1])
+                profs = (retry.get("data") or {}).get("professors") or []
+        if not profs:
+            return None
+
+        best = profs[0]
+        code = best.get("id")
+        if code is None:
+            return None
+        prof_raw = fetch_prof(str(code))
+        data = prof_raw.get("data")
+        if not data:
+            return None
+        return {"name": best.get("name") or name, "code": str(code), "data": data}
+    except Exception:
+        return None
+
+
+# Phrases that mean "the courses in my profile" (codes come from the profile,
+# not the message). Used to answer instantly instead of sending a vague
+# multi-course prompt through the agent's ReAct loop (which is slow on a local
+# model and tends to make redundant/hallucinated tool calls).
+_MY_COURSES_SELF = (
+    "my ", "i plan", "i'm taking", "im taking", "i am taking", "i will take",
+    "i will be taking", "planning to take", "plan to take", "i put", "i signed up",
+    "i registered", "i'm enrolled", "im enrolled", "profile", "signed up for",
+)
+
+
+def _is_my_courses_query(message: str, has_codes: bool) -> bool:
+    if has_codes:
+        return False
+    lower = message.lower()
+    mentions_courses = any(w in lower for w in ("course", "class", "classes", "schedule"))
+    mentions_self = any(w in lower for w in _MY_COURSES_SELF)
+    return mentions_courses and mentions_self
+
+
 def extract_course_codes(text):
     """
     Extract normalized UMN course codes (e.g. CSCI4041) from a message.
@@ -110,8 +271,11 @@ def extract_course_codes(text):
 
     Returns:
         a list of course codes found within text (e.g. ["CSCI4041","STAT3021"])
+
+    Keeps a trailing section letter when present (e.g. "CSCI 4511W" -> "CSCI4511W",
+    "MATH 1271H" -> "MATH1271H"), which is significant for GopherGrades lookups.
     """
-    pattern = r"\b([A-Z]{2,6})\s*(\d{4})\b"
+    pattern = r"\b([A-Z]{2,6})\s*(\d{4}[A-Z]?)\b"
     seen = []
     for m in re.finditer(pattern, text.upper()):
         code = f"{m.group(1)}{m.group(2)}"
@@ -272,6 +436,27 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
 
     course_codes = extract_course_codes(request.message)
 
+    # "Tell me about the courses I plan to take" / "my classes" — pull the codes
+    # from the profile and return a grade-overview card directly. This avoids the
+    # slow, error-prone multi-course ReAct loop on a local model.
+    if request.user_id and _is_my_courses_query(request.message, bool(course_codes)):
+        notes = (get_profile(request.user_id).get("personalization_notes") or "")
+        profile_codes = extract_course_codes(notes)
+        if profile_codes:
+            term = _extract_term(notes)
+            schedule_data = _fetch_schedule_data(profile_codes, term)
+            if schedule_data:
+                codes_str = ", ".join(c["code"] for c in schedule_data)
+                return {
+                    "response": f"Here are the live {term.title()} sections for the courses in your profile — {codes_str}.",
+                    "content": [{"type": "schedule", "courses": schedule_data}],
+                    "follow_ups": [
+                        "Do any of these conflict in my schedule?",
+                        f"Who teaches {schedule_data[0]['code']} with the best grades?",
+                        f"How hard is {schedule_data[0]['code']}?",
+                    ],
+                }
+
     if re.search(r"rea?sea?rch", message) or is_research_followup(message, history):
         raw_query = (
             request.message
@@ -295,6 +480,15 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
 
         summary_text = summarize_research_text(research_data.summary, limit=200)
 
+        # Build topic-specific follow-ups for research responses
+        topic_words = re.sub(r'(research|opportunities?|programs?|university of minnesota|umn)', '', raw_query, flags=re.IGNORECASE).strip()
+        topic = topic_words[:40] if topic_words else "this field"
+        research_follow_ups = [
+            f"What are the application requirements?",
+            f"Which labs accept undergraduates in {topic}?",
+            f"How do I contact faculty researchers?",
+        ]
+
         return {
             "response": "Here's a research snapshot with the strongest matches I found.",
             "content": [
@@ -313,7 +507,55 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
                     ][:6],
                 }
             ],
+            "follow_ups": research_follow_ups,
         }
+
+    # Professor lookup / comparison: resolve GopherGrades data ourselves and
+    # return a visual prof card (search -> prof chain, model-independent).
+    # Only fires when an actual professor name is present in the message.
+    prof_names = _extract_prof_names(request.message)
+    if prof_names:
+        profs = []
+        for name in prof_names[:2]:
+            prof_data = _fetch_prof_data(name)
+            if prof_data:
+                profs.append(prof_data)
+
+        if profs:
+            guided_message = (
+                request.message
+                + "\n\n[System: RateMyProfessors scores, courses taught, grade distributions "
+                "and teaching ratings for these professors are already shown visually in a card. "
+                "Write 2-3 sentences max giving a high-level, qualitative takeaway or recommendation. "
+                "Do NOT list any numbers, grades, or ratings — those are already in the card.]"
+            )
+            try:
+                summary = agent.invoke(guided_message, history=history)
+            except Exception:
+                summary = ""
+
+            if len(profs) >= 2:
+                prof_follow_ups = [
+                    f"Who has higher grades, {profs[0]['name']} or {profs[1]['name']}?",
+                    f"What courses does {profs[0]['name']} teach?",
+                    "Which professor should I take?",
+                ]
+            else:
+                prof_follow_ups = [
+                    f"What courses does {profs[0]['name']} teach?",
+                    f"Compare {profs[0]['name']} with another professor",
+                    f"How do {profs[0]['name']}'s grades compare to other instructors?",
+                ]
+
+            return {
+                "response": "",
+                "content": [{
+                    "type": "prof_compare",
+                    "profs": profs,
+                    "summary": summary.strip() if isinstance(summary, str) else "",
+                }],
+                "follow_ups": prof_follow_ups,
+            }
 
     # Detect course comparison requests
     is_compare_request = "compare" in message and len(course_codes) >= 1
@@ -322,7 +564,7 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
         courses = []
         for code in course_codes[:2]:
             try:
-                class_result = json.loads(gophergrades_class.invoke(code))
+                class_result = fetch_class(code)
                 if class_result.get("data"):
                     courses.append({"code": code, "data": class_result["data"]})
             except Exception:
@@ -336,28 +578,61 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
                 "Do NOT mention any numbers, grades, or ratings — those are already in the charts.]"
             )
             ai_summary = agent.invoke(guided_message, history=history)
+            codes = course_codes[:2]
+            compare_follow_ups = [
+                f"Who teaches {codes[0]} with the highest grades?" if codes else "Who gives the best grades?",
+                f"What are the prerequisites for {codes[0]}?" if codes else "What are the prerequisites?",
+                f"Which course is better for my major?",
+            ]
             return {
                 "response": "",
                 "content": [
                     {"type": "compare", "courses": courses, "summary": ai_summary}
                 ],
+                "follow_ups": compare_follow_ups,
             }
 
-    full_message = (
-        f"{profile_context}\n\nUser message:\n{request.message}"
-        if profile_context
-        else request.message
-    )
-    response = agent.invoke(full_message, history=history)
+    # Grade distribution: fetch from GopherGrades and return a visual card
+    # Only trigger when there's a clear grade-related keyword AND a course code,
+    # and only when it's not already handled as a compare request.
+    if _is_grade_query(request.message) and course_codes and not is_compare_request:
+        grade_courses = []
+        for code in course_codes[:2]:
+            try:
+                class_result = fetch_class(code)
+                if class_result.get("data"):
+                    grade_courses.append({"code": code, "data": class_result["data"]})
+            except Exception:
+                pass
+        if grade_courses:
+            code_list = ", ".join(c["code"] for c in grade_courses)
+            return {
+                "response": f"Here are the historical grade distributions for {code_list}.",
+                "content": [{"type": "grades", "courses": grade_courses}],
+                "follow_ups": _generate_follow_ups(request.message, course_codes, "grades"),
+            }
 
-    content = []
+    # Scheduling: resolve section data BEFORE calling the agent so we can return early
+    # (avoids the agent writing out sections as prose text alongside the card)
     if _is_scheduling_request(request.message) and len(course_codes) >= 1:
         term = _extract_term(request.message)
         schedule_data = _fetch_schedule_data(course_codes, term)
         if schedule_data:
-            content.append({"type": "schedule", "courses": schedule_data})
+            codes_str = ", ".join(c["code"] for c in schedule_data)
+            return {
+                "response": f"Here are the live sections for {codes_str} — {term.title()}.",
+                "content": [{"type": "schedule", "courses": schedule_data}],
+                "follow_ups": _generate_follow_ups(request.message, course_codes, "schedule"),
+            }
 
-    return {"response": response, "content": content}
+    full_message = f"{profile_context}\n\nUser message:\n{request.message}" if profile_context else request.message
+    raw_response = agent.invoke(full_message, history=history)
+
+    return {
+        "response": raw_response.strip(),
+        "content": [],
+        "follow_ups": _generate_follow_ups(request.message, course_codes),
+    }
 
 
 # Implementing History Permanent Storage

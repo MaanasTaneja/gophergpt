@@ -14,7 +14,7 @@ from webservice.profile_store import init_store
 from webservice.agent import ChatAgent
 from autonomy.rag.indexer import run_indexing
 from autonomy.rag.vector_store import get_client, get_collection
-from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_prof
+from autonomy.tools.gophergrades_api import fetch_search, fetch_prof
 
 
 @asynccontextmanager
@@ -56,8 +56,7 @@ def root():
 
 def _search_prof_code(name):
     try:
-        raw = gophergrades_search.invoke(name)
-        result = json.loads(raw)
+        result = fetch_search(name)
         candidates = []
 
         def _extract_instructors(obj):
@@ -105,10 +104,10 @@ def _search_prof_code(name):
 
 @app.get("/debug/prof")
 def debug_prof(name: str):
-    search_raw = json.loads(gophergrades_search.invoke(name))
+    search_raw = fetch_search(name)
     found = _search_prof_code(name)
     prof_raw = None
     if found:
         code, _ = found
-        prof_raw = json.loads(gophergrades_prof.invoke(code))
+        prof_raw = fetch_prof(code)
     return {"search": search_raw, "found": found, "prof": prof_raw}
