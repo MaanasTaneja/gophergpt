@@ -3,3 +3,4 @@ node_modules/
 .env
 webservice/data/conversations.json
 webservice/data/profiles.json
+gophergtp.db
