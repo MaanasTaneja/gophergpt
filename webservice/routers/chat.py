@@ -1,18 +1,18 @@
+import datetime
+import json
 import os
 import re
-import json
-import datetime
 
-from pydantic import BaseModel
 from fastapi import APIRouter, Depends
-from webservice.routers.research import run_research_query, ResearchRequest
-from webservice.profile_store import get_profile
-from webservice.personalization import build_personalized_prompt
-from webservice.dependencies import get_agent
+from pydantic import BaseModel
 from webservice.agent import ChatAgent
+from webservice.dependencies import get_agent
+from webservice.guardrails import run_guardrails
+from webservice.personalization import build_personalized_prompt
+from webservice.profile_store import get_profile
+from webservice.routers.research import run_research_query, ResearchRequest
 from autonomy.tools.gophergrades_api import gophergrades_class
 from autonomy.tools.umn_courses_tool import umn_class_sections
-
 
 
 # This defines where we are storing the conversation history into.
@@ -311,6 +311,7 @@ async def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_age
 
     full_message = f"{profile_context}\n\nUser message:\n{request.message}" if profile_context else request.message
     response = await agent.invoke(full_message, history=history)
+    response = run_guardrails(response=response, message=full_message)
 
     content = []
     if _is_scheduling_request(request.message) and len(course_codes) >= 1:
