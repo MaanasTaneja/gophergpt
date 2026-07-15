@@ -5,7 +5,9 @@ from autonomy.rag.vector_store import upsert_chunks
 from autonomy.rag.sources.classinfo import ClassInfoScraper
 from autonomy.tools.gophergrades_api import gophergrades_dept
 
+from autonomy.rag.sources.csv_catalog import load_csv_catalog
 
+# unused
 def get_urls_from_gophergrades(dept: str) -> list[str]:
     """
     Fetches course page URLs from the GopherGrades API for a given department.
@@ -40,11 +42,21 @@ async def index_source(documents: list[dict]) -> None:
             chunk["scraped_at"] = document["scraped_at"]
             all_chunks.append(chunk)
 
-    # embeds all chunks 
-    embeddings = await embed_batch([c["text"] for c in all_chunks])
+    BATCH_SIZE = 500
+    all_embeddings = []
+    for i in range(0, len(all_chunks), BATCH_SIZE):
+        batch = all_chunks[i:i + BATCH_SIZE]
+        batch_embeddings = await embed_batch([c["text"] for c in batch])
+        all_embeddings.extend(batch_embeddings)
 
-    # store everything
-    upsert_chunks(chunks=all_chunks, embeddings=embeddings)
+    UPSERT_BATCH_SIZE = 500
+    for i in range(0, len(all_chunks), UPSERT_BATCH_SIZE):
+        upsert_chunks(
+            chunks=all_chunks[i:i + UPSERT_BATCH_SIZE],
+            embeddings=all_embeddings[i:i + UPSERT_BATCH_SIZE]
+        )
+
+    print(f"Indexed {len(all_chunks)} chunks.")
 
 
 async def run_indexing() -> None:
@@ -52,14 +64,15 @@ async def run_indexing() -> None:
     Orchestrates the full indexing pipeline for all UMN sources.
 
     Called by scripts/run_indexing.py to trigger a full re-index offline.
-    Gets URLs from GopherGrades, scrapes each source, then passes the
-    results through index_source() to chunk, embed, and store everything.
+    Loads course documents from the Coursedog CSV catalog, then passes them
+    through index_source() to chunk, embed, and store in ChromaDB.
     """
-    
-    urls =  get_urls_from_gophergrades("CSCI") #TODO: UPDATE TO INCLUDE MORE DEPT CODES
 
-    scraper = ClassInfoScraper()
-    documents = await scraper.scrape(urls)
+    # switch between test sample and actual dataset
+    # documents = load_csv_catalog("autonomy/rag/data/sample_courses.csv")
+    documents = load_csv_catalog("autonomy/rag/data/courses.csv")
 
     await index_source(documents=documents)
+
+    print("Indexing complete.")
 

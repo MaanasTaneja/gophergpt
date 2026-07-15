@@ -4,3 +4,5 @@ node_modules/
 webservice/data/conversations.json
 webservice/data/profiles.json
 webservice/data/gophergpt.db
+
+autonomy/rag/data/courses.csv

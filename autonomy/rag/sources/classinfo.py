@@ -1,5 +1,6 @@
 from .base_scraper import BaseScraper
 
+# unused
 class ClassInfoScraper(BaseScraper):
     """
     Scraper for UMN Course info pages from Coursedog.

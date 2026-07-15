@@ -1,4 +1,5 @@
 import os
+import datetime
 
 from langchain_tavily import TavilySearch
 from dotenv import load_dotenv
@@ -6,14 +7,11 @@ from dotenv import load_dotenv
 from autonomy.agent.react_agent import ReActAgent
 from autonomy.llm.factory import get_llm
 from autonomy.tools.base import ToolkitManager
-
 from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_class, gophergrades_prof, gophergrades_dept
 from autonomy.tools.umn_rooms_tool import umn_room_booking
 from autonomy.tools.umn_courses_tool import umn_class_sections
-
 from autonomy.tools.rag_tools import course_search
 
-import datetime
 
 class ChatAgent:
     def __init__(self, name="Assistant"):
@@ -44,8 +42,14 @@ Today's date is {today}. Use this to resolve terms like "this fall", "next sprin
 
 == TOOLS ==
 
+course_search
+  Use for: course descriptions, prerequisites, credits, and offered terms from the UMN course catalog.
+  Use when asked: "what are the prereqs for X", "what is X about", "when is X offered".
+  Use when asked: "what courses cover X", "are there any courses about X", "what options exist for X topic".
+  Do NOT use for: grade distributions, professor ratings, or live section availability — use gophergrades or umn_class_sections for those.
+
 gophergrades_search
-  Use for: free-text searches by topic, professor name, or partial course name.
+  Use for: looking up a professor by name or finding a course code by partial name.
   Returns: matching courses and instructors with IDs.
 
 gophergrades_class
@@ -76,11 +80,6 @@ umn_room_booking
   Use when: asked about booking rooms, finding study spaces, or getting directions to a UMN building.
   Input: ONE building name.
   Always include the directions.google_maps and directions.campus_map links in your reply.
-
-course_search
-  Use for: course descriptions, prerequisites, credits, and offered terms from the UMN course catalog.
-  Use when asked: "what are the prereqs for X", "what is X about", "when is X offered".
-  Do NOT use for: grade distributions, professor ratings, or live section availability — use gophergrades or umn_class_sections for those.
 
 tavily_search
   Use for: general UMN questions (campus life, events, resources) not covered by other tools.
