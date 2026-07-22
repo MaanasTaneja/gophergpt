@@ -1,4 +1,5 @@
 import os
+import re
 
 from ..rag.retriever import retrieve
 from langchain.tools import tool
@@ -11,20 +12,35 @@ load_dotenv()
 os.environ["TAVILY_API_KEY"] = os.getenv("TAVILY_API_KEY")
 tavily = TavilySearch(max_results=5, topic="general", search_depth="advanced", include_domains=["umn.edu", "reddit.com"])
 
+def code_extractor(code: str):
+    extract = re.search(r'\b([A-Z]{2,6})\s*(\d{4})\b', code)
 
-async def _retrieve_chunks(query: str):
+    if not extract:
+        return None
+    
+    return f"{extract.group(1)}{extract.group(2)}"
+
+
+async def _retrieve_chunks(query: str, top_k: int = 5, where: dict | None = None):
     """
     Calls retrieve() and returns the raw chunk dicts for a given query
 
     Args:
         query: the user's question (e.g., "What are the prerequisites for CSCI 1111?")
+        top_k: number of chunks to retrieve from ChromaDB, defaults to 5
+        where: optional metadata filter passed to ChromaDB, e.g. {"source_url": "catalog:CSCI1133"} for exact course lookups, None for semantic search
 
     Returns:
         list of dicts, each containing text, source_url, source_name, and distance
     """
-    chunks, rewritten_question = await retrieve(query)
+    try:
+        chunks, rewritten_question = await retrieve(question=query, top_k=top_k, where=where)
+        print(f"_retrieve_chunks got {len(chunks)} chunks", flush=True)
+        return chunks
+    except Exception as e:
+        print(f"_retrieve_chunks error: {e}", flush=True)
+        raise
 
-    return chunks
 
 # deprecated, may be used later...
 @tool
@@ -50,7 +66,7 @@ async def rag_search(query: str) -> str:
         return text
     except Exception as e:
         return f"RAG search failed: {str(e)}"
-    
+
 
 @tool
 async def course_search(query: str) -> str:
@@ -66,13 +82,22 @@ async def course_search(query: str) -> str:
     """
 
     try:
-        chunks = await _retrieve_chunks(query)
+        code = code_extractor(query)
+        where = {"source_url": f"catalog:{code}"} if code else None
+        print(f"code={code}, where={where}", flush=True)
+        top_k = 1 if where else 5
+        chunks = await _retrieve_chunks(query=query, where=where, top_k=top_k)
+        print(f"chunks returned: {len(chunks)}", flush=True)
+
+        if not chunks:
+            print("no chunks found", flush=True)
+            return "No course information found."
 
         # debug for vector distance
         # for chunk in chunks:
         #     print(chunk["distance"])
 
-        if all(chunk["distance"] > 0.7 for chunk in chunks):
+        if where is None and all(chunk["distance"] > 0.7 for chunk in chunks):
             return tavily.invoke(query)
         
         else:

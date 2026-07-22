@@ -47,8 +47,9 @@ def check_filler(response: str) -> str:
                    "let me know",
                    "feel free"]
     
-    for filler in filler_list:
-        response = re.sub(filler, "", response, flags=re.IGNORECASE)
+    sentences = re.split(r'(?<=[.!?])\s+', response)
+    filtered = [s for s in sentences if not any(filler.lower() in s.lower() for filler in filler_list)]
+    response = " ".join(filtered)
 
     return response
 

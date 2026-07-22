@@ -37,7 +37,7 @@ async def rewrite_query(question: str, history: list[dict]) -> str:
     return response.choices[0].message.content
 
 
-async def retrieve(question: str, history: list[dict] = [], top_k: int = 5) -> tuple[list[dict], str]:
+async def retrieve(question: str, history: list[dict] = [], top_k: int = 5, where: dict | None = None) -> tuple[list[dict], str]:
     """
     Retrieves relevant document chunks from ChromaDB for a given question.
 
@@ -48,6 +48,7 @@ async def retrieve(question: str, history: list[dict] = [], top_k: int = 5) -> t
         question: the user's question to retrieve context for
         history: prior conversation messages from query rewriting
         top_k: number of chunks to retrieve from ChromaDB
+        where: optional ChromaDB metadata filter, e.g. {"source_url": "catalog:CSCI1133"} for exact course lookups
 
     Example:
         (
@@ -80,6 +81,6 @@ async def retrieve(question: str, history: list[dict] = [], top_k: int = 5) -> t
         question = await rewrite_query(question, history)
     
     embedded = await embed_text(question)
-    chunks = query_collection(query_embedding=embedded, top_k=top_k)
+    chunks = query_collection(query_embedding=embedded, top_k=top_k, where=where)
     
     return chunks, question 
