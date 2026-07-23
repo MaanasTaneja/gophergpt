@@ -49,4 +49,4 @@ backend.override.tf.json
 
 # HTTPS Credentials
 certs/*
-!certs/.gitkeep
+!certs/README.md
