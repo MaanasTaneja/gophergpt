@@ -410,6 +410,7 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
     """
 
     message = request.message.lower()
+    tools_used = []
 
     # Load profile context if user_id provided
     profile_context = ""
@@ -602,6 +603,9 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
                 class_result = fetch_class(code)
                 if class_result.get("data"):
                     grade_courses.append({"code": code, "data": class_result["data"]})
+                    if "gophergrades_class" not in tools_used:
+                        tools_used.append("gophergrades_class")
+                
             except Exception:
                 pass
         if grade_courses:
@@ -610,6 +614,7 @@ def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_agent)):
                 "response": f"Here are the historical grade distributions for {code_list}.",
                 "content": [{"type": "grades", "courses": grade_courses}],
                 "follow_ups": _generate_follow_ups(request.message, course_codes, "grades"),
+                "tools_used": tools_used,
             }
 
     # Scheduling: resolve section data BEFORE calling the agent so we can return early
