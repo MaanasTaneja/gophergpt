@@ -33,13 +33,8 @@ async def _retrieve_chunks(query: str, top_k: int = 5, where: dict | None = None
     Returns:
         list of dicts, each containing text, source_url, source_name, and distance
     """
-    try:
-        chunks, rewritten_question = await retrieve(question=query, top_k=top_k, where=where)
-        print(f"_retrieve_chunks got {len(chunks)} chunks", flush=True)
-        return chunks
-    except Exception as e:
-        print(f"_retrieve_chunks error: {e}", flush=True)
-        raise
+    chunks, _ = await retrieve(question=query, top_k=top_k, where=where)
+    return chunks
 
 
 # deprecated, may be used later...
@@ -84,18 +79,11 @@ async def course_search(query: str) -> str:
     try:
         code = code_extractor(query)
         where = {"source_url": f"catalog:{code}"} if code else None
-        print(f"code={code}, where={where}", flush=True)
         top_k = 1 if where else 5
         chunks = await _retrieve_chunks(query=query, where=where, top_k=top_k)
-        print(f"chunks returned: {len(chunks)}", flush=True)
 
         if not chunks:
-            print("no chunks found", flush=True)
             return "No course information found."
-
-        # debug for vector distance
-        # for chunk in chunks:
-        #     print(chunk["distance"])
 
         if where is None and all(chunk["distance"] > 0.7 for chunk in chunks):
             return tavily.invoke(query)
