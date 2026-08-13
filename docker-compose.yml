@@ -1,19 +1,24 @@
 services:
   backend:
     build:
-      context: . #maintain context (or file system) only in the webservce folder. (i think lets keep it root since we need access to pyporject etc)
-      #so for this build process and this docker file the file system begins in the webservice folder.
+      context: .
       dockerfile: webservice/backend.dockerfile
+
     container_name: gophergpt-webservice
+
     ports:
       - "8000:8000"
+
     env_file:
       - .env
+
     restart: always
+
     volumes:
       - ./webservice/data:/app/data
       - ./evals:/usr/src/app/evals     # eval results survive rebuilds + stay visible to git
       - ./scripts:/usr/src/app/scripts # judge/runner edits apply without a rebuild
+
     depends_on:        # wait for chromadb container to start before backend
       - chromadb
 
@@ -21,13 +26,40 @@ services:
     build:
       context: ./frontend
       dockerfile: frontend.dockerfile
+
+      args:
+        REACT_APP_API_BASE: /api
+
     container_name: gophergpt-frontend
+
     ports:
       - "3000:3000"
-    depends_on: #link both services, and change in react app to access instead of local host to backend, 
-    #compose and docker do all the dns stuff for us.
+
+    depends_on:
       - backend
+
     restart: always
+
+
+  nginx:
+    image: nginx:alpine
+
+    container_name: gophergpt-nginx
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+
+    depends_on:
+      - frontend
+      - backend
+
+    restart: always
+
 
   chromadb:
     image: chromadb/chroma:latest

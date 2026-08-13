@@ -57,3 +57,7 @@ terraform.rc
 # Local backend override files, if you ever use them
 backend.override.tf
 backend.override.tf.json
+
+# HTTPS Credentials
+certs/*
+!certs/README.md
