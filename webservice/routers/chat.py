@@ -1,18 +1,18 @@
+import datetime
+import json
 import os
 import re
-import json
-import datetime
 
-from pydantic import BaseModel
 from fastapi import APIRouter, Depends
-from webservice.routers.research import run_research_query, ResearchRequest
-from webservice.profile_store import get_profile
-from webservice.personalization import build_personalized_prompt
-from webservice.dependencies import get_agent
+from pydantic import BaseModel
 from webservice.agent import ChatAgent
+from webservice.dependencies import get_agent
+from webservice.guardrails import run_guardrails
+from webservice.personalization import build_personalized_prompt
+from webservice.profile_store import get_profile
+from webservice.routers.research import run_research_query, ResearchRequest
 from autonomy.tools.gophergrades_api import fetch_class, fetch_search, fetch_prof
 from autonomy.tools.umn_courses_tool import fetch_sections
-
 
 # This defines where we are storing the conversation history into.
 # Will be using as a memory cache, to continue dialogue with agent.
@@ -644,6 +644,7 @@ async def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_age
 
     full_message = f"{profile_context}\n\nUser message:\n{request.message}" if profile_context else request.message
     raw_response, trace = await agent.invoke_with_trace(full_message, history=history)
+    raw_response = run_guardrails(response=raw_response, message=full_message)
     tools_used.extend(t["name"] for t in trace if t["name"] not in tools_used)
 
     return {

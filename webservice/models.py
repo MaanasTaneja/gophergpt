@@ -5,6 +5,10 @@ class Base(DeclarativeBase):
     pass
 
 class Profile(Base):
+    """
+    stores a user's academic information used to personalize responses
+    """
+
     __tablename__ = "profiles"
 
     user_id = mapped_column(String, primary_key=True)
@@ -14,6 +18,10 @@ class Profile(Base):
     personalization_notes = mapped_column(String, nullable=True)
 
 class Conversation(Base):
+    """
+    represents a single chat session, optionally tied to a profile
+    """
+
     __tablename__ = "conversations"
 
     id = mapped_column(String, primary_key=True)
@@ -21,6 +29,10 @@ class Conversation(Base):
     profile_id = mapped_column(String, ForeignKey("profiles.user_id"), nullable=True)
 
 class Message(Base):
+    """
+    a single message within a conversation, sent by either the user or the agent
+    """
+    
     __tablename__ = "messages"
 
     id = mapped_column(String, primary_key=True)
