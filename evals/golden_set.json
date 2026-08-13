@@ -153,8 +153,8 @@
      "must_contain": [["CSCI"]], "must_not_contain": [],
      "notes": "Chains grades data + prof rating + live sections; recommendation must name a real section."},
     {"id": "multi-05", "intent": "multistep", "question": "Compare CSCI 4041 and CSCI 5421 and tell me which sections are open this fall", "user_id": null,
-     "expected_tools": ["gophergrades_class"], "expected_content_types": ["compare"],
+     "expected_tools": ["gophergrades_class", "umn_class_sections"], "expected_content_types": ["compare"],
      "must_contain": [], "must_not_contain": [],
-     "notes": "Documents current routing behavior: 'compare' keyword hijacks into the compare path, so the scheduling half is dropped. Expected to score low on completeness — that's signal, keep the case."}
+     "notes": "Compare path handles both halves: grade comparison via card, section data via agent tools. Tests that the judge credits groundedness across two different sources."}
   ]
 }

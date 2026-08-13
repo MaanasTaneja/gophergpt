@@ -448,6 +448,7 @@ async def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_age
             schedule_data = _fetch_schedule_data(profile_codes, term)
             if schedule_data:
                 codes_str = ", ".join(c["code"] for c in schedule_data)
+                tools_used.append("umn_class_sections")
                 return {
                     "response": f"Here are the live {term.title()} sections for the courses in your profile — {codes_str}.",
                     "content": [{"type": "schedule", "courses": schedule_data}],
@@ -456,6 +457,7 @@ async def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_age
                         f"Who teaches {schedule_data[0]['code']} with the best grades?",
                         f"How hard is {schedule_data[0]['code']}?",
                     ],
+                    "tools_used": tools_used,
                 }
 
     if re.search(r"rea?sea?rch", message) or is_research_followup(message, history):
@@ -468,6 +470,7 @@ async def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_age
             raw_query, get_profile(request.user_id) if request.user_id else {}
         )
         research_data = run_research_query(ResearchRequest(query=query, max_results=10))
+        tools_used.append("tavily_search")
 
         # Deduplicate by domain, but allow up to 2 results per domain for rich sources
         domain_counts: dict = {}
@@ -509,6 +512,7 @@ async def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_age
                 }
             ],
             "follow_ups": research_follow_ups,
+            "tools_used": tools_used,
         }
 
     # Professor lookup / comparison: resolve GopherGrades data ourselves and
@@ -531,9 +535,10 @@ async def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_age
                 "Do NOT list any numbers, grades, or ratings — those are already in the card.]"
             )
             try:
-                summary = await agent.invoke(guided_message, history=history)
+                summary, trace = await agent.invoke_with_trace(guided_message, history=history)
             except Exception:
-                summary = ""
+                summary, trace = "", []
+                tools_used.extend(t['name'] for t in trace if t['name'] not in tools_used)
 
             if len(profs) >= 2:
                 prof_follow_ups = [
@@ -568,6 +573,8 @@ async def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_age
                 class_result = fetch_class(code)
                 if class_result.get("data"):
                     courses.append({"code": code, "data": class_result["data"]})
+                    if "gophergrades_class" not in tools_used:
+                        tools_used.append("gophergrades_class")
             except Exception:
                 pass
 
@@ -578,7 +585,8 @@ async def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_age
                 "Write 2-3 sentences max giving a high-level insight or recommendation. "
                 "Do NOT mention any numbers, grades, or ratings — those are already in the charts.]"
             )
-            ai_summary = await agent.invoke(guided_message, history=history)
+            ai_summary, trace = await agent.invoke_with_trace(guided_message, history=history)
+            tools_used.extend(t['name'] for t in trace if t['name'] not in tools_used)
             codes = course_codes[:2]
             compare_follow_ups = [
                 f"Who teaches {codes[0]} with the highest grades?" if codes else "Who gives the best grades?",
@@ -591,6 +599,8 @@ async def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_age
                     {"type": "compare", "courses": courses, "summary": ai_summary}
                 ],
                 "follow_ups": compare_follow_ups,
+                "tools_used": tools_used,
+                "tool_outputs": trace, 
             }
 
     # Grade distribution: fetch from GopherGrades and return a visual card
@@ -624,19 +634,24 @@ async def chat_endpoint(request: ChatRequest, agent: ChatAgent = Depends(get_age
         schedule_data = _fetch_schedule_data(course_codes, term)
         if schedule_data:
             codes_str = ", ".join(c["code"] for c in schedule_data)
+            tools_used.append("umn_class_sections")
             return {
                 "response": f"Here are the live sections for {codes_str} — {term.title()}.",
                 "content": [{"type": "schedule", "courses": schedule_data}],
                 "follow_ups": _generate_follow_ups(request.message, course_codes, "schedule"),
+                "tools_used": tools_used,
             }
 
     full_message = f"{profile_context}\n\nUser message:\n{request.message}" if profile_context else request.message
-    raw_response = await agent.invoke(full_message, history=history)
+    raw_response, trace = await agent.invoke_with_trace(full_message, history=history)
+    tools_used.extend(t["name"] for t in trace if t["name"] not in tools_used)
 
     return {
         "response": raw_response.strip(),
         "content": [],
         "follow_ups": _generate_follow_ups(request.message, course_codes),
+        "tools_used": tools_used,
+        "tool_outputs": trace,
     }
 
 

@@ -7,6 +7,14 @@ webservice/data/conversations.json
 webservice/data/profiles.json
 webservice/data/gophergpt.db
 
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Eval runs are noisy; force-add the baselines worth keeping:
+#   git add -f evals/results/<run>_judged.json
+evals/results/
+
 # AWS credentials/config backups
 .aws/
 

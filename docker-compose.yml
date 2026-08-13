@@ -12,6 +12,8 @@ services:
     restart: always
     volumes:
       - ./webservice/data:/app/data
+      - ./evals:/usr/src/app/evals     # eval results survive rebuilds + stay visible to git
+      - ./scripts:/usr/src/app/scripts # judge/runner edits apply without a rebuild
     depends_on:        # wait for chromadb container to start before backend
       - chromadb
 

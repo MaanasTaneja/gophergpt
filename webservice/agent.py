@@ -13,6 +13,8 @@ from autonomy.tools.umn_courses_tool import umn_class_sections
 from autonomy.tools.web_search_tool import tavily_search
 from autonomy.tools.rag_tools import course_search
 
+from langchain_core.messages import ToolMessage
+
 import datetime
 
 
@@ -51,9 +53,20 @@ class ChatAgent:
         self.react_agent = ReActAgent(llm=self.llm, toolkit=self.toolkit,
                                       system_prompt=system_prompt)
 
-    async def invoke(self, message: str, history: list = []) -> str:
+    async def invoke_with_trace(self, message: str, history: list = []):
+        """Same as invoke(), but also returns what tools ran and what they returned."""
         capped_history = history[-10:] if len(history) > 10 else history
         messages = capped_history + [{"role": "user", "content": message}]
         final_state = await self.react_agent.invoke_agent({"messages": messages})
         generation = final_state["messages"][-1].content
-        return generation
+        trace = [
+            {"name": m.name, "output": m.content}
+            for m in final_state["messages"]
+            if isinstance(m, ToolMessage)
+        ]
+        return generation, trace
+
+    async def invoke(self, message: str, history: list = []) -> str:
+        text, _ = await self.invoke_with_trace(message, history)
+        return text
+    

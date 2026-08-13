@@ -12,6 +12,9 @@ from pathlib import Path
 from datetime import datetime
 import requests
 
+# Cap on the serialized card payload stored per result (chars).
+MAX_PAYLOAD_CHARS = 8000
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -132,6 +135,8 @@ def run_case(case, base_url, timeout, global_must_not):
     error = None
     response_text = ""
     content_types = []
+    content_payload = None
+    tool_outputs = None
     latency_ms = 0
     tools_used = None
 
@@ -158,9 +163,19 @@ def run_case(case, base_url, timeout, global_must_not):
                     if "summary" in item:
                         response_text += " " + item.get("summary", "")
 
+                # Card paths (grades/compare/schedule/research/prof_compare) put the
+                # substance of the answer in the structured payload, not in `response`
+                # or `summary`. Capture it so the judge can score what the user
+                # actually sees. Truncated — a dept payload can run ~110KB.
+                content_payload = json.dumps(data["content"])[:MAX_PAYLOAD_CHARS]
+
             # Extract tools_used if available
             if "tools_used" in data:
                 tools_used = data["tools_used"]
+            # The agent's tool calls and what they returned. Card paths answer
+            # without the agent, so this is absent there — expected, not a failure.
+            if "tool_outputs" in data:
+                tool_outputs = json.dumps(data["tool_outputs"])[:MAX_PAYLOAD_CHARS]
 
     except requests.exceptions.Timeout:
         error = f"Timeout after {timeout}s"
@@ -197,8 +212,10 @@ def run_case(case, base_url, timeout, global_must_not):
         "question": question,
         "user_id": user_id,
         "response": response_text[:500],  # Truncate for readability
+        "tool_outputs": tool_outputs,
         "checked_text": response_text,
         "content_types": content_types,
+        "content_payload": content_payload,
         "latency_ms": latency_ms,
         "error": error,
         "checks": {
