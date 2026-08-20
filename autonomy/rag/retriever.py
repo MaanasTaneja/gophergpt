@@ -1,10 +1,18 @@
 from openai import AsyncOpenAI
+import asyncio
 import os
 
 from autonomy.rag.embedder import embed_text
 from autonomy.rag.vector_store import query_collection
 
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_KEY"))
+
+# Hard ceiling on the ChromaDB round trip. The chroma client is synchronous
+# and was being called directly from this coroutine, so a stalled socket read
+# blocked uvicorn's event loop and took the WHOLE backend down until restart
+# (confirmed by py-spy: httpcore read -> HttpClient.__init__ on MainThread
+# inside asyncio_run). Degrading to "no results" is always better than that.
+RAG_TIMEOUT_S = float(os.getenv("RAG_TIMEOUT_S", "10"))
 
 
 async def rewrite_query(question: str, history: list[dict]) -> str:
@@ -81,6 +89,24 @@ async def retrieve(question: str, history: list[dict] = [], top_k: int = 5, wher
         question = await rewrite_query(question, history)
     
     embedded = await embed_text(question)
-    chunks = query_collection(query_embedding=embedded, top_k=top_k, where=where)
-    
+
+    # Off the event loop, and time-boxed: query_collection() is sync and its
+    # underlying httpx read has no timeout of its own.
+    try:
+        chunks = await asyncio.wait_for(
+            asyncio.to_thread(
+                query_collection,
+                query_embedding=embedded,
+                top_k=top_k,
+                where=where,
+            ),
+            timeout=RAG_TIMEOUT_S,
+        )
+    except asyncio.TimeoutError:
+        print(f"WARNING: ChromaDB query exceeded {RAG_TIMEOUT_S}s - returning no chunks")
+        chunks = []
+    except Exception as e:
+        print(f"WARNING: ChromaDB query failed: {e} - returning no chunks")
+        chunks = []
+
     return chunks, question 

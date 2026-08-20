@@ -1,4 +1,6 @@
 import os
+import threading
+
 import chromadb
 
 
@@ -9,15 +11,27 @@ CHROMA_PORT = int(os.getenv("CHROMA_PORT", 8000))
 # collection name...
 COLLECTION_NAME = "umn_docs"
 
-# 
+_client = None
+_client_lock = threading.Lock()
+
+
 def get_client():
     """
-    Creates and returns a ChromaDB HTTP client using the host and port from environment variables.
+    Returns a shared ChromaDB HTTP client, creating it on first use.
 
-    Returns:
-        a chromadb.HttpClient connected to the ChromaDB service
+    Cached deliberately: constructing chromadb.HttpClient performs a blocking
+    get_user_identity() handshake (chromadb/api/client.py:79). The previous
+    version built a fresh client on EVERY query, so every course_search paid
+    for that round trip -- and when one of them never came back, the read
+    blocked forever with no timeout. Callers must keep this off the event
+    loop; see retriever.retrieve().
     """
-    return chromadb.HttpClient(host = CHROMA_HOST, port = CHROMA_PORT)
+    global _client
+    if _client is None:
+        with _client_lock:
+            if _client is None:
+                _client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
+    return _client
 
 
 def get_collection():

@@ -90,7 +90,8 @@ verdict — fail if the response contains a hallucinated fact, misses the actual
 question, or leaks internal tool names. Keep your rationale short and specific."""
 
 # Building per-case user message
-def format_case_prompt(result: dict, golden_case: dict | None, profile_notes: str | None) -> str:
+def format_case_prompt(result: dict, golden_case: dict | None, profile_notes: str | None,
+                       show_checks: bool = False) -> str:
     lines = [
         f"Question: {result['question']}",
         f"Intent: {result.get('intent')}",
@@ -108,13 +109,17 @@ def format_case_prompt(result: dict, golden_case: dict | None, profile_notes: st
     if golden_case and golden_case.get("notes"):
         lines.append(f"Ground truth hint: {golden_case['notes']}")
 
-    checks = result.get("checks", {})
-    if checks.get("missing_groups") or checks.get("forbidden_found"):
-        lines.append(
-            "Note: automated checks already flagged issues — "
-            f"missing required terms: {checks.get('missing_groups')}, "
-            f"forbidden terms found: {checks.get('forbidden_found')}"
-        )
+    # Off by default: telling the judge what the substring checks already found
+    # anchors it to those checks, so the regex layer and the LLM layer stop
+    # being independent signals. Re-enable only to debug a specific case.
+    if show_checks:
+        checks = result.get("checks", {})
+        if checks.get("missing_groups") or checks.get("forbidden_found"):
+            lines.append(
+                "Note: automated checks already flagged issues — "
+                f"missing required terms: {checks.get('missing_groups')}, "
+                f"forbidden terms found: {checks.get('forbidden_found')}"
+            )
 
     lines.append(f"\nAssistant's full response text:\n{result.get('checked_text', '')}")
 
@@ -149,13 +154,14 @@ def load_golden_lookup(golden_path: Path):
     return cases_by_id, profiles_by_user
 
 # Scoring loop
-def judge_result(judge_llm, result: dict, cases_by_id: dict, profiles_by_user: dict) -> dict:
+def judge_result(judge_llm, result: dict, cases_by_id: dict, profiles_by_user: dict,
+                 show_checks: bool = False) -> dict:
     if result.get("error"):
         return {"error": f"skipped - eval_runner reported: {result['error']}"}
 
     golden_case = cases_by_id.get(result["id"])
     profile_notes = profiles_by_user.get(result.get("user_id"))
-    user_prompt = format_case_prompt(result, golden_case, profile_notes)
+    user_prompt = format_case_prompt(result, golden_case, profile_notes, show_checks)
 
     try:
         score = judge_llm.invoke([
@@ -207,6 +213,11 @@ def main():
     parser.add_argument("--filter", help="Only judge cases with this intent")
     parser.add_argument("--id", help="Only judge a single case ID")
     parser.add_argument("--out", help="Output path (default: <run>_judged.json)")
+    parser.add_argument(
+        "--show-checks",
+        action="store_true",
+        help="Leak the substring-check verdict to the judge (anchors it; off by default)",
+    )
     args = parser.parse_args()
 
     load_dotenv()
@@ -230,7 +241,11 @@ def main():
 
     for i, result in enumerate(results, 1):
         print(f"[{i}/{len(results)}] judging {result['id']}...", file=sys.stderr)
-        result["judge"] = judge_result(judge_llm, result, cases_by_id, profiles_by_user)
+        result["judge"] = judge_result(
+            judge_llm, result, cases_by_id, profiles_by_user, args.show_checks
+        )
+
+    run_data["judge_config"] = {"model": args.model, "show_checks": args.show_checks}
 
     out_path = Path(args.out) if args.out else run_path.with_name(run_path.stem + "_judged.json")
     with open(out_path, "w") as f:

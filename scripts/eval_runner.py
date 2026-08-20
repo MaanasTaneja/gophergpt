@@ -4,7 +4,10 @@ Eval runner: fire golden-set cases at /chat, log results with checks.
 """
 
 import argparse
+import hashlib
 import json
+import re
+import os
 import sys
 import time
 import subprocess
@@ -14,6 +17,71 @@ import requests
 
 # Cap on the serialized card payload stored per result (chars).
 MAX_PAYLOAD_CHARS = 8000
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+SYSTEM_PROMPT_PATH = REPO_ROOT / "webservice" / "prompts" / "system.md"
+
+
+def read_git_sha() -> str:
+    """Resolve the current commit without needing the git binary.
+
+    The eval container has .git bind-mounted but no git installed, so shelling
+    out to `git rev-parse` silently produced "unknown" on every historical run.
+    Parse .git directly, and let GIT_SHA override for CI.
+    """
+    env_sha = os.getenv("GIT_SHA")
+    if env_sha:
+        return env_sha.strip()[:12]
+
+    git_dir = REPO_ROOT / ".git"
+    try:
+        head = (git_dir / "HEAD").read_text().strip()
+        if head.startswith("ref: "):
+            ref = head[5:].strip()
+            ref_file = git_dir / ref
+            if ref_file.exists():
+                return ref_file.read_text().strip()[:12]
+            # Branch ref may be packed instead of a loose file.
+            packed = git_dir / "packed-refs"
+            if packed.exists():
+                for line in packed.read_text().splitlines():
+                    if line.startswith("#") or not line.strip():
+                        continue
+                    parts = line.split()
+                    if len(parts) == 2 and parts[1] == ref:
+                        return parts[0][:12]
+        else:
+            return head[:12]  # detached HEAD
+    except Exception:
+        pass
+
+    try:
+        return (
+            subprocess.check_output(["git", "rev-parse", "--short", "HEAD"])
+            .decode()
+            .strip()
+        )
+    except Exception:
+        return "unknown"
+
+
+def prompt_fingerprint() -> dict:
+    """Identify which system prompt served this run.
+
+    The A/B gate compares prompt variants, so a run is meaningless unless we
+    can prove which prompt the backend actually had loaded. Mismatched
+    fingerprints between two arms is the signal; identical ones mean the
+    container never picked up the edit.
+    """
+    try:
+        raw = SYSTEM_PROMPT_PATH.read_bytes()
+    except Exception as e:
+        return {"error": str(e)}
+    return {
+        "sha256": hashlib.sha256(raw).hexdigest()[:12],
+        "chars": len(raw),
+        "approx_tokens": len(raw) // 4,
+    }
 
 
 def main():
@@ -31,6 +99,11 @@ def main():
     parser.add_argument("--out-dir", default="evals/results", help="Output directory")
     parser.add_argument(
         "--timeout", type=int, default=120, help="Request timeout in seconds"
+    )
+    parser.add_argument(
+        "--label",
+        default=os.getenv("EVAL_LABEL", ""),
+        help="Arm name for A/B runs, e.g. 'baseline' or 'trimmed'",
     )
     args = parser.parse_args()
 
@@ -87,18 +160,12 @@ def main():
         elif not result["checks"]["passed"]:
             failed_count += 1
 
-    # Get git SHA
-    try:
-        git_sha = (
-            subprocess.check_output(["git", "rev-parse", "--short", "HEAD"])
-            .decode()
-            .strip()
-        )
-    except:
-        git_sha = "unknown"
+    git_sha = read_git_sha()
 
     # Write results
     run_id = datetime.now().strftime("run_%Y%m%d_%H%M%S")
+    if args.label:
+        run_id += "_" + re.sub(r"[^A-Za-z0-9._-]", "-", args.label)
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -107,6 +174,8 @@ def main():
         "timestamp": datetime.now().isoformat(),
         "base_url": args.base_url,
         "git_sha": git_sha,
+        "label": args.label,
+        "system_prompt": prompt_fingerprint(),
         "num_cases": len(results),
         "results": results,
     }
@@ -126,6 +195,7 @@ def run_case(case, base_url, timeout, global_must_not):
     """Run a single case."""
     case_id = case["id"]
     question = case["question"]
+    case_path = case.get("path", "agent")
     user_id = case.get("user_id")
     expected_tools = case.get("expected_tools", [])
     expected_content_types = case.get("expected_content_types", [])
@@ -225,7 +295,9 @@ def run_case(case, base_url, timeout, global_must_not):
             "passed": passed,
         },
         "expected_tools": expected_tools,
+        "expected_content_types": expected_content_types,
         "tools_used": tools_used,
+        "path": case_path,
         "judge": None,
     }
 

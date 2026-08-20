@@ -56,26 +56,47 @@ def check_filler(response: str) -> str:
 
 def check_prof_rating(response: str, message: str) -> str:
     """
-    Checks the message for mentions of professor
+    Nudges professor answers toward including a rating, without destroying them.
 
     Args:
         response: the response from agent, before showing user
         message: the query from the user
 
     Returns:
-        the original response unchanged if a rating is found or the question isn't about a professor, 
-        else a fallback message prompting the user to ask more specifically.
+        the original response whenever it actually answered something, else a
+        fallback prompting the user to ask more specifically.
+
+    NOTE (Dev A / Phase 3 "soften destructive guardrails"): the original version
+    replaced the ENTIRE response whenever a prof-related message came back
+    without a literal `X/5`. That nuked correct answers — "who is the easiest
+    professor for PSY 1001" (answered with A/B rates per instructor) and "tell
+    me about the professors in the CSCI department" (answered with the
+    Department Explorer redirect) are both right and neither can contain a
+    rating. Now the fallback only fires when the response carries no substance
+    at all.
     """
 
     prof_keywords = ["professor", "prof", "instructor", "teacher", "who teaches"]
 
-    for keyword in prof_keywords:
-        if keyword in message.lower():
-            if not re.search(r'\d+\.?\d*/5', response):
-                return "I wasn't able to find a rating for that professor. " \
-                "Try asking about a specific professor by name."
-        
-    return response
+    if not any(keyword in message.lower() for keyword in prof_keywords):
+        return response
+
+    if re.search(r'\d+\.?\d*/5', response):
+        return response
+
+    # No explicit rating — keep the answer anyway if it carries real content:
+    # grade stats, a course list, or the department redirect.
+    has_substance = (
+        re.search(r'\d+\s?%', response)                 # any percentage
+        or re.search(r'\bGPA\b', response, re.I)         # a GPA figure
+        or re.search(r'\b[A-Z]{2,5}\s?\d{4}\b', response)  # a course code
+        or "department explorer" in response.lower()     # intentional redirect
+    )
+    if has_substance:
+        return response
+
+    return "I wasn't able to find a rating for that professor. " \
+        "Try asking about a specific professor by name."
 
 
 def run_guardrails(response: str, message: str) -> str:
