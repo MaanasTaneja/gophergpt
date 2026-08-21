@@ -1,5 +1,5 @@
 import React from "react";
-import { formatBotMessage } from "../utils/messageFormatter";
+import { formatBotMessage, escapeHtml } from "../utils/messageFormatter";
 import { GoldyMascot } from "./GoldyMascot";
 import RichContent from "./RichContent";
 

@@ -1,4 +1,3 @@
-version: '3.9'
 services:
   backend:
     build:
@@ -13,7 +12,9 @@ services:
     restart: always
     volumes:
       - ./webservice/data:/app/data
-  
+    depends_on:        # wait for chromadb container to start before backend
+      - chromadb
+
   frontend:
     build:
       context: ./frontend
@@ -24,7 +25,16 @@ services:
     depends_on: #link both services, and change in react app to access instead of local host to backend, 
     #compose and docker do all the dns stuff for us.
       - backend
-    restart : always 
+    restart: always
 
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: gophergpt-chromadb
+    ports:
+      - "8001:8000"   # exposes to host for debugging; backend uses internal DNS (http://chromadb:8000)
+    volumes:
+      - chroma_data:/chroma/chroma   # named volume — persists across container restarts
+    restart: always
 
-
+volumes:
+  chroma_data:        # docker manages this — use `docker volume rm gophergpt_chroma_data` to reset

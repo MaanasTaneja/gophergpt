@@ -186,9 +186,13 @@ export function formatBotMessage(raw) {
                             headerHtml = `<strong class="msg-group-label">${escapeHtml(b.text)}</strong>`;
                         } else {
                             const bl = b.text.match(/^\*\*(.+?)\*\*[:\s]*(.*)/);
-                            const label = escapeHtml(bl[1]);
-                            const rest = bl[2] ? processInline(bl[2]) : "";
-                            headerHtml = `<strong>${label}</strong>${rest ? `: ${rest}` : ""}`;
+                            if (bl) {
+                                const label = escapeHtml(bl[1]);
+                                const rest = bl[2] ? processInline(bl[2]) : "";
+                                headerHtml = `<strong>${label}</strong>${rest ? `: ${rest}` : ""}`;
+                            } else {
+                                headerHtml = escapeHtml(b.text);
+                            }
                         }
 
                         if (subs.length > 0) {
