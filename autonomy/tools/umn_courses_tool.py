@@ -1,9 +1,7 @@
 import os
 import json
+import httpx
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
-from urllib.error import HTTPError, URLError
-
 from langchain.tools import tool
 
 def _parse_time(t) -> int | None:
@@ -25,18 +23,16 @@ def _parse_time(t) -> int | None:
     return val * 60
 
 
-def _get_json(url: str, timeout: int = 12) -> dict:
-    req = Request(url, headers={"User-Agent": "gophergpt/1.0"})
+async def _get_json(url: str, timeout: int = 12) -> dict:
     try:
-        with urlopen(req, timeout=timeout) as resp:
-            data = resp.read().decode("utf-8")
-            return json.loads(data)
-    except HTTPError as e:
-        return {"success": False, "error": f"HTTPError {e.code}: {e.reason}", "url": url}
-    except URLError as e:
-        return {"success": False, "error": f"URLError: {e.reason}", "url": url}
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers={"User-Agent": "gophergpt/1.0"}, timeout=timeout)
+            resp.raise_for_status()
+            return resp.json()
+    except httpx.HTTPStatusError as e:
+        return {"success": False, "error": f"HTTPError {e.response.status_code}", "url": url}
     except Exception as e:
-        return {"success": False, "error": f"Unknown error: {str(e)}", "url": url}
+        return {"success": False, "error": str(e), "url": url}
     
 def resolve_sterm(term_str: str) -> str:
     term_norm = term_str.lower().strip()
@@ -51,7 +47,7 @@ def resolve_sterm(term_str: str) -> str:
     return str((year - 1900) * 10 + digit)
 
 @tool
-def umn_class_sections(subject: str, catalog_number: str, term: str) -> str:
+async def umn_class_sections(subject: str, catalog_number: str, term: str) -> str:
     """
     Get live section info for a UMN course.
     Input: subject like "CSCI", catalog_number like "1933", term like "fall 2026"
@@ -61,7 +57,7 @@ def umn_class_sections(subject: str, catalog_number: str, term: str) -> str:
     sterm = resolve_sterm(term)
     url = f"https://courses.umn.edu/campuses/UMNTC/terms/{sterm}/courses.json?q=catalog_number={catalog_number},subject_id={subject.upper()}"
 
-    data = _get_json(url)
+    data = await _get_json(url)
     if "success" in data and data["success"] is False:
         return json.dumps(data)
     

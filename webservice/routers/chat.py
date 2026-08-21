@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import re
+import asyncio
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
@@ -56,30 +57,28 @@ def _extract_term(message: str) -> str:
         return f"fall {year}"
     return f"spring {year + 1}"
 
-def _fetch_schedule_data(course_codes: list, term: str) -> list:
-    courses = []
-    for code in course_codes[:4]:
-        m = re.match(r'^([A-Z]+)(\d+)', code)
-        if not m:
-            continue
-        subject = m.group(1)
-        catalog_number = m.group(2)
-        try:
-            sections_json = umn_class_sections.invoke({
-                "subject": subject,
-                "catalog_number": catalog_number,
-                "term": term
-            })
-            sections = json.loads(sections_json)
-            if isinstance(sections, list) and len(sections) > 0:
-                courses.append({
-                    "code": code,
-                    "term": term,
-                    "sections": sections
-                })
-        except Exception:
-            pass
-    return courses
+async def _fetch_one(code: str, term: str) -> dict | None:
+    m = re.match(r'^([A-Z]+)(\d+)', code)
+    if not m:
+        return None
+    subject = m.group(1)
+    catalog_number = m.group(2)
+    try:
+        sections_json = await umn_class_sections.ainvoke({
+            "subject": subject,
+            "catalog_number": catalog_number,
+            "term": term
+        })
+        sections = json.loads(sections_json)
+        if isinstance(sections, list) and len(sections) > 0:
+            return {"code": code, "term": term, "sections": sections}
+    except Exception:
+        pass
+    return None
+
+async def _fetch_schedule_data(course_codes: list, term: str) -> list:
+    results = await asyncio.gather(*[_fetch_one(code, term) for code in course_codes[:4]])
+    return [r for r in results if r is not None]
 
 class ChatRequest(BaseModel):
 
