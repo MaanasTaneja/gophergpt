@@ -114,8 +114,7 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: userMessage,
-          conversation_id: conversationId.current,
-          user_id: userId.current,
+          conversation_id: conversationId.current
         }),
         signal: controller.signal,
       });

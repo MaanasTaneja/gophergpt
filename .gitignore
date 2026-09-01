@@ -1,3 +1,8 @@
 node_modules/
 .DS_Store
 .env
+webservice/data/conversations.json
+webservice/data/profiles.json
+webservice/data/gophergpt.db
+
+autonomy/rag/data/courses.csv
