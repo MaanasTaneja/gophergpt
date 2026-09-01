@@ -15,7 +15,8 @@ RUN pip install --no-build-isolation --no-deps . || pip install \
     "streamlit>=1.49.1,<2.0.0" \
     "fastapi>=0.118.2,<0.119.0" \
     "uvicorn>=0.37.0,<0.38.0" \
-    "chromadb>=0.6.0" \
+    "pgvector>=0.3.0" \
+    "psycopg2-binary>=2.9.0" \
     "httpx>=0.27.0" \
     "beautifulsoup4>=4.12.0" \
     "sqlalchemy>=2.0.51,<3.0.0" \

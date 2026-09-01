@@ -5,15 +5,13 @@ from pgvector.psycopg2 import register_vector
 
 
 def _get_conn():
-    conn = psycopg2.connect(
+    return psycopg2.connect(
         host=os.getenv("POSTGRES_HOST", "postgres"),
         port=int(os.getenv("POSTGRES_PORT", 5432)),
         user=os.getenv("POSTGRES_USER", "gophergpt"),
         password=os.getenv("POSTGRES_PASSWORD", "gophergpt"),
         dbname=os.getenv("POSTGRES_DB", "gophergpt")
     )
-    register_vector(conn)
-    return conn
 
 
 def init_db() -> None:
@@ -24,6 +22,7 @@ def init_db() -> None:
     with _get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute("CREATE EXTENSION IF NOT EXISTS vector")
+            register_vector(conn)
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS embeddings (
                     id          TEXT PRIMARY KEY,
@@ -59,6 +58,7 @@ def upsert_chunks(chunks: list[dict], embeddings: list[list[float]]) -> None:
         for chunk, embedding in zip(chunks, embeddings)
     ]
     with _get_conn() as conn:
+        register_vector(conn)
         with conn.cursor() as cur:
             execute_values(cur, """
                 INSERT INTO embeddings (id, text, source_url, source_name, scraped_at, chunk_index, embedding)
@@ -84,6 +84,7 @@ def query_collection(query_embedding: list[float], top_k: int = 5, where: dict |
         list of dicts each with keys: text, source_url, source_name, distance (lower = more similar)
     """
     with _get_conn() as conn:
+        register_vector(conn)
         with conn.cursor() as cur:
             if where and "source_url" in where:
                 cur.execute("""
