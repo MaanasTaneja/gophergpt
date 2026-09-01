@@ -13,7 +13,7 @@ from webservice.routers.profile import router as profile_router
 from webservice.profile_store import init_store
 from webservice.agent import ChatAgent
 from autonomy.rag.indexer import run_indexing
-from autonomy.rag.vector_store import get_client, get_collection
+from autonomy.rag.vector_store import init_db
 from autonomy.tools.gophergrades_api import gophergrades_search, gophergrades_prof
 
 
@@ -23,14 +23,11 @@ async def lifespan_function(app: FastAPI):
     dependencies.gopher_assistant = ChatAgent()
 
     try:
-        get_client()
-        print("ChromaDB connected successfully.")
-        collection = get_collection()
-        if collection.count() == 0:
-            print("Collection is empty — running indexer...")
-            asyncio.create_task(run_indexing())
+        init_db()
+        print("PostgreSQL connected and schema ready.")
+        asyncio.create_task(run_indexing())
     except Exception as e:
-        print(f"WARNING: ChromaDB connection failed: {e}")
+        print(f"WARNING: PostgreSQL connection failed: {e}")
 
     yield
 

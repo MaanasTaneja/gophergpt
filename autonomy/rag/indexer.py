@@ -35,6 +35,13 @@ async def index_source(documents: list[dict]) -> None:
 
     for document in documents:
         chunks = chunk_text(document["text"])
+
+        # prints which course is being indexed, comment out when unneeded
+        print(f"Indexing: {document['source_url']}")
+
+        # if want text, instead of using course
+        # print(f"Indexing: {document['source_url']}, {document["text"]}")
+
         
         for chunk in chunks:
             chunk["source_url"] = document["source_url"]
